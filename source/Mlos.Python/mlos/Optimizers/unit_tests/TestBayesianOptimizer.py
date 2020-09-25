@@ -13,11 +13,12 @@ import numpy as np
 import pandas as pd
 
 from mlos.Logger import create_logger
-from mlos.Tracer import Tracer, trace
 
 import mlos.global_values as global_values
 from mlos.Grpc.OptimizerMicroserviceServer import OptimizerMicroserviceServer
-from mlos.Optimizers.BayesianOptimizer import BayesianOptimizer, bayesian_optimizer_config_store
+from mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions import quadratic
+from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
+from mlos.Optimizers.BayesianOptimizerConfigStore import bayesian_optimizer_config_store
 from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.GlowWormSwarmOptimizer import GlowWormSwarmOptimizer
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
@@ -25,16 +26,9 @@ from mlos.Optimizers.OptimizerBase import OptimizerBase
 from mlos.Optimizers.OptimumDefinition import OptimumDefinition
 from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel import HomogeneousRandomForestRegressionModel
-from mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions import quadratic
-from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
-
+from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Spaces import SimpleHypergrid, ContinuousDimension
-from mlos.Tracer import trace, traced
-
-from mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions import quadratic
-from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
-
-import mlos.global_values as global_values
+from mlos.Tracer import Tracer, trace, traced
 
 
 class TestBayesianOptimizer(unittest.TestCase):
@@ -127,7 +121,7 @@ class TestBayesianOptimizer(unittest.TestCase):
             optimizer_config=bayesian_optimizer_config_store.default
         )
 
-        optimizers = [local_optimizer]#, remote_optimizer]
+        optimizers = [local_optimizer, remote_optimizer]
         for bayesian_optimizer in optimizers:
             # A call to .optimum() should throw before we feed any data to the optimizer.
             #
@@ -156,7 +150,7 @@ class TestBayesianOptimizer(unittest.TestCase):
                 target_values_df = pd.DataFrame({'y': [target_value]})
 
                 # Register the observation with the optimizer
-                bayesian_optimizer.register(input_values_df, target_values_df)
+                bayesian_optimizer.register(feature_values_pandas_frame=input_values_df, target_values_pandas_frame=target_values_df)
 
             best_config_point, best_objective = bayesian_optimizer.optimum()
             print(f"Optimum config: {best_config_point}, optimum objective: {best_objective}")
@@ -183,7 +177,7 @@ class TestBayesianOptimizer(unittest.TestCase):
         with self.assertRaises(ValueError):
             bayesian_optimizer.optimum()
 
-        bayesian_optimizer.register(pd.DataFrame({'x': [0.]}), pd.DataFrame({'y': [1.]}))
+        bayesian_optimizer.register(feature_values_pandas_frame=pd.DataFrame({'x': [0.]}), target_values_pandas_frame=pd.DataFrame({'y': [1.]}))
         bayesian_optimizer.optimum()
 
     @trace()
@@ -231,7 +225,7 @@ class TestBayesianOptimizer(unittest.TestCase):
             optimizer_config=optimizer_config
         )
 
-        for bayesian_optimizer in [local_optimizer]: #], remote_optimizer]:
+        for bayesian_optimizer in [local_optimizer, remote_optimizer]:
             num_iterations = 62
             old_optimum = np.inf
             for i in range(num_iterations):
@@ -243,7 +237,7 @@ class TestBayesianOptimizer(unittest.TestCase):
                 input_values_df = pd.DataFrame({param_name: [param_value] for param_name, param_value in suggested_params_dict.items()})
                 target_values_df = pd.DataFrame({'y': [target_value]})
 
-                bayesian_optimizer.register(input_values_df, target_values_df)
+                bayesian_optimizer.register(feature_values_pandas_frame=input_values_df, target_values_pandas_frame=target_values_df)
                 if i > optimizer_config.min_samples_required_for_guided_design_of_experiments and i % 10 == 1:
                     _, all_targets = bayesian_optimizer.get_all_observations()
                     best_config, optimum = bayesian_optimizer.optimum(optimum_definition=OptimumDefinition.BEST_OBSERVATION)
@@ -326,7 +320,7 @@ class TestBayesianOptimizer(unittest.TestCase):
                 optimizer_config=optimizer_config
             )
 
-            for bayesian_optimizer in [local_optimizer]: #, remote_optimizer]:
+            for bayesian_optimizer in [local_optimizer, remote_optimizer]:
                 num_guided_samples = 50
                 for i in range(num_guided_samples):
                     suggested_params = bayesian_optimizer.suggest()
@@ -338,7 +332,7 @@ class TestBayesianOptimizer(unittest.TestCase):
                         for param_name, param_value in suggested_params
                     })
                     target_values_df = y.to_dataframe()
-                    bayesian_optimizer.register(input_values_df, target_values_df)
+                    bayesian_optimizer.register(feature_values_pandas_frame=input_values_df, target_values_pandas_frame=target_values_df)
                 best_config_point, best_objective = bayesian_optimizer.optimum(optimum_definition=OptimumDefinition.BEST_OBSERVATION)
                 print(f"[Restart:  {restart_num}/{num_restarts}] Optimum config: {best_config_point}, optimum objective: {best_objective}")
                 self.validate_optima(optimizer=bayesian_optimizer)
@@ -399,7 +393,7 @@ class TestBayesianOptimizer(unittest.TestCase):
                 optimizer_config=optimizer_config
             )
 
-            for bayesian_optimizer in [local_optimizer]: #, remote_optimizer]:
+            for bayesian_optimizer in [local_optimizer, remote_optimizer]:
                 num_guided_samples = optimizer_config.min_samples_required_for_guided_design_of_experiments + 10
                 for i in range(num_guided_samples):
                     suggested_params = bayesian_optimizer.suggest()
@@ -411,7 +405,7 @@ class TestBayesianOptimizer(unittest.TestCase):
                         for param_name, param_value in suggested_params
                     })
                     target_values_df = y.to_dataframe()
-                    bayesian_optimizer.register(input_values_df, target_values_df)
+                    bayesian_optimizer.register(feature_values_pandas_frame=input_values_df,target_values_pandas_frame=target_values_df)
 
                 best_config_point, best_objective = bayesian_optimizer.optimum(optimum_definition=OptimumDefinition.BEST_OBSERVATION)
                 print(f"[Restart:  {restart_num}/{num_restarts}] Optimum config: {best_config_point}, optimum objective: {best_objective}")
@@ -429,21 +423,44 @@ class TestBayesianOptimizer(unittest.TestCase):
         assert original_config.experiment_designer_config.fraction_random_suggestions == .5
 
     def validate_optima(self, optimizer: OptimizerBase):
-        should_raise = False
+        should_raise_for_predicted_value = False
+        should_raise_for_confidence_bounds = False
         if not optimizer.get_surrogate_model_fit_state().fitted:
-            should_raise = True
+            should_raise_for_predicted_value = True
+            should_raise_for_confidence_bounds = True
         else:
             features_df, _ = optimizer.get_all_observations()
             predictions = optimizer.predict(feature_values_pandas_frame=features_df)
-            if len(predictions.get_dataframe().index) == 0:
-                should_raise = True
+            predictions_df = predictions.get_dataframe()
+
+            if len(predictions_df.index) == 0:
+                should_raise_for_predicted_value = True
+                should_raise_for_confidence_bounds = True
+
+            # Drop nulls and zeroes.
+            #
+            predictions_df = predictions_df[
+                predictions_df[Prediction.LegalColumnNames.PREDICTED_VALUE_DEGREES_OF_FREEDOM.value].notna() &
+                predictions_df[Prediction.LegalColumnNames.PREDICTED_VALUE_DEGREES_OF_FREEDOM.value] != 0
+            ]
+
+            if len(predictions_df.index) == 0:
+                should_raise_for_confidence_bounds = True
 
 
-        if should_raise:
+        if should_raise_for_predicted_value:
+
+            self.assertTrue(should_raise_for_confidence_bounds)
+
             # Computing prediction based optima should fail if the surrogate model is not fitted.
             #
             with self.assertRaises(ValueError):
                 optimizer.optimum(OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG)
+
+        else:
+            predicted_best_config, predicted_optimum = optimizer.optimum(OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG)
+
+        if should_raise_for_confidence_bounds:
 
             with self.assertRaises(ValueError):
                 optimizer.optimum(OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG)
@@ -451,7 +468,6 @@ class TestBayesianOptimizer(unittest.TestCase):
             with self.assertRaises(ValueError):
                 optimizer.optimum(OptimumDefinition.LOWER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG)
         else:
-            predicted_best_config, predicted_optimum = optimizer.optimum(OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG)
             ucb_90_ci_config, ucb_90_ci_optimum = optimizer.optimum(OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG, alpha=0.1)
             ucb_95_ci_config, ucb_95_ci_optimum = optimizer.optimum(OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG, alpha=0.05)
             ucb_99_ci_config, ucb_99_ci_optimum = optimizer.optimum(OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG, alpha=0.01)

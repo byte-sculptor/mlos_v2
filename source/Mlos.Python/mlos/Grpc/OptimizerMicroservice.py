@@ -39,7 +39,7 @@ class OptimizerMicroservice(OptimizerService_pb2_grpc.OptimizerServiceServicer):
         return str(uuid.uuid4())
 
     @contextmanager
-    def exclusive_optimizer(self, optimizer_id):
+    def exclusive_optimizer(self, optimizer_id) -> BayesianOptimizer:
         """ Context manager to acquire the optimizer lock and yield the corresponding optimizer.
 
         This makes sure that:
@@ -133,7 +133,19 @@ class OptimizerMicroservice(OptimizerService_pb2_grpc.OptimizerServiceServicer):
         objective_values_dataframe = pd.DataFrame(objective_values, index=[0])
 
         with self.exclusive_optimizer(optimizer_id=request.OptimizerHandle.Id) as optimizer:
-            optimizer.register(feature_values_dataframe, objective_values_dataframe)
+            optimizer.register(feature_values_pandas_frame=feature_values_dataframe, target_values_pandas_frame=objective_values_dataframe)
+
+        return Empty()
+
+    def RegisterObservations(self, request, context): # pylint: disable=unused-argument
+        # TODO: stop ignoring context
+        #
+        observations = request.Observations
+        features_df = pd.read_json(observations.Features.FeaturesJsonString, orient='index')
+        objectives_df = pd.read_json(observations.ObjectiveValues.ObjectiveValuesJsonString, orient='index')
+
+        with self.exclusive_optimizer(optimizer_id=request.OptimizerHandle.Id) as optimizer:
+            optimizer.register(feature_values_pandas_frame=features_df, target_values_pandas_frame=objectives_df)
 
         return Empty()
 

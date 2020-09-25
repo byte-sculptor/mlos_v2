@@ -66,25 +66,15 @@ class BayesianOptimizerProxy(OptimizerBase):
         return Point(**suggested_params_dict)
 
     @trace()
-    def register(self, feature_values_pandas_frame, target_values_pandas_frame):  # pylint: disable=unused-argument
-        # TODO: implement RegisterObservations <- plural
-        #
-        features_dicts_per_record = feature_values_pandas_frame.to_dict(orient='records')
-        objectives_dicts_per_record = target_values_pandas_frame.to_dict(orient='records')
-
-        # TODO: Either implement streaming or arrow flight or batch.
-        #
-        for feature_dict, objective_dict in zip(features_dicts_per_record, objectives_dicts_per_record):
-            register_request = OptimizerService_pb2.RegisterObservationRequest(
-                OptimizerHandle=self.optimizer_handle,
-                Observation=OptimizerService_pb2.Observation(
-                    Features=OptimizerService_pb2.Features(FeaturesJsonString=json.dumps(feature_dict)),
-                    ObjectiveValues=OptimizerService_pb2.ObjectiveValues(ObjectiveValuesJsonString=json.dumps(objective_dict))
-                )
+    def register(self, feature_values_pandas_frame, target_values_pandas_frame):
+        register_request = OptimizerService_pb2.RegisterObservationsRequest(
+            OptimizerHandle=self.optimizer_handle,
+            Observations= OptimizerService_pb2.Observations(
+                Features=OptimizerService_pb2.Features(FeaturesJsonString=feature_values_pandas_frame.to_json(orient='index', double_precision=15)),
+                ObjectiveValues=OptimizerService_pb2.ObjectiveValues(ObjectiveValuesJsonString=target_values_pandas_frame.to_json(orient='index', double_precision=15))
             )
-            self._optimizer_stub.RegisterObservation(register_request)
-
-        self.cached_predictions_for_observations = None
+        )
+        self._optimizer_stub.RegisterObservations(register_request)
 
     @trace()
     def get_all_observations(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
