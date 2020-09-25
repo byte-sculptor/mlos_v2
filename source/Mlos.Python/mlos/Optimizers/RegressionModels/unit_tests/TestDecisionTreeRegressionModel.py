@@ -10,8 +10,9 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 import mlos.global_values as global_values
+from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
+from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
 from mlos.Spaces import SimpleHypergrid, ContinuousDimension
 from mlos.Tracer import Tracer
 
@@ -35,9 +36,8 @@ class TestDecisionTreeRegressionModel(unittest.TestCase):
         # Let's create a simple linear mapping
         self.slope = 10
         self.y_intercept = 10
-        self.input_values = np.linspace(start=0, stop=100, num=1001, endpoint=True)
-        self.input_output_mapping = lambda input: input * self.slope + self.y_intercept
-        self.output_values = self.input_output_mapping(self.input_values)
+        self.input_values = np.linspace(start=0, stop=100, num=101, endpoint=True)
+        self.output_values = self.input_values * self.slope + self.y_intercept
 
         self.input_space = SimpleHypergrid(
             name="input",
@@ -63,20 +63,13 @@ class TestDecisionTreeRegressionModel(unittest.TestCase):
             input_space=self.input_space,
             output_space=self.output_space
         )
+        model.fit(self.input_pandas_dataframe, self.output_pandas_dataframe, iteration_number=len(self.input_pandas_dataframe.index))
+        gof_metrics = model.compute_goodness_of_fit(features_df=self.input_pandas_dataframe, target_df=self.output_pandas_dataframe, data_set_type=DataSetType.TRAIN)
+        print(gof_metrics)
 
-        for i in range(2):
-            model.fit(self.input_pandas_dataframe, self.output_pandas_dataframe, iteration_number=i)
-            print("Decision tree predictions")
-
-            sample_inputs = {'x': np.linspace(start=-10, stop=110, num=13, endpoint=True)}
-            sample_inputs_pandas_dataframe = pd.DataFrame(sample_inputs)
-            predictions = model.predict(sample_inputs_pandas_dataframe)
-            for sample_input, prediction in zip(sample_inputs_pandas_dataframe['x'], predictions.get_dataframe().iterrows()):
-                print(sample_input, self.input_output_mapping(sample_input), prediction)
 
     def test_random_decision_tree_models(self):
-        sample_inputs = {'x': np.linspace(start=-10, stop=110, num=13, endpoint=True)}
-        sample_inputs_pandas_dataframe = pd.DataFrame(sample_inputs)
+        sample_inputs_pandas_dataframe = self.input_space.random_dataframe(num_samples=100)
 
         num_iterations = 50
         for i in range(num_iterations):
@@ -89,8 +82,7 @@ class TestDecisionTreeRegressionModel(unittest.TestCase):
                 input_space=self.input_space,
                 output_space=self.output_space
             )
-            model.fit(self.input_pandas_dataframe, self.output_pandas_dataframe, iteration_number=i)
-            predictions = model.predict(sample_inputs_pandas_dataframe)
+            model.fit(self.input_pandas_dataframe, self.output_pandas_dataframe, iteration_number=len(sample_inputs_pandas_dataframe.index))
+            gof_metrics = model.compute_goodness_of_fit(features_df=self.input_pandas_dataframe, target_df=self.output_pandas_dataframe, data_set_type=DataSetType.TRAIN)
+            print(gof_metrics)
 
-            for sample_input, prediction in zip(sample_inputs_pandas_dataframe['x'], predictions.get_dataframe().iterrows()):
-                print(sample_input, self.input_output_mapping(sample_input), prediction)

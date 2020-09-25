@@ -119,7 +119,7 @@ class TestBayesianOptimizer(unittest.TestCase):
 
         local_optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
             optimization_problem=optimization_problem,
-            optimizer_config=bayesian_optimizer_config_store.default
+            optimizer_config=bayesian_optimizer_config_store.default,
         )
 
         remote_optimizer = self.bayesian_optimizer_factory.create_remote_optimizer(

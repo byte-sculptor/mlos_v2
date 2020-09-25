@@ -4,9 +4,10 @@
 #
 import numpy as np
 from mlos.Logger import create_logger
-from mlos.Spaces import CategoricalDimension, ContinuousDimension, Point, SimpleHypergrid
 from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
+from mlos.Spaces import CategoricalDimension, ContinuousDimension, Point, SimpleHypergrid
+from mlos.Spaces.Configs.ComponentConfigStore import ComponentConfigStore
 
 from .UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer, random_search_optimizer_config_store
 from .UtilityFunctionOptimizers.GlowWormSwarmOptimizer import GlowWormSwarmOptimizer, glow_worm_swarm_optimizer_config_store
@@ -14,7 +15,7 @@ from .UtilityFunctions.ConfidenceBoundUtilityFunction import ConfidenceBoundUtil
 
 from mlos.Spaces.Configs.ComponentConfigStore import ComponentConfigStore
 
-experiment_designer_config_store=ComponentConfigStore(
+experiment_designer_config_store = ComponentConfigStore(
     parameter_space=SimpleHypergrid(
         name='experiment_designer_config',
         dimensions=[
