@@ -8,6 +8,8 @@ from contextlib import contextmanager
 import json
 import logging
 import multiprocessing
+from typing import Iterator
+
 import pandas as pd
 
 from mlos.global_values import serialize_to_bytes_string
@@ -39,7 +41,7 @@ class OptimizerMicroservice(OptimizerService_pb2_grpc.OptimizerServiceServicer):
         return str(uuid.uuid4())
 
     @contextmanager
-    def exclusive_optimizer(self, optimizer_id) -> BayesianOptimizer:
+    def exclusive_optimizer(self, optimizer_id) -> Iterator[BayesianOptimizer]:
         """ Context manager to acquire the optimizer lock and yield the corresponding optimizer.
 
         This makes sure that:

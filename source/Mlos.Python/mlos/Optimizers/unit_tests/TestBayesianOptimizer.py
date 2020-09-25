@@ -42,34 +42,26 @@ class TestBayesianOptimizer(unittest.TestCase):
 
         """
         warnings.simplefilter("error")
-        cls.temp_dir = os.path.join(os.getcwd(), "temp")
-        if not os.path.exists(cls.temp_dir):
-            os.mkdir(cls.temp_dir)
-
         global_values.declare_singletons()
         global_values.tracer = Tracer(actor_id=cls.__name__, thread_id=0)
         cls.logger = create_logger(logger_name=cls.__name__)
 
-    def setUp(self):
-        self.logger = create_logger(self.__class__.__name__)
         # Start up the gRPC service.
         #
-        self.server = OptimizerMicroserviceServer(port=50051, num_threads=10)
-        self.server.start()
+        cls.server = OptimizerMicroserviceServer(port=50051, num_threads=10)
+        cls.server.start()
 
-        self.optimizer_service_channel = grpc.insecure_channel('localhost:50051')
-        self.bayesian_optimizer_factory = BayesianOptimizerFactory(grpc_channel=self.optimizer_service_channel, logger=self.logger)
-
-    def tearDown(self):
-        """ We need to tear down the gRPC server here.
-
-        :return:
-        """
-        self.server.stop(grace=None)
+        cls.optimizer_service_channel = grpc.insecure_channel('localhost:50051')
+        cls.bayesian_optimizer_factory = BayesianOptimizerFactory(grpc_channel=cls.optimizer_service_channel, logger=cls.logger)
 
 
     @classmethod
     def tearDownClass(cls) -> None:
+        cls.server.stop(grace=None)
+
+        cls.temp_dir = os.path.join(os.getcwd(), "temp")
+        if not os.path.exists(cls.temp_dir):
+            os.mkdir(cls.temp_dir)
         trace_output_path = os.path.join(cls.temp_dir, "TestBayesianOptimizerTrace.json")
         print(f"Dumping trace to {trace_output_path}")
         global_values.tracer.dump_trace_to_file(output_file_path=trace_output_path)
