@@ -13,7 +13,7 @@ from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctions.UtilityFunction import UtilityFunction
 
 
-ConfidenceBoundUtilityFunctionConfigStore=ComponentConfigStore(
+confidence_bound_utility_function_config_store=ComponentConfigStore(
     parameter_space=SimpleHypergrid(
         name="confidence_bound_utility_function_config",
         dimensions=[

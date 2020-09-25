@@ -7,7 +7,7 @@ from mlos.Logger import create_logger
 from mlos.Grpc.OptimizerService_pb2 import CreateOptimizerRequest, OptimizerInfo
 from mlos.Grpc.OptimizerService_pb2_grpc import OptimizerServiceStub
 from mlos.Grpc.BayesianOptimizerProxy import BayesianOptimizerProxy
-from mlos.Optimizers.BayesianOptimizer import BayesianOptimizer, BayesianOptimizerConfigStore
+from mlos.Optimizers.BayesianOptimizer import BayesianOptimizer, bayesian_optimizer_config_store
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.OptimizerBase import OptimizerBase
 from mlos.Spaces import Point
@@ -36,7 +36,7 @@ class BayesianOptimizerFactory:
     def create_local_optimizer(self, optimization_problem: OptimizationProblem, optimizer_config: Point = None) -> OptimizerBase:
         if optimizer_config is None:
             self.logger.info(f"Optimizer config not specified. Using default.")
-            optimizer_config = BayesianOptimizerConfigStore.default
+            optimizer_config = bayesian_optimizer_config_store.default
 
         self.logger.info(f"Creating a bayesian optimizer with config: {optimizer_config}.")
 
@@ -66,7 +66,7 @@ class BayesianOptimizerFactory:
         assert self._optimizer_service_stub is not None
 
         if optimizer_config is None:
-            optimizer_config = BayesianOptimizerConfigStore.default
+            optimizer_config = bayesian_optimizer_config_store.default
 
         create_optimizer_request = CreateOptimizerRequest(
             OptimizationProblem=optimization_problem.to_protobuf(),

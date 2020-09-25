@@ -3,8 +3,8 @@
 # Licensed under the MIT License.
 #
 from mlos.Examples.SmartCache.CacheImplementations.CacheEntry import CacheEntry
-from mlos.Examples.SmartCache.CacheImplementations.LruCache import LruCache, LruCacheConfigStore
-from mlos.Examples.SmartCache.CacheImplementations.MruCache import MruCache, MruCacheConfigStore
+from mlos.Examples.SmartCache.CacheImplementations.LruCache import LruCache, lru_cache_config_store
+from mlos.Examples.SmartCache.CacheImplementations.MruCache import MruCache, mru_cache_config_store
 from mlos.Examples.SmartCache.MlosInterface import PushRuntimeDecisionContext, ReconfigurationRuntimeDecisionContext
 from mlos.Examples.SmartCache.MlosInterface.MlosTelemetryMessages import SmartCacheGet, SmartCachePush, SmartCacheEvict
 
@@ -45,15 +45,15 @@ class SmartCache:
             CategoricalDimension(name='implementation', values=['LRU', 'MRU'])
         ]
     ).join(
-        subgrid=LruCacheConfigStore.parameter_space,
+        subgrid=lru_cache_config_store.parameter_space,
         on_external_dimension=CategoricalDimension(name='implementation', values=['LRU'])
     ).join(
-        subgrid=MruCacheConfigStore.parameter_space,
+        subgrid=mru_cache_config_store.parameter_space,
         on_external_dimension=CategoricalDimension(name='implementation', values=['MRU'])
     )
 
     # Used if no intelligence is hooked up
-    default_config = Point(implementation='LRU', lru_cache_config=LruCacheConfigStore.default)
+    default_config = Point(implementation='LRU', lru_cache_config=lru_cache_config_store.default)
 
     # Used to inform the Mlos Global Context about all types of telemetry messages that this component can emit
     telemetry_message_types = [

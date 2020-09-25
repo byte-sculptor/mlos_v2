@@ -15,7 +15,7 @@ from mlos.Spaces.Configs.ComponentConfigStore import ComponentConfigStore
 from mlos.Spaces.HypergridAdapters import DiscreteToUnitContinuousHypergridAdapter
 
 
-GlowWormSwarmOptimizerConfigStore=ComponentConfigStore(
+glow_worm_swarm_optimizer_config_store=ComponentConfigStore(
     parameter_space=SimpleHypergrid(
         name="glow_worm_swarm_optimizer_config",
         dimensions=[
