@@ -61,8 +61,7 @@ class RegressionModelFitState:
             for i, col_name in enumerate(column_names):
                 values[col_name].append(gof_record[i])
 
-        index = pd.Index(values['last_refit_iteration_number'])
-        del values['last_refit_iteration_number']
         del values['data_set_type']
-        df = pd.DataFrame(values, index=index)
+        df = pd.DataFrame(values)
+        df = df.drop_duplicates(subset=['last_refit_iteration_number'], keep='last').sort_index()
         return df

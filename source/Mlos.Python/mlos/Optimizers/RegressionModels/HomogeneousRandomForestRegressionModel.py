@@ -199,7 +199,7 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
                 tree.fit(
                     feature_values_pandas_frame=bootstrapped_observations_for_tree_training,
                     target_values_pandas_frame=bootstrapped_targets_for_tree_training,
-                    iteration_number=iteration_number
+                    iteration_number=len(feature_values_pandas_frame.index)
                 )
 
         self.last_refit_iteration_number = max(tree.last_refit_iteration_number for tree in self._decision_trees)
