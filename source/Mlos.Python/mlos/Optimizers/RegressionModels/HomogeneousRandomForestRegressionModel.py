@@ -198,15 +198,15 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
                     target_values_pandas_frame=bootstrapped_targets_for_tree_training,
                     iteration_number=iteration_number
                 )
-                targets_for_tree_training = targets_for_non_null_observations.loc[observations_for_tree_training.index]
-                tree.compute_goodness_of_fit(features_df=observations_for_tree_training, target_df=targets_for_tree_training, data_set_type=DataSetType.TRAIN)
-                if not observations_for_tree_validation.empty:
-                    targets_for_tree_validation = targets_for_non_null_observations.loc[observations_for_tree_validation.index]
-                    tree.compute_goodness_of_fit(
-                        features_df=observations_for_tree_validation,
-                        target_df=targets_for_tree_validation,
-                        data_set_type=DataSetType.VALIDATION
-                    )
+                # targets_for_tree_training = targets_for_non_null_observations.loc[observations_for_tree_training.index]
+                # tree.compute_goodness_of_fit(features_df=observations_for_tree_training, target_df=targets_for_tree_training, data_set_type=DataSetType.TRAIN)
+                # if not observations_for_tree_validation.empty:
+                #     targets_for_tree_validation = targets_for_non_null_observations.loc[observations_for_tree_validation.index]
+                #     tree.compute_goodness_of_fit(
+                #         features_df=observations_for_tree_validation,
+                #         target_df=targets_for_tree_validation,
+                #         data_set_type=DataSetType.VALIDATION
+                #     )
 
         self.last_refit_iteration_number = max(tree.last_refit_iteration_number for tree in self._decision_trees)
         self.fitted = any(tree.fitted for tree in self._decision_trees)
