@@ -4,13 +4,13 @@
 #
 from enum import Enum
 
-from mlos.Spaces import SimpleHypergrid, \
-    ContinuousDimension, DiscreteDimension, CategoricalDimension, Point
-
-from .RegressionModel import RegressionModelConfig
+from mlos.Spaces import SimpleHypergrid, ContinuousDimension, DiscreteDimension, CategoricalDimension, Point
+from mlos.Spaces.Configs.DefaultConfigMeta import DefaultConfigMeta
 
 
-class SklearnRidgeRegressionModelConfig(RegressionModelConfig):
+
+
+class SklearnRidgeRegressionModelConfig(DefaultConfigMeta):
     class Solver(Enum):
         """
         From https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html:

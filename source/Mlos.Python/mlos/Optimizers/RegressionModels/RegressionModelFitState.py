@@ -5,7 +5,6 @@
 from typing import Dict, List
 import pandas as pd
 from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import GoodnessOfFitMetrics, DataSetType
-from mlos.Spaces import Hypergrid
 
 
 class RegressionModelFitState:

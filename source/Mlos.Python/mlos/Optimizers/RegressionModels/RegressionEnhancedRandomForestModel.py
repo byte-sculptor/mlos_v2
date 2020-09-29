@@ -89,9 +89,9 @@ class RegressionEnhancedRandomForestRegressionModelConfig(metaclass=DefaultConfi
         residual_model_name=SklearnRandomForestRegressionModelConfig.__name__,
         boosting_root_model_name=SklearnLassoRegressionModelConfig.__name__,
         min_abs_root_model_coef=0.01,
-        sklearn_lasso_regression_model_config=SklearnLassoRegressionModelConfig.DEFAULT,
-        sklearn_ridge_regression_model_config=SklearnRidgeRegressionModelConfig.DEFAULT,
-        sklearn_random_forest_regression_model_config=SklearnRandomForestRegressionModelConfig.DEFAULT,
+        sklearn_lasso_regression_model_config=SklearnLassoRegressionModelConfig._DEFAULT,
+        sklearn_ridge_regression_model_config=SklearnRidgeRegressionModelConfig._DEFAULT,
+        sklearn_random_forest_regression_model_config=SklearnRandomForestRegressionModelConfig._DEFAULT,
         perform_initial_root_model_hyper_parameter_search=True,
         perform_initial_random_forest_hyper_parameter_search=True
     )
@@ -213,6 +213,12 @@ class RegressionEnhancedRandomForestRegressionModel(RegressionModel):
         self.dummy_var_cols_ = None
         self.categorical_zero_cols_idx_to_delete_ = None
 
+        self._trained = False
+
+    @property
+    def trained(self):
+        return self._trained
+
     @trace()
     def fit(self, feature_values_pandas_frame, target_values_pandas_frame, iteration_number=0):
         """ Fits the RegressionEnhancedRandomForest
@@ -274,7 +280,7 @@ class RegressionEnhancedRandomForestRegressionModel(RegressionModel):
         self.dof_ = fit_x.shape[0] - len(self.base_regressor_.coef_)
         self.variance_estimate_ = residual_sum_of_squares / float(self.dof_)
 
-        self.fitted = True
+        self._trained = True
         return self
 
     def _fit_root_regression(self, x, y):

@@ -5,13 +5,12 @@
 import pandas as pd
 
 from mlos.Logger import create_logger
-
 from mlos.Optimizers.BayesianOptimizerConfigStore import bayesian_optimizer_config_store
 from mlos.Optimizers.BayesianOptimizerConvergenceState import BayesianOptimizerConvergenceState
 from mlos.Optimizers.OptimizerBase import OptimizerBase
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.ExperimentDesigner.ExperimentDesigner import ExperimentDesigner
-from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
+from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType, GoodnessOfFitMetrics
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel import HomogeneousRandomForestRegressionModel
 from mlos.Tracer import trace
 from mlos.Spaces import Point
@@ -87,8 +86,10 @@ class BayesianOptimizer(OptimizerBase):
         return len(self._feature_values_df.index)
 
     def compute_surrogate_model_goodness_of_fit(self, features_df: pd.DataFrame = None, target_df: pd.DataFrame = None, data_set_type: DataSetType = DataSetType.TRAIN):
-        if features_df is None and target_df is None:
-            self.surrogate_model.compute_goodness_of_fit(features_df=self._feature_values_df, target_df=self._target_values_df, data_set_type=DataSetType.TRAIN)
+        if not self.surrogate_model.trained:
+            return GoodnessOfFitMetrics()
+        if (features_df is None) and (target_df is None):
+            return self.surrogate_model.compute_goodness_of_fit(features_df=self._feature_values_df.copy(), target_df=self._target_values_df.copy(), data_set_type=DataSetType.TRAIN)
         return self.surrogate_model.compute_goodness_of_fit(features_df=features_df, target_df=target_df, data_set_type=data_set_type)
 
     def get_optimizer_convergence_state(self):

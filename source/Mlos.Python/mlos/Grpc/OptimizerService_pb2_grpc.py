@@ -36,6 +36,11 @@ class OptimizerServiceStub(object):
                 request_serializer=mlos_dot_Grpc_dot_OptimizerService__pb2.CreateOptimizerRequest.SerializeToString,
                 response_deserializer=mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerHandle.FromString,
                 )
+        self.IsTrained = channel.unary_unary(
+                '/OptimizerService/IsTrained',
+                request_serializer=mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerHandle.SerializeToString,
+                response_deserializer=mlos_dot_Grpc_dot_OptimizerService__pb2.SimpleBoolean.FromString,
+                )
         self.Suggest = channel.unary_unary(
                 '/OptimizerService/Suggest',
                 request_serializer=mlos_dot_Grpc_dot_OptimizerService__pb2.SuggestRequest.SerializeToString,
@@ -99,6 +104,14 @@ class OptimizerServiceServicer(object):
 
     def CreateOptimizer(self, request, context):
         """Creates an optimizer with the specified configuration.
+
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def IsTrained(self, request, context):
+        """Check if optimizer has been trained.
 
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -175,6 +188,11 @@ def add_OptimizerServiceServicer_to_server(servicer, server):
                     servicer.CreateOptimizer,
                     request_deserializer=mlos_dot_Grpc_dot_OptimizerService__pb2.CreateOptimizerRequest.FromString,
                     response_serializer=mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerHandle.SerializeToString,
+            ),
+            'IsTrained': grpc.unary_unary_rpc_method_handler(
+                    servicer.IsTrained,
+                    request_deserializer=mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerHandle.FromString,
+                    response_serializer=mlos_dot_Grpc_dot_OptimizerService__pb2.SimpleBoolean.SerializeToString,
             ),
             'Suggest': grpc.unary_unary_rpc_method_handler(
                     servicer.Suggest,
@@ -279,6 +297,22 @@ class OptimizerService(object):
         return grpc.experimental.unary_unary(request, target, '/OptimizerService/CreateOptimizer',
             mlos_dot_Grpc_dot_OptimizerService__pb2.CreateOptimizerRequest.SerializeToString,
             mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerHandle.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def IsTrained(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/OptimizerService/IsTrained',
+            mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerHandle.SerializeToString,
+            mlos_dot_Grpc_dot_OptimizerService__pb2.SimpleBoolean.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 

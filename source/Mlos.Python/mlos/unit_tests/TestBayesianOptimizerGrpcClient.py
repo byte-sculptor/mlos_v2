@@ -110,15 +110,9 @@ class TestBayesianOptimizerGrpcClient(unittest.TestCase):
         self.assertTrue((np.abs(registered_features_df - observed_features_df) < 0.00000001).all().all())
         self.assertTrue((np.abs(registered_objectives_df - observed_objectives_df) < 0.00000001).all().all())
 
-        convergence_state = bayesian_optimizer.get_optimizer_convergence_state()
-
-        # Now let's make sure we the convergence state is looks reasonable.
-        #
-        random_forest_fit_state = convergence_state.surrogate_model_fit_state
-
         # Let's look at the goodness of fit.
         #
-        random_forest_gof_metrics = random_forest_fit_state.current_train_gof_metrics
+        random_forest_gof_metrics = bayesian_optimizer.compute_surrogate_model_goodness_of_fit()
 
         # The model might not have used all of the samples, but should have used a majority of them (I expect about 90%), but 70% is a good sanity check
         # and should make this test not very flaky.

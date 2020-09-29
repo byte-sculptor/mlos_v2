@@ -25,6 +25,9 @@ class OptimizerBase(ABC):
         self.optimization_problem = optimization_problem
         self.optimizer_config = None # TODO: pass from subclasses.
 
+    @property
+    def trained(self):
+        raise NotImplementedError
 
     @abstractmethod
     def get_optimizer_convergence_state(self):

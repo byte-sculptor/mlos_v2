@@ -22,6 +22,11 @@ service OptimizerService
     //
     rpc CreateOptimizer(CreateOptimizerRequest) returns (OptimizerHandle);
 
+    
+    // Check if optimizer has been trained.
+    //
+    rpc IsTrained(OptimizerHandle) returns (SimpleBoolean);
+    
     // Request a suggestion.
     //
     rpc Suggest(SuggestRequest) returns (ConfigurationParameters);
@@ -207,6 +212,13 @@ message PredictResponse
     //
     repeated SingleObjectivePrediction ObjectivePredictions = 1;
 };
+
+// A message containing a single boolean value.
+//
+message SimpleBoolean
+{
+    bool Value = 1;
+}
 
 // A convenience message for optimizer functions that return nothing.
 //

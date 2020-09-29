@@ -240,9 +240,7 @@ class TestBayesianOptimizer(unittest.TestCase):
                     assert optimum.y <= old_optimum
                     old_optimum = optimum.y
                     self.validate_optima(optimizer=bayesian_optimizer)
-                    convergence_state = bayesian_optimizer.get_optimizer_convergence_state()
-                    random_forest_fit_state = convergence_state.surrogate_model_fit_state
-                    random_forest_gof_metrics = random_forest_fit_state.current_train_gof_metrics
+                    random_forest_gof_metrics = bayesian_optimizer.compute_surrogate_model_goodness_of_fit()
                     print(f"Relative squared error: {random_forest_gof_metrics.relative_squared_error}, Relative absolute error: {random_forest_gof_metrics.relative_absolute_error}")
 
             convergence_state = bayesian_optimizer.get_optimizer_convergence_state()

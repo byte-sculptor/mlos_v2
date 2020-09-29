@@ -15,7 +15,7 @@ import pandas as pd
 from mlos.global_values import serialize_to_bytes_string
 from mlos.Grpc import OptimizerService_pb2, OptimizerService_pb2_grpc
 from mlos.Grpc.OptimizerService_pb2 import Empty, OptimizerConvergenceState, OptimizerInfo, OptimizerHandle, OptimizerList, Observations, Features,\
-    ObjectiveValues
+    ObjectiveValues, SimpleBoolean
 from mlos.Optimizers.BayesianOptimizer import BayesianOptimizer, bayesian_optimizer_config_store
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
@@ -113,6 +113,11 @@ class OptimizerMicroservice(OptimizerService_pb2_grpc.OptimizerServiceServicer):
             self._ordered_ids.append(optimizer_id)
         logging.info(f"Created optimizer {optimizer_id}.")
         return OptimizerService_pb2.OptimizerHandle(Id=optimizer_id)
+
+    def IsTrained(self, request, context): # pylint: disable=unused-argument
+        with self.exclusive_optimizer(optimizer_id=request.Id) as optimizer:
+            is_trained = optimizer.trained
+        return SimpleBoolean(Value=is_trained)
 
     def Suggest(self, request, context): # pylint: disable=unused-argument
         # TODO: return an error if optimizer not found

@@ -50,6 +50,11 @@ class BayesianOptimizerProxy(OptimizerBase):
     def optimizer_handle(self):
         return OptimizerService_pb2.OptimizerHandle(Id=self.id)
 
+    @property
+    def trained(self):
+        response = self._optimizer_stub.IsTrained(self.optimizer_handle)
+        return response.Value
+
     @trace()
     def get_optimizer_convergence_state(self):
         optimizer_convergence_state_response = self._optimizer_stub.GetOptimizerConvergenceState(self.optimizer_handle)
