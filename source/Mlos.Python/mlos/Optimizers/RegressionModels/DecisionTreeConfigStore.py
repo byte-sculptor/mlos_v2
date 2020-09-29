@@ -46,8 +46,8 @@ decision_tree_config_store = ComponentConfigStore(
             DiscreteDimension(name="max_leaf_nodes", min=0, max=2**10),
             ContinuousDimension(name="min_impurity_decrease", min=0.0, max=2**10),
             ContinuousDimension(name="ccp_alpha", min=0.0, max=2**10),
-            DiscreteDimension(name="min_samples_to_fit", min=1, max=2 ** 32),
-            DiscreteDimension(name="n_new_samples_before_refit", min=1, max=2**32)
+            DiscreteDimension(name="min_samples_to_fit", min=1, max=2 ** 10),
+            DiscreteDimension(name="n_new_samples_before_refit", min=1, max=2**10)
         ]
     ),
     default=Point(

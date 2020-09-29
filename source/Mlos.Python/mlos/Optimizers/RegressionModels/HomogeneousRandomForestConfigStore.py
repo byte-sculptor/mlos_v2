@@ -10,7 +10,7 @@ homogeneous_random_forest_config_store = ComponentConfigStore(
     parameter_space=SimpleHypergrid(
         name="homogeneous_random_forest_regression_model_config",
         dimensions=[
-            DiscreteDimension(name="n_estimators", min=1, max=256),
+            DiscreteDimension(name="n_estimators", min=1, max=128),
             ContinuousDimension(name="features_fraction_per_estimator", min=0, max=1, include_min=False, include_max=True),
             ContinuousDimension(name="samples_fraction_per_estimator", min=0, max=1, include_min=False, include_max=True),
             CategoricalDimension(name="regressor_implementation", values=[DecisionTreeRegressionModel.__name__]),
