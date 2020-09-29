@@ -31,6 +31,7 @@ class BayesianOptimizer(OptimizerBase):
     experiment_designer: ExperimentDesigner
 
     """
+    @trace()
     def __init__(
             self,
             optimization_problem: OptimizationProblem,
