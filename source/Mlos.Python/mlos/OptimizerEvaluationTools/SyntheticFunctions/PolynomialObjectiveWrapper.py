@@ -36,8 +36,8 @@ class PolynomialObjectiveWrapper(ObjectiveFunctionBase):
             dimensions=[
                 ContinuousDimension(
                     name=f"x_{i}",
-                    min=objective_function_config.coefficient_domain_min,
-                    max=objective_function_config.coefficient_domain_min + objective_function_config.coefficient_domain_width
+                    min=objective_function_config.input_domain_min,
+                    max=objective_function_config.input_domain_min + objective_function_config.input_domain_width
                 ) for i in range(objective_function_config.input_domain_dimension)
             ]
         )

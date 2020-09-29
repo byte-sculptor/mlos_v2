@@ -250,8 +250,8 @@ class TestBayesianOptimizer(unittest.TestCase):
             random_forest_gof_metrics = random_forest_fit_state.current_train_gof_metrics
             self.assertTrue(random_forest_gof_metrics.last_refit_iteration_number > 0.7 * num_iterations)
             models_gof_metrics = [random_forest_gof_metrics]
-            for decision_tree_fit_state in random_forest_fit_state.decision_trees_fit_states:
-                models_gof_metrics.append(decision_tree_fit_state.current_train_gof_metrics)
+            #for decision_tree_fit_state in random_forest_fit_state.decision_trees_fit_states:
+            #    models_gof_metrics.append(decision_tree_fit_state.current_train_gof_metrics)
 
             for model_gof_metrics in models_gof_metrics:
                 self.assertTrue(0 <= model_gof_metrics.relative_absolute_error <= 1)  # This could fail if the models are really wrong. Not expected in this unit test though.
