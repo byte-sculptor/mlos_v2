@@ -85,12 +85,10 @@ class BayesianOptimizer(OptimizerBase):
     def num_observed_samples(self):
         return len(self._feature_values_df.index)
 
-    def compute_surrogate_model_goodness_of_fit(self, features_df: pd.DataFrame = None, target_df: pd.DataFrame = None, data_set_type: DataSetType = DataSetType.TRAIN):
+    def compute_surrogate_model_goodness_of_fit(self):
         if not self.surrogate_model.trained:
             return GoodnessOfFitMetrics()
-        if (features_df is None) and (target_df is None):
-            return self.surrogate_model.compute_goodness_of_fit(features_df=self._feature_values_df.copy(), target_df=self._target_values_df.copy(), data_set_type=DataSetType.TRAIN)
-        return self.surrogate_model.compute_goodness_of_fit(features_df=features_df, target_df=target_df, data_set_type=data_set_type)
+        return self.surrogate_model.compute_goodness_of_fit(features_df=self._feature_values_df.copy(), target_df=self._target_values_df.copy(), data_set_type=DataSetType.TRAIN)
 
     def get_optimizer_convergence_state(self):
         return self._optimizer_convergence_state

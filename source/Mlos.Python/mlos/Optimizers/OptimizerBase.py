@@ -30,6 +30,10 @@ class OptimizerBase(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def compute_surrogate_model_goodness_of_fit(self):
+        raise NotImplementedError
+
+    @abstractmethod
     def get_optimizer_convergence_state(self):
         raise NotImplementedError("All subclasses must implement this method.")
 

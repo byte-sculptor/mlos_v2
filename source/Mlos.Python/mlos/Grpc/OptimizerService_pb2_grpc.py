@@ -31,6 +31,11 @@ class OptimizerServiceStub(object):
                 request_serializer=mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerHandle.SerializeToString,
                 response_deserializer=mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerConvergenceState.FromString,
                 )
+        self.ComputeGoodnessOfFitMetrics = channel.unary_unary(
+                '/OptimizerService/ComputeGoodnessOfFitMetrics',
+                request_serializer=mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerHandle.SerializeToString,
+                response_deserializer=mlos_dot_Grpc_dot_OptimizerService__pb2.SimpleString.FromString,
+                )
         self.CreateOptimizer = channel.unary_unary(
                 '/OptimizerService/CreateOptimizer',
                 request_serializer=mlos_dot_Grpc_dot_OptimizerService__pb2.CreateOptimizerRequest.SerializeToString,
@@ -96,6 +101,14 @@ class OptimizerServiceServicer(object):
 
     def GetOptimizerConvergenceState(self, request, context):
         """Returns the current optimizer convergence state.
+
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def ComputeGoodnessOfFitMetrics(self, request, context):
+        """Returns the computed goodness of fit metrics.
 
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -183,6 +196,11 @@ def add_OptimizerServiceServicer_to_server(servicer, server):
                     servicer.GetOptimizerConvergenceState,
                     request_deserializer=mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerHandle.FromString,
                     response_serializer=mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerConvergenceState.SerializeToString,
+            ),
+            'ComputeGoodnessOfFitMetrics': grpc.unary_unary_rpc_method_handler(
+                    servicer.ComputeGoodnessOfFitMetrics,
+                    request_deserializer=mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerHandle.FromString,
+                    response_serializer=mlos_dot_Grpc_dot_OptimizerService__pb2.SimpleString.SerializeToString,
             ),
             'CreateOptimizer': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateOptimizer,
@@ -281,6 +299,22 @@ class OptimizerService(object):
         return grpc.experimental.unary_unary(request, target, '/OptimizerService/GetOptimizerConvergenceState',
             mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerHandle.SerializeToString,
             mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerConvergenceState.FromString,
+            options, channel_credentials,
+            call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def ComputeGoodnessOfFitMetrics(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/OptimizerService/ComputeGoodnessOfFitMetrics',
+            mlos_dot_Grpc_dot_OptimizerService__pb2.OptimizerHandle.SerializeToString,
+            mlos_dot_Grpc_dot_OptimizerService__pb2.SimpleString.FromString,
             options, channel_credentials,
             call_credentials, compression, wait_for_ready, timeout, metadata)
 

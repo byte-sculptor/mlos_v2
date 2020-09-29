@@ -18,10 +18,13 @@ service OptimizerService
     //
     rpc GetOptimizerConvergenceState(OptimizerHandle) returns (OptimizerConvergenceState);
 
+    // Returns the computed goodness of fit metrics.
+    //
+    rpc ComputeGoodnessOfFitMetrics(OptimizerHandle) returns (SimpleString);
+
     // Creates an optimizer with the specified configuration.
     //
     rpc CreateOptimizer(CreateOptimizerRequest) returns (OptimizerHandle);
-
     
     // Check if optimizer has been trained.
     //
@@ -218,6 +221,13 @@ message PredictResponse
 message SimpleBoolean
 {
     bool Value = 1;
+};
+
+// A message containing a single string value.
+//
+message SimpleString
+{
+    string Value = 1;
 }
 
 // A convenience message for optimizer functions that return nothing.

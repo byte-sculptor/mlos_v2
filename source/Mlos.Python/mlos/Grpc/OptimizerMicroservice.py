@@ -15,7 +15,7 @@ import pandas as pd
 from mlos.global_values import serialize_to_bytes_string
 from mlos.Grpc import OptimizerService_pb2, OptimizerService_pb2_grpc
 from mlos.Grpc.OptimizerService_pb2 import Empty, OptimizerConvergenceState, OptimizerInfo, OptimizerHandle, OptimizerList, Observations, Features,\
-    ObjectiveValues, SimpleBoolean
+    ObjectiveValues, SimpleBoolean, SimpleString
 from mlos.Optimizers.BayesianOptimizer import BayesianOptimizer, bayesian_optimizer_config_store
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
@@ -118,6 +118,11 @@ class OptimizerMicroservice(OptimizerService_pb2_grpc.OptimizerServiceServicer):
         with self.exclusive_optimizer(optimizer_id=request.Id) as optimizer:
             is_trained = optimizer.trained
         return SimpleBoolean(Value=is_trained)
+
+    def ComputeGoodnessOfFitMetrics(self, request, context):
+        with self.exclusive_optimizer(optimizer_id=request.Id) as optimizer:
+            gof_metrics = optimizer.compute_surrogate_model_goodness_of_fit()
+        return SimpleString(Value=gof_metrics.to_json())
 
     def Suggest(self, request, context): # pylint: disable=unused-argument
         # TODO: return an error if optimizer not found
