@@ -417,7 +417,7 @@ class TestBayesianOptimizer(unittest.TestCase):
     def validate_optima(self, optimizer: OptimizerBase):
         should_raise_for_predicted_value = False
         should_raise_for_confidence_bounds = False
-        if not optimizer.get_surrogate_model_fit_state().fitted:
+        if not optimizer.trained:
             should_raise_for_predicted_value = True
             should_raise_for_confidence_bounds = True
         else:
@@ -444,7 +444,7 @@ class TestBayesianOptimizer(unittest.TestCase):
 
             self.assertTrue(should_raise_for_confidence_bounds)
 
-            # Computing prediction based optima should fail if the surrogate model is not fitted.
+            # Computing prediction based optima should fail if the surrogate model is not trained.
             #
             with self.assertRaises(ValueError):
                 optimizer.optimum(OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG)

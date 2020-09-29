@@ -79,8 +79,17 @@ class BayesianOptimizer(OptimizerBase):
         self._target_values_df = pd.DataFrame(columns=[dimension.name for dimension in self.optimization_problem.objective_space.dimensions])
 
     @property
+    def trained(self):
+        return self.surrogate_model.trained
+
+    @property
     def num_observed_samples(self):
         return len(self._feature_values_df.index)
+
+    def compute_surrogate_model_goodness_of_fit(self, features_df: pd.DataFrame = None, target_df: pd.DataFrame = None, data_set_type: DataSetType = DataSetType.TRAIN):
+        if features_df is None and target_df is None:
+            self.surrogate_model.compute_goodness_of_fit(features_df=self._feature_values_df, target_df=self._target_values_df, data_set_type=DataSetType.TRAIN)
+        return self.surrogate_model.compute_goodness_of_fit(features_df=features_df, target_df=target_df, data_set_type=data_set_type)
 
     def get_optimizer_convergence_state(self):
         return self._optimizer_convergence_state

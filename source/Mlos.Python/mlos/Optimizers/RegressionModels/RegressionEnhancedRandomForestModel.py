@@ -16,8 +16,9 @@ from mlos.Spaces import Hypergrid, SimpleHypergrid, \
     ContinuousDimension, DiscreteDimension, CategoricalDimension, Point
 from mlos.Tracer import trace
 from mlos.Logger import create_logger
+from mlos.Spaces.Configs.DefaultConfigMeta import DefaultConfigMeta
 
-from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel, RegressionModelConfig
+from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Optimizers.RegressionModels.SklearnLassoRegressionModelConfig import SklearnLassoRegressionModelConfig
 from mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig import SklearnRidgeRegressionModelConfig
@@ -45,7 +46,7 @@ class RegressionEnhancedRandomForestRegressionModelPrediction(Prediction):
         super().__init__(objective_name=objective_name, predictor_outputs=RegressionEnhancedRandomForestRegressionModelPrediction.OUTPUT_FIELDS)
 
 
-class RegressionEnhancedRandomForestRegressionModelConfig(RegressionModelConfig):
+class RegressionEnhancedRandomForestRegressionModelConfig(metaclass=DefaultConfigMeta):
     """A configuration object for RERF model.
 
     Class responsible for validating its objects are valid hyper parameters for the sklearn classes:
