@@ -13,8 +13,12 @@ from mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore import objective
 
 from mlos.Spaces import Point
 
+import mlos.global_values
+
+
 
 def run_optimization(optimizer_config_json_string, objective_function_config_json_string, num_iterations):
+    mlos.global_values.declare_singletons()
     optimizer_config = Point.from_json(optimizer_config_json_string)
     objective_function_config = Point.from_json(objective_function_config_json_string)
 
