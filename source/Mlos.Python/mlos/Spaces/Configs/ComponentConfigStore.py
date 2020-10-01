@@ -56,4 +56,4 @@ class ComponentConfigStore:
     def get_config_by_name(self, name: str) -> str:
         # Throws a Key error if config not found, which is exactly what we want to throw.
         #
-        return self._named_configs[name]
+        return self._named_configs[name].copy()

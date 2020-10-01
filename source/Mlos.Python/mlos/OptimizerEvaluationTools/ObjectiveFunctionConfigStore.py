@@ -114,6 +114,26 @@ objective_function_config_store.add_config_by_name(
 )
 
 objective_function_config_store.add_config_by_name(
+    config_name="2d_quadratic_concave_up_no_noise",
+    config_point=Point(
+        implementation=PolynomialObjective.__name__,
+        polynomial_objective_config=Point(
+            seed=19,
+            input_domain_dimension=2,
+            input_domain_min=-2**10,
+            input_domain_width=2**11,
+            max_degree=2,
+            include_mixed_coefficients=True,
+            percent_coefficients_zeroed=0.0,
+            coefficient_domain_min=1.0,
+            coefficient_domain_width=9.0,
+            include_noise=False,
+            noise_coefficient_of_variation=0.0
+        )
+    )
+)
+
+objective_function_config_store.add_config_by_name(
     config_name="5_mutually_exclusive_polynomials",
     config_point=Point(
         implementation=NestedPolynomialObjective.__name__,
