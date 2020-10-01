@@ -4,8 +4,10 @@ from mlos.OptimizerEvaluationTools.OptimumOverTime import OptimumOverTime
 from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory, bayesian_optimizer_config_store
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
 from mlos.Optimizers.OptimumDefinition import OptimumDefinition
+from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
 from mlos.Optimizers.RegressionModels.RegressionModelFitState import RegressionModelFitState
 from mlos.Spaces import Point
+
 
 class OptimizerEvaluator:
     """Evaluates optimizers against objective functions.
@@ -35,6 +37,8 @@ class OptimizerEvaluator:
         assert num_iterations > 0
         assert evaluation_frequency > 0
 
+        mlos.global_values.declare_singletons()
+
         optimizer_factory = BayesianOptimizerFactory()
         objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config)
 
@@ -45,7 +49,10 @@ class OptimizerEvaluator:
             objectives=[Objective(name=objective_name, minimize=True)]
         )
 
-        optimizer = optimizer_factory.create_local_optimizer(optimizer_config=optimizer_config, optimization_problem=optimization_problem)
+        optimizer = optimizer_factory.create_local_optimizer(
+            optimizer_config=optimizer_config,
+            optimization_problem=optimization_problem
+        )
 
         regression_model_fit_state = RegressionModelFitState()
 
@@ -60,38 +67,10 @@ class OptimizerEvaluator:
             optimum_definition=OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG
         )
 
-        #####################################################################################################
-
-        optima_over_time["ucb_90"] = OptimumOverTime(
-            optimization_problem=optimization_problem,
-            optimum_definition=OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
-            alpha=0.1
-        )
-
-        optima_over_time["ucb_95"] = OptimumOverTime(
-            optimization_problem=optimization_problem,
-            optimum_definition=OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
-            alpha=0.05
-        )
-
         optima_over_time["ucb_99"] = OptimumOverTime(
             optimization_problem=optimization_problem,
             optimum_definition=OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
             alpha=0.01
-        )
-
-        #####################################################################################################
-
-        optima_over_time["lcb_90"] = OptimumOverTime(
-            optimization_problem=optimization_problem,
-            optimum_definition=OptimumDefinition.LOWER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
-            alpha=0.1
-        )
-
-        optima_over_time["lcb_95"] = OptimumOverTime(
-            optimization_problem=optimization_problem,
-            optimum_definition=OptimumDefinition.LOWER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
-            alpha=0.05
         )
 
         optima_over_time["lcb_99"] = OptimumOverTime(
@@ -108,20 +87,34 @@ class OptimizerEvaluator:
             optimizer.register(parameters.to_dataframe(), objectives.to_dataframe())
 
             if i % evaluation_frequency == 0:
-                best_observation_config, best_observation = optimizer.optimum(OptimumDefinition.BEST_OBSERVATION)
-                best_predicted_value_config, best_predicted_value = optimizer.optimum(OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG)
+                print(f"[{i+1}/{num_iterations}]")
+                if optimizer.trained:
+                    gof_metrics = optimizer.compute_surrogate_model_goodness_of_fit()
+                    regression_model_fit_state.set_gof_metrics(data_set_type=DataSetType.TRAIN, gof_metrics=gof_metrics)
 
-                ucb_90_ci_config, ucb_90_ci_optimum = optimizer.optimum(OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG, alpha=0.1)
-                ucb_95_ci_config, ucb_95_ci_optimum = optimizer.optimum(OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG, alpha=0.05)
-                ucb_99_ci_config, ucb_99_ci_optimum = optimizer.optimum(OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG, alpha=0.01)
+                for optimum_name, optimum_over_time in optima_over_time.items():
+                    try:
+                        optimum_config, optimum_value = optimizer.optimum(optimum_definition=optimum_over_time.optimum_definition,alpha=optimum_over_time.alpha)
+                        optima_over_time[optimum_name].add_optimum_at_iteration(iteration=i, optimum_config=optimum_config, optimum_value=optimum_value)
+                    except ValueError as e:
+                        print(e)
 
-                lcb_90_ci_config, lcb_90_ci_optimum = optimizer.optimum(OptimumDefinition.LOWER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG, alpha=0.1)
-                lcb_95_ci_config, lcb_95_ci_optimum = optimizer.optimum(OptimumDefinition.LOWER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG, alpha=0.05)
-                lcb_99_ci_config, lcb_99_ci_optimum = optimizer.optimum(OptimumDefinition.LOWER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG, alpha=0.01)
+        if optimizer.trained:
+            gof_metrics = optimizer.compute_surrogate_model_goodness_of_fit()
+            regression_model_fit_state.set_gof_metrics(data_set_type=DataSetType.TRAIN, gof_metrics=gof_metrics)
+
+        for optimum_name, optimum_over_time in optima_over_time.items():
+            try:
+                optimum_config, optimum_value = optimizer.optimum(optimum_definition=optimum_over_time.optimum_definition, alpha=optimum_over_time.alpha)
+                optima_over_time[optimum_name].add_optimum_at_iteration(iteration=num_iterations, optimum_config=optimum_config, optimum_value=optimum_value)
+            except Exception as e:
+                print(e)
+
+        return regression_model_fit_state, optima_over_time
 
 
-
-
-
-
-
+if __name__ == "__main__":
+    optimizer_config = bayesian_optimizer_config_store.default
+    objective_function_config = objective_function_config_store.get_config_by_name("three_level_quadratic")
+    regression_model_fit_state, optima_over_time = OptimizerEvaluator.evaluate_optimizer(optimizer_config, objective_function_config, num_iterations=1001, evaluation_frequency=100)
+    print("Breakpoint")

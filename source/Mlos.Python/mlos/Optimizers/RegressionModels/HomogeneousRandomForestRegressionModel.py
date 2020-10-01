@@ -217,7 +217,7 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
         """
         self.logger.debug(f"Creating predictions for {len(feature_values_pandas_frame.index)} samples.")
 
-        feature_values_pandas_frame = self._input_space_adapter.project_dataframe(feature_values_pandas_frame)
+        feature_values_pandas_frame = self._input_space_adapter.project_dataframe(feature_values_pandas_frame, in_place=False)
 
         # dataframe column shortcuts
         is_valid_input_col = Prediction.LegalColumnNames.IS_VALID_INPUT.value

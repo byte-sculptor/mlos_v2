@@ -16,13 +16,13 @@ class OptimumOverTime:
     ):
         self.optimization_problem = optimization_problem
         self.optimum_definition = optimum_definition
+        self.alpha = alpha
         self._iteration_numbers = []
         self._optimal_configs = []
         self._optimum_values = []
 
     def add_optimum_at_iteration(self, iteration, optimum_config, optimum_value):
         assert optimum_config in self.optimization_problem.parameter_space
-        assert optimum_value in self.optimization_problem.objective_space
 
         self._iteration_numbers.append(iteration)
         self._optimal_configs.append(optimum_config)
@@ -36,7 +36,7 @@ class OptimumOverTime:
         config_dicts = [config.to_dict() for config in self._optimal_configs]
         config_df = pd.DataFrame(config_dicts)
 
-        optimum_dicts = [optimum.to_dict() for optimum in self._optimal_configs]
+        optimum_dicts = [optimum.to_dict() for optimum in self._optimum_values]
         optimum_df = pd.DataFrame(optimum_dicts)
 
         combined_df = pd.concat([iteration_df, config_df, optimum_df], axis=1)
