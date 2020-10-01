@@ -11,7 +11,8 @@ class OptimumOverTime:
     def __init__(
         self,
         optimization_problem: OptimizationProblem,
-        optimum_definition: OptimumDefinition
+        optimum_definition: OptimumDefinition,
+        alpha: float = 0.05
     ):
         self.optimization_problem = optimization_problem
         self.optimum_definition = optimum_definition

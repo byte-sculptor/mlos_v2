@@ -1,8 +1,10 @@
 import mlos.global_values
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
+from mlos.OptimizerEvaluationTools.OptimumOverTime import OptimumOverTime
 from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory, bayesian_optimizer_config_store
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
 from mlos.Optimizers.OptimumDefinition import OptimumDefinition
+from mlos.Optimizers.RegressionModels.RegressionModelFitState import RegressionModelFitState
 from mlos.Spaces import Point
 
 class OptimizerEvaluator:
@@ -37,14 +39,68 @@ class OptimizerEvaluator:
         objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config)
 
         objective_name = objective_function.output_space.dimension_names[0]
-        optimizer = optimizer_factory.create_local_optimizer(
-            optimizer_config=optimizer_config,
-            optimization_problem=OptimizationProblem(
-                parameter_space=objective_function.parameter_space,
-                objective_space=objective_function.output_space,
-                objectives=[Objective(name=objective_name, minimize=True)]
-            )
+        optimization_problem = OptimizationProblem(
+            parameter_space=objective_function.parameter_space,
+            objective_space=objective_function.output_space,
+            objectives=[Objective(name=objective_name, minimize=True)]
         )
+
+        optimizer = optimizer_factory.create_local_optimizer(optimizer_config=optimizer_config, optimization_problem=optimization_problem)
+
+        regression_model_fit_state = RegressionModelFitState()
+
+        optima_over_time = {}
+        optima_over_time["best_observation"] = OptimumOverTime(
+            optimization_problem=optimization_problem,
+            optimum_definition=OptimumDefinition.BEST_OBSERVATION
+        )
+
+        optima_over_time["best_predicted_value"] = OptimumOverTime(
+            optimization_problem=optimization_problem,
+            optimum_definition=OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG
+        )
+
+        #####################################################################################################
+
+        optima_over_time["ucb_90"] = OptimumOverTime(
+            optimization_problem=optimization_problem,
+            optimum_definition=OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
+            alpha=0.1
+        )
+
+        optima_over_time["ucb_95"] = OptimumOverTime(
+            optimization_problem=optimization_problem,
+            optimum_definition=OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
+            alpha=0.05
+        )
+
+        optima_over_time["ucb_99"] = OptimumOverTime(
+            optimization_problem=optimization_problem,
+            optimum_definition=OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
+            alpha=0.01
+        )
+
+        #####################################################################################################
+
+        optima_over_time["lcb_90"] = OptimumOverTime(
+            optimization_problem=optimization_problem,
+            optimum_definition=OptimumDefinition.LOWER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
+            alpha=0.1
+        )
+
+        optima_over_time["lcb_95"] = OptimumOverTime(
+            optimization_problem=optimization_problem,
+            optimum_definition=OptimumDefinition.LOWER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
+            alpha=0.05
+        )
+
+        optima_over_time["lcb_99"] = OptimumOverTime(
+            optimization_problem=optimization_problem,
+            optimum_definition=OptimumDefinition.LOWER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
+            alpha=0.01
+        )
+
+        #####################################################################################################
 
         for i in range(num_iterations):
             parameters = optimizer.suggest()
