@@ -467,5 +467,10 @@ class TestBayesianOptimizer(unittest.TestCase):
             # At the very least we can assert the ordering. Note that the configs corresponding to each of the below confidence bounds can be different, as confidence intervals
             # change width non-linearily both with degrees of freedom, and with prediction variance.
             #
-            assert lcb_99_ci_optimum.lower_confidence_bound <= lcb_95_ci_optimum.lower_confidence_bound <= lcb_90_ci_optimum.lower_confidence_bound <= predicted_optimum.predicted_value
-            assert predicted_optimum.predicted_value <= ucb_90_ci_optimum.upper_confidence_bound <= ucb_95_ci_optimum.upper_confidence_bound <= ucb_99_ci_optimum.upper_confidence_bound
+            if not (lcb_99_ci_optimum.lower_confidence_bound <= lcb_95_ci_optimum.lower_confidence_bound <= lcb_90_ci_optimum.lower_confidence_bound <= predicted_optimum.predicted_value):
+                print(lcb_99_ci_optimum.lower_confidence_bound, lcb_95_ci_optimum.lower_confidence_bound, lcb_90_ci_optimum.lower_confidence_bound, predicted_optimum.predicted_value)
+                self.assertTrue(False)
+
+            if not(predicted_optimum.predicted_value <= ucb_90_ci_optimum.upper_confidence_bound <= ucb_95_ci_optimum.upper_confidence_bound <= ucb_99_ci_optimum.upper_confidence_bound):
+                print(predicted_optimum.predicted_value, ucb_90_ci_optimum.upper_confidence_bound, ucb_95_ci_optimum.upper_confidence_bound, ucb_99_ci_optimum.upper_confidence_bound)
+                self.assertTrue(False)
