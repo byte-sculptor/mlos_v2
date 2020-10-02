@@ -115,6 +115,21 @@ class OptimizerEvaluator:
 
 if __name__ == "__main__":
     optimizer_config = bayesian_optimizer_config_store.default
-    objective_function_config = objective_function_config_store.get_config_by_name("three_level_quadratic")
-    regression_model_fit_state, optima_over_time = OptimizerEvaluator.evaluate_optimizer(optimizer_config, objective_function_config, num_iterations=1001, evaluation_frequency=100)
+
+    objective_function_config = objective_function_config_store.get_config_by_name('5_mutually_exclusive_polynomials')
+    objective_function_config.nested_polynomial_objective_config.polynomial_objective_config.input_domain_min = -100
+    objective_function_config.nested_polynomial_objective_config.polynomial_objective_config.input_domain_width = 200
+    objective_function_config.nested_polynomial_objective_config.polynomial_objective_config.coefficient_domain_min = 100
+    objective_function_config.nested_polynomial_objective_config.polynomial_objective_config.coefficient_domain_width = 10
+    objective_function_config.nested_polynomial_objective_config.polynomial_objective_config.include_noise = False
+    print(objective_function_config.to_json(indent=2))
+
+
+    regression_model_fit_state, optima_over_time = OptimizerEvaluator.evaluate_optimizer(
+        optimizer_config,
+        objective_function_config,
+        num_iterations=1001,
+        evaluation_frequency=100
+    )
+
     print("Breakpoint")
