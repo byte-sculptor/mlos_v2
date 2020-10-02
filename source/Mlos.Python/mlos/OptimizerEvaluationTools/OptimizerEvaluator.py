@@ -7,6 +7,7 @@ from mlos.Optimizers.OptimumDefinition import OptimumDefinition
 from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
 from mlos.Optimizers.RegressionModels.RegressionModelFitState import RegressionModelFitState
 from mlos.Spaces import Point
+from mlos.Tracer import trace
 
 
 class OptimizerEvaluator:
@@ -25,8 +26,10 @@ class OptimizerEvaluator:
 
     """
 
-    @staticmethod
+    @classmethod
+    @trace()
     def evaluate_optimizer(
+        cls,
         optimizer_config: Point,
         objective_function_config: Point,
         num_iterations: int,
@@ -36,8 +39,6 @@ class OptimizerEvaluator:
         assert optimizer_config in bayesian_optimizer_config_store.parameter_space
         assert num_iterations > 0
         assert evaluation_frequency > 0
-
-        mlos.global_values.declare_singletons()
 
         optimizer_factory = BayesianOptimizerFactory()
         objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config)
@@ -111,25 +112,3 @@ class OptimizerEvaluator:
                 print(e)
 
         return regression_model_fit_state, optima_over_time
-
-
-if __name__ == "__main__":
-    optimizer_config = bayesian_optimizer_config_store.default
-
-    objective_function_config = objective_function_config_store.get_config_by_name('5_mutually_exclusive_polynomials')
-    objective_function_config.nested_polynomial_objective_config.polynomial_objective_config.input_domain_min = -100
-    objective_function_config.nested_polynomial_objective_config.polynomial_objective_config.input_domain_width = 200
-    objective_function_config.nested_polynomial_objective_config.polynomial_objective_config.coefficient_domain_min = 100
-    objective_function_config.nested_polynomial_objective_config.polynomial_objective_config.coefficient_domain_width = 10
-    objective_function_config.nested_polynomial_objective_config.polynomial_objective_config.include_noise = False
-    print(objective_function_config.to_json(indent=2))
-
-
-    regression_model_fit_state, optima_over_time = OptimizerEvaluator.evaluate_optimizer(
-        optimizer_config,
-        objective_function_config,
-        num_iterations=1001,
-        evaluation_frequency=100
-    )
-
-    print("Breakpoint")

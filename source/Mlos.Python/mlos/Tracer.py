@@ -79,14 +79,15 @@ def add_trace_event(name, phase, category='', timestamp_ns=None, actor_id=None, 
 @contextmanager
 def traced(scope_name):
     start_timestamp_ns = int(time.time() * 1000000)
-    add_trace_event(name=scope_name, phase="B", timestamp_ns=start_timestamp_ns)
+    thread_id = current_thread().ident
+    add_trace_event(name=scope_name, phase="B", timestamp_ns=start_timestamp_ns, thread_id=thread_id)
 
     yield
 
     end_timestamp_ns = int(time.time() * 1000000)
     while end_timestamp_ns <= start_timestamp_ns:
         end_timestamp_ns += 100
-    add_trace_event(name=scope_name, phase="E", timestamp_ns=end_timestamp_ns)
+    add_trace_event(name=scope_name, phase="E", timestamp_ns=end_timestamp_ns, thread_id=thread_id)
 
 
 class Tracer:
