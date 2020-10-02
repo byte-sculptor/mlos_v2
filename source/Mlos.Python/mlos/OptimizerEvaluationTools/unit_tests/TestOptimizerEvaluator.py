@@ -13,7 +13,7 @@ from mlos.OptimizerEvaluationTools.OptimizerEvaluator import OptimizerEvaluator
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory, bayesian_optimizer_config_store
 from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
-from mlos.Tracer import Tracer
+from mlos.Tracer import Tracer, traced
 
 
 
@@ -68,21 +68,19 @@ class TestOptimizerEvaluator(unittest.TestCase):
 
         num_tests = 7
 
-        with concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
+        with traced(scope_name="parallel_tests"), concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
             outstanding_futures = set()
 
             for i in range(num_tests):
                 named_optimizer_config = optimizer_named_configs[i % num_optimizer_configs]
                 named_objective_function_config = objective_function_named_configs[i % num_objective_function_configs]
 
+                print("#####################################################################################################")
                 print(named_optimizer_config)
                 print(named_objective_function_config)
 
                 optimizer_config = named_optimizer_config.config_point
                 objective_function_config = named_objective_function_config.config_point
-
-                print(optimizer_config.to_json(indent=2))
-                print(objective_function_config.to_json(indent=2))
 
                 num_iterations = 51
                 evaluation_frequency=10
