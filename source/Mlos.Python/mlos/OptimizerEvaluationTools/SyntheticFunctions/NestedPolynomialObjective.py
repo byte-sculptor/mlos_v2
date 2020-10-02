@@ -34,7 +34,7 @@ class NestedPolynomialObjective(ObjectiveFunctionBase):
         # Let's create the required number of polynomials.
         #
         for i in range(self.objective_function_config.num_nested_polynomials):
-            polynomial_objective_config.seed *= (i + 1) # Multiply the seed so that it's still effective but also reproducible.
+            polynomial_objective_config.seed += i + 1 # Change the seed so that it's still effective but also reproducible.
             polynomial = PolynomialObjectiveWrapper(polynomial_objective_config, domain_name=f"domain_{i}")
             self._polynomials.append(polynomial)
             self._parameter_space.join(
