@@ -1,3 +1,8 @@
+#
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+#
+
 # Let's see if we can leverage the ProcessPoolExecutor to launch a bunch of optimizations simultaneously.
 #
 import concurrent.futures

@@ -1,4 +1,7 @@
-import mlos.global_values
+#
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+#
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.OptimizerEvaluationTools.OptimumOverTime import OptimumOverTime
 from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory, bayesian_optimizer_config_store
