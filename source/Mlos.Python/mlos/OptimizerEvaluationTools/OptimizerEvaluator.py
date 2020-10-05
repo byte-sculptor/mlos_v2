@@ -48,6 +48,12 @@ class OptimizerEvaluator:
         assert (objective_function is None) != (objective_function_config is None),\
             "A valid objective_function XOR a valid objective_function_config must be specified"
 
+        self.optimizer_evaluator_config = optimizer_evaluator_config
+        self.objective_function_config = None
+        self.objective_function = None
+        self.optimizer_config = None
+        self.optimizer = None
+
         # Let's get the objective function assigned to self's fields.
         #
         if (objective_function_config is not None) and (objective_function is None):
@@ -69,10 +75,10 @@ class OptimizerEvaluator:
         if (optimizer_config is not None) and (optimizer is None):
             assert optimizer_config in bayesian_optimizer_config_store.parameter_space
 
-            objective_name = objective_function.output_space.dimension_names[0]
+            objective_name = self.objective_function.output_space.dimension_names[0]
             optimization_problem = OptimizationProblem(
-                parameter_space=objective_function.parameter_space,
-                objective_space=objective_function.output_space,
+                parameter_space=self.objective_function.parameter_space,
+                objective_space=self.objective_function.output_space,
                 objectives=[Objective(name=objective_name, minimize=True)]
             )
 
@@ -196,4 +202,3 @@ class OptimizerEvaluator:
             evaluation_report.optima_over_time = optima_over_time
 
         return evaluation_report
-

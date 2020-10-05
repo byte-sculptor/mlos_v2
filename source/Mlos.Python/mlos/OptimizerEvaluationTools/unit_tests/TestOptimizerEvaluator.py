@@ -4,6 +4,7 @@
 #
 import concurrent.futures
 import os
+import pickle
 import unittest
 
 import pandas as pd
@@ -36,32 +37,54 @@ class TestOptimizerEvaluator(unittest.TestCase):
 
     def test_defaults(self):
         """Tests default optimizer configurations against default objective functions."""
-        optimzier_evaluator_config = optimizer_evaluator_config_store.default
+        optimizer_evaluator_config = optimizer_evaluator_config_store.default
 
         # We want to test this functionality so let's make sure that nobody accidentally disables it in the default config.
         #
-        self.assertTrue(optimzier_evaluator_config.include_pickled_optimizer_in_report)
-        self.assertTrue(optimzier_evaluator_config.include_pickled_objective_function_in_report)
-        self.assertTrue(optimzier_evaluator_config.report_regression_model_goodness_of_fit)
-        self.assertTrue(optimzier_evaluator_config.report_optima_over_time)
-        self.assertTrue(optimzier_evaluator_config.include_execution_trace_in_report)
+        self.assertTrue(optimizer_evaluator_config.include_pickled_optimizer_in_report)
+        self.assertTrue(optimizer_evaluator_config.include_pickled_objective_function_in_report)
+        self.assertTrue(optimizer_evaluator_config.report_regression_model_goodness_of_fit)
+        self.assertTrue(optimizer_evaluator_config.report_optima_over_time)
+        self.assertTrue(optimizer_evaluator_config.include_execution_trace_in_report)
 
         optimizer_config = bayesian_optimizer_config_store.default
         objective_function_config = objective_function_config_store.default
 
-        print(optimzier_evaluator_config.to_json(indent=2))
+        print(optimizer_evaluator_config.to_json(indent=2))
         print(optimizer_config.to_json(indent=2))
         print(objective_function_config.to_json(indent=2))
 
-        optimizer_evaluation_report = OptimizerEvaluator.evaluate_optimizer(
-            optimizer_evaluator_config=optimzier_evaluator_config,
-            optimizer_config=optimizer_config,
-            objective_function_config=objective_function_config
+        optimizer_evaluator = OptimizerEvaluator(
+            optimizer_evaluator_config=optimizer_evaluator_config,
+            objective_function_config=objective_function_config,
+            optimizer_config=optimizer_config
         )
+
+        optimizer_evaluation_report = optimizer_evaluator.evaluate_optimizer()
 
         with pd.option_context('display.max_columns', 100):
             print(optimizer_evaluation_report.regression_model_goodness_of_fit_state.get_goodness_of_fit_dataframe(DataSetType.TRAIN).tail())
             for optimum_name, optimum_over_time in optimizer_evaluation_report.optima_over_time.items():
+                print("#####################################################################################################")
+                print(optimum_name)
+                print(optimum_over_time.get_dataframe().tail(10))
+                print("#####################################################################################################")
+
+
+        # Now let's do it again with the unpickled optimizer and see if we get the same results.
+        #
+        unpickled_objective_function = pickle.loads(optimizer_evaluation_report.pickled_objective_function_initial_state)
+        unpickled_optimizer = pickle.loads(optimizer_evaluation_report.pickled_optimizer_initial_state)
+        optimizer_evaluator_2 = OptimizerEvaluator(
+            optimizer_evaluator_config=optimizer_evaluator_config,
+            objective_function=unpickled_objective_function,
+            optimizer=unpickled_optimizer
+        )
+
+        optimizer_evaluation_report_2 = optimizer_evaluator_2.evaluate_optimizer()
+        with pd.option_context('display.max_columns', 100):
+            print(optimizer_evaluation_report_2.regression_model_goodness_of_fit_state.get_goodness_of_fit_dataframe(DataSetType.TRAIN).tail())
+            for optimum_name, optimum_over_time in optimizer_evaluation_report_2.optima_over_time.items():
                 print("#####################################################################################################")
                 print(optimum_name)
                 print(optimum_over_time.get_dataframe().tail(10))
@@ -77,7 +100,7 @@ class TestOptimizerEvaluator(unittest.TestCase):
 
         num_tests = 7
 
-        with traced(scope_name="parallel_tests"), concurrent.futures.ProcessPoolExecutor(max_workers=8) as executor:
+        with traced(scope_name="parallel_tests"), concurrent.futures.ProcessPoolExecutor(max_workers=4) as executor:
             outstanding_futures = set()
 
             for i in range(num_tests):
@@ -92,13 +115,21 @@ class TestOptimizerEvaluator(unittest.TestCase):
                 optimizer_config = named_optimizer_config.config_point
                 objective_function_config = named_objective_function_config.config_point
 
-                future = executor.submit(OptimizerEvaluator.evaluate_optimizer, optimizer_evaluator_config, optimizer_config, objective_function_config)
+                optimizer_evaluator = OptimizerEvaluator(
+                    optimizer_evaluator_config=optimizer_evaluator_config,
+                    objective_function_config=objective_function_config,
+                    optimizer_config=optimizer_config
+                )
+
+                future = executor.submit(optimizer_evaluator.evaluate_optimizer)
                 outstanding_futures.add(future)
 
             done_futures, outstanding_futures = concurrent.futures.wait(outstanding_futures, return_when=concurrent.futures.ALL_COMPLETED)
 
             for future in done_futures:
                 optimizer_evaluation_report = future.result()
+                mlos.global_values.tracer.trace_events.extend(optimizer_evaluation_report.execution_trace)
+
                 with pd.option_context('display.max_columns', 100):
                     print(optimizer_evaluation_report.regression_model_goodness_of_fit_state.get_goodness_of_fit_dataframe(DataSetType.TRAIN).tail())
                     for optimum_name, optimum_over_time in optimizer_evaluation_report.optima_over_time.items():
