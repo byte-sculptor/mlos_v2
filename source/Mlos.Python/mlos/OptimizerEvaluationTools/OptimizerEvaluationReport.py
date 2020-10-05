@@ -32,8 +32,10 @@ class OptimizerEvaluationReport:
         self,
         optimizer_configuration: Point = None,
         objective_function_configuration: Point = None,
-        pickled_optimizer: str = None,
-        pickled_objective_function: str = None,
+        pickled_optimizer_initial_state: str = None,
+        pickled_optimizer_final_state: str = None,
+        pickled_objective_function_initial_state: str = None,
+        pickled_objective_function_final_state: str = None,
         num_optimization_iterations: int = None,
         evaluation_frequency: int = None,
         regression_model_goodness_of_fit_state: RegressionModelFitState = None,
@@ -42,8 +44,10 @@ class OptimizerEvaluationReport:
     ):
         self.optimizer_configuration = optimizer_configuration
         self.objective_function_configuration = objective_function_configuration
-        self.pickled_optimizer = pickled_optimizer
-        self.pickled_objective_function = pickled_objective_function
+        self.pickled_optimizer_initial_state = pickled_optimizer_initial_state
+        self.pickled_optimizer_final_state = pickled_optimizer_final_state
+        self.pickled_objective_function_initial_state = pickled_objective_function_initial_state
+        self.pickled_objective_function_final_state = pickled_objective_function_final_state
         self.num_optimization_iterations = num_optimization_iterations
         self.evaluation_frequency = evaluation_frequency
         self.regression_model_goodness_of_fit_state = regression_model_goodness_of_fit_state

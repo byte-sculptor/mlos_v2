@@ -41,19 +41,27 @@ class OptimizerEvaluator:
         optimizer_config: Point,
         objective_function_config: Point
     ) -> OptimizerEvaluationReport:
-        mlos.global_values.declare_singletons()
 
         assert optimizer_evaluator_config in optimizer_evaluator_config_store.parameter_space
-        assert objective_function_config in objective_function_config_store.parameter_space
         assert optimizer_config in bayesian_optimizer_config_store.parameter_space
+        assert objective_function_config in objective_function_config_store.parameter_space
+
+        evaluation_report = OptimizerEvaluationReport(
+            optimizer_configuration=optimizer_config,
+            objective_function_configuration=objective_function_config,
+        )
 
         if optimizer_evaluator_config.include_execution_trace_in_report:
+            mlos.global_values.declare_singletons()
             if mlos.global_values.tracer is None:
                 mlos.global_values.tracer = Tracer()
             mlos.global_values.tracer.clear_events()
 
         optimizer_factory = BayesianOptimizerFactory()
         objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config)
+
+        if optimizer_evaluator_config.include_pickled_objective_function_in_report:
+            evaluation_report.pickled_objective_function_initial_state = pickle.dumps(objective_function)
 
         objective_name = objective_function.output_space.dimension_names[0]
         optimization_problem = OptimizationProblem(
@@ -66,6 +74,9 @@ class OptimizerEvaluator:
             optimizer_config=optimizer_config,
             optimization_problem=optimization_problem
         )
+
+        if optimizer_evaluator_config.include_pickled_optimizer_in_report:
+            evaluation_report.pickled_optimizer_initial_state = pickle.dumps(optimizer)
 
         regression_model_fit_state = RegressionModelFitState()
 
@@ -123,28 +134,21 @@ class OptimizerEvaluator:
             except Exception as e:
                 print(e)
 
-        execution_trace = None
         if optimizer_evaluator_config.include_execution_trace_in_report:
-            execution_trace = mlos.global_values.tracer.trace_events
+            evaluation_report.execution_trace = mlos.global_values.tracer.trace_events
             mlos.global_values.tracer.clear_events()
 
-        pickled_optimizer = None
         if optimizer_evaluator_config.include_pickled_optimizer_in_report:
-            pickled_optimizer = pickle.dumps(optimizer)
+            evaluation_report.pickled_optimizer_final_state = pickle.dumps(optimizer)
 
-        pickled_objective_function = None
         if optimizer_evaluator_config.include_pickled_objective_function_in_report:
-            pickled_objective_function = pickle.dumps(objective_function)
+            evaluation_report.pickled_objective_function_final_state = pickle.dumps(objective_function)
 
-        return OptimizerEvaluationReport(
-            optimizer_configuration=optimizer_config,
-            objective_function_configuration=objective_function_config,
-            pickled_optimizer=pickled_optimizer,
-            pickled_objective_function=pickled_objective_function,
-            num_optimization_iterations=optimizer_evaluator_config.num_iterations,
-            evaluation_frequency=optimizer_evaluator_config.evaluation_frequency,
-            regression_model_goodness_of_fit_state=regression_model_fit_state,
-            optima_over_time=optima_over_time,
-            execution_trace=execution_trace
-        )
+        if optimizer_evaluator_config.report_regression_model_goodness_of_fit:
+            evaluation_report.regression_model_goodness_of_fit_state=regression_model_fit_state
+
+        if optimizer_evaluator_config.report_optima_over_time:
+            evaluation_report.optima_over_time = optima_over_time
+
+        return evaluation_report
 
