@@ -2,7 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-from typing import Dict
+from typing import Dict, List
 from mlos.OptimizerEvaluationTools.OptimumOverTime import OptimumOverTime
 from mlos.Optimizers.RegressionModels.RegressionModelFitState import RegressionModelFitState
 from mlos.Spaces import Point
@@ -38,7 +38,7 @@ class OptimizerEvaluationReport:
         evaluation_frequency: int = None,
         regression_model_goodness_of_fit_state: RegressionModelFitState = None,
         optima_over_time: Dict[str, OptimumOverTime] = None,
-        execution_trace: Dict[str, object] = None
+        execution_trace: List[Dict[str, object]] = None
     ):
         self.optimizer_configuration = optimizer_configuration
         self.objective_function_configuration = objective_function_configuration

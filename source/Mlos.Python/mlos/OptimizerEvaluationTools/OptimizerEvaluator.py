@@ -2,7 +2,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+import pickle
+import mlos.global_values
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
+from mlos.OptimizerEvaluationTools.OptimizerEvaluationReport import OptimizerEvaluationReport
+from mlos.OptimizerEvaluationTools.OptimizerEvaluatorConfigStore import optimizer_evaluator_config_store
 from mlos.OptimizerEvaluationTools.OptimumOverTime import OptimumOverTime
 from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory, bayesian_optimizer_config_store
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
@@ -10,8 +14,7 @@ from mlos.Optimizers.OptimumDefinition import OptimumDefinition
 from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
 from mlos.Optimizers.RegressionModels.RegressionModelFitState import RegressionModelFitState
 from mlos.Spaces import Point
-from mlos.Tracer import trace
-from mlos.OptimizerEvaluationTools.OptimizerEvaluatorConfigStore import optimizer_evaluator_config_store
+from mlos.Tracer import trace, Tracer
 
 
 class OptimizerEvaluator:
@@ -37,10 +40,17 @@ class OptimizerEvaluator:
         optimizer_evaluator_config: Point,
         optimizer_config: Point,
         objective_function_config: Point
-    ):
+    ) -> OptimizerEvaluationReport:
+        mlos.global_values.declare_singletons()
+
         assert optimizer_evaluator_config in optimizer_evaluator_config_store.parameter_space
         assert objective_function_config in objective_function_config_store.parameter_space
         assert optimizer_config in bayesian_optimizer_config_store.parameter_space
+
+        if optimizer_evaluator_config.include_execution_trace_in_report:
+            if mlos.global_values.tracer is None:
+                mlos.global_values.tracer = Tracer()
+            mlos.global_values.tracer.clear_events()
 
         optimizer_factory = BayesianOptimizerFactory()
         objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config)
@@ -109,8 +119,32 @@ class OptimizerEvaluator:
         for optimum_name, optimum_over_time in optima_over_time.items():
             try:
                 optimum_config, optimum_value = optimizer.optimum(optimum_definition=optimum_over_time.optimum_definition, alpha=optimum_over_time.alpha)
-                optima_over_time[optimum_name].add_optimum_at_iteration(iteration=num_iterations, optimum_config=optimum_config, optimum_value=optimum_value)
+                optima_over_time[optimum_name].add_optimum_at_iteration(iteration=optimizer_evaluator_config.num_iterations, optimum_config=optimum_config, optimum_value=optimum_value)
             except Exception as e:
                 print(e)
 
-        return regression_model_fit_state, optima_over_time
+        execution_trace = None
+        if optimizer_evaluator_config.include_execution_trace_in_report:
+            execution_trace = mlos.global_values.tracer.trace_events
+            mlos.global_values.tracer.clear_events()
+
+        pickled_optimizer = None
+        if optimizer_evaluator_config.include_pickled_optimizer_in_report:
+            pickled_optimizer = pickle.dumps(optimizer)
+
+        pickled_objective_function = None
+        if optimizer_evaluator_config.include_pickled_objective_function_in_report:
+            pickled_objective_function = pickle.dumps(objective_function)
+
+        return OptimizerEvaluationReport(
+            optimizer_configuration=optimizer_config,
+            objective_function_configuration=objective_function_config,
+            pickled_optimizer=pickled_optimizer,
+            pickled_objective_function=pickled_objective_function,
+            num_optimization_iterations=optimizer_evaluator_config.num_iterations,
+            evaluation_frequency=optimizer_evaluator_config.evaluation_frequency,
+            regression_model_goodness_of_fit_state=regression_model_fit_state,
+            optima_over_time=optima_over_time,
+            execution_trace=execution_trace
+        )
+

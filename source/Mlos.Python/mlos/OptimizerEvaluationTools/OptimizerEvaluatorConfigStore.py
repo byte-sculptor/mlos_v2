@@ -30,8 +30,8 @@ optimizer_evaluator_config_store = ComponentConfigStore(
         ]
     ),
     default=Point(
-        num_iterations=1000,
-        evaluation_frequency=100,
+        num_iterations=100,
+        evaluation_frequency=10,
         include_pickled_optimizer_in_report=True,
         include_pickled_objective_function_in_report=True,
         report_regression_model_goodness_of_fit=True,
@@ -44,7 +44,7 @@ optimizer_evaluator_config_store = ComponentConfigStore(
 # Parallel unit tests config.
 #
 parallel_unit_tests_config = optimizer_evaluator_config_store.default
-parallel_unit_tests_config.num_iterations = 51
+parallel_unit_tests_config.num_iterations = 50
 parallel_unit_tests_config.evaluation_frequency = 10
 optimizer_evaluator_config_store.add_config_by_name(
     config_name="parallel_unit_tests_config",

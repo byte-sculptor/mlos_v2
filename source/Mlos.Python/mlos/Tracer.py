@@ -5,6 +5,7 @@
 from contextlib import contextmanager
 from functools import wraps
 import json
+import os
 import time
 from threading import current_thread
 from typing import Dict
@@ -96,8 +97,17 @@ class Tracer:
 
     """
 
-    def __init__(self, actor_id, thread_id):
+    def __init__(self, actor_id=None, thread_id=None):
+        pid = os.getpid()
+
+        if actor_id is None:
+            actor_id = pid
+        else:
+            actor_id = f"{actor_id}.{pid}"
         self.actor_id = actor_id
+
+        if thread_id is None:
+            thread_id = current_thread().ident
         self.thread_id = thread_id
         self._trace_events = []
 
