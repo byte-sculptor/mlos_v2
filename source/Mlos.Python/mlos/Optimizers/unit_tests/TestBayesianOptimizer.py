@@ -25,7 +25,6 @@ from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.GlowWormSwarmO
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
 from mlos.Optimizers.OptimizerBase import OptimizerBase
 from mlos.Optimizers.OptimumDefinition import OptimumDefinition
-from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel import HomogeneousRandomForestRegressionModel
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Spaces import SimpleHypergrid, ContinuousDimension

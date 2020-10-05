@@ -10,8 +10,9 @@ import pandas as pd
 
 import mlos.global_values
 from mlos.OptimizerEvaluationTools.OptimizerEvaluator import OptimizerEvaluator
-from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
-from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory, bayesian_optimizer_config_store
+from mlos.OptimizerEvaluationTools.OptimizerEvaluatorConfigStore import optimizer_evaluator_config_store
+from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import objective_function_config_store
+from mlos.Optimizers.BayesianOptimizerFactory import bayesian_optimizer_config_store
 from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
 from mlos.Tracer import Tracer, traced
 
@@ -35,6 +36,7 @@ class TestOptimizerEvaluator(unittest.TestCase):
 
     def test_defaults(self):
         """Tests default optimizer configurations against default objective functions."""
+        optimzier_evaluator_config = optimizer_evaluator_config_store.default
         optimizer_config = bayesian_optimizer_config_store.default
         objective_function_config = objective_function_config_store.default
 
@@ -42,10 +44,9 @@ class TestOptimizerEvaluator(unittest.TestCase):
         print(objective_function_config.to_json(indent=2))
 
         regression_model_fit_state, optima_over_time = OptimizerEvaluator.evaluate_optimizer(
+            optimizer_evaluator_config=optimzier_evaluator_config,
             optimizer_config=optimizer_config,
-            objective_function_config=objective_function_config,
-            num_iterations=101,
-            evaluation_frequency=10
+            objective_function_config=objective_function_config
         )
 
         with pd.option_context('display.max_columns', 100):
@@ -55,8 +56,6 @@ class TestOptimizerEvaluator(unittest.TestCase):
                 print(optimum_name)
                 print(optimum_over_time.get_dataframe().tail(10))
                 print("#####################################################################################################")
-
-
 
 
     def test_named_configs(self):
@@ -79,12 +78,11 @@ class TestOptimizerEvaluator(unittest.TestCase):
                 print(named_optimizer_config)
                 print(named_objective_function_config)
 
+                optimizer_evaluator_config = optimizer_evaluator_config_store.get_config_by_name(name="parallel_unit_tests_config")
                 optimizer_config = named_optimizer_config.config_point
                 objective_function_config = named_objective_function_config.config_point
 
-                num_iterations = 51
-                evaluation_frequency=10
-                future = executor.submit(OptimizerEvaluator.evaluate_optimizer, optimizer_config, objective_function_config, num_iterations, evaluation_frequency)
+                future = executor.submit(OptimizerEvaluator.evaluate_optimizer, optimizer_evaluator_config, optimizer_config, objective_function_config)
                 outstanding_futures.add(future)
 
             done_futures, outstanding_futures = concurrent.futures.wait(outstanding_futures, return_when=concurrent.futures.ALL_COMPLETED)
