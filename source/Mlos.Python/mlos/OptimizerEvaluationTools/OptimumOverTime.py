@@ -6,6 +6,7 @@ import pandas as pd
 
 from mlos.Optimizers.OptimumDefinition import OptimumDefinition
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
+from mlos.Spaces import Point
 
 class OptimumOverTime:
     """Keeps track of an optimum over time.
@@ -24,7 +25,7 @@ class OptimumOverTime:
         self._optimal_configs = []
         self._optimum_values = []
 
-    def add_optimum_at_iteration(self, iteration, optimum_config, optimum_value):
+    def add_optimum_at_iteration(self, iteration: int, optimum_config: Point, optimum_value: Point):
         assert optimum_config in self.optimization_problem.parameter_space
 
         self._iteration_numbers.append(iteration)
@@ -44,5 +45,10 @@ class OptimumOverTime:
 
         combined_df = pd.concat([iteration_df, config_df, optimum_df], axis=1)
         return combined_df
+
+
+    def get_last_optimum(self):
+        if len(self._optimal_configs) > 0 and len(self._optimum_values) > 0:
+            return self._optimal_configs[-1], self._optimum_values[-1]
 
 

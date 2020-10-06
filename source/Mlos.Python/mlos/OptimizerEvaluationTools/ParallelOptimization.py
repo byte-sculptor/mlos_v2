@@ -2,11 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-
-# Let's see if we can leverage the ProcessPoolExecutor to launch a bunch of optimizations simultaneously.
-#
 import concurrent.futures
-import time
 
 from mlos.Optimizers.BayesianOptimizerConfigStore import bayesian_optimizer_config_store
 from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory
