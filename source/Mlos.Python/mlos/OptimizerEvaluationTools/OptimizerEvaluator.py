@@ -16,7 +16,7 @@ from mlos.Optimizers.OptimumDefinition import OptimumDefinition
 from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
 from mlos.Optimizers.RegressionModels.RegressionModelFitState import RegressionModelFitState
 from mlos.Spaces import Point
-from mlos.Tracer import trace, Tracer
+from mlos.Tracer import trace, traced, Tracer
 
 
 class OptimizerEvaluator:
@@ -148,27 +148,28 @@ class OptimizerEvaluator:
         )
 
         #####################################################################################################
+        with traced(scope_name="optimization_loop"):
+            for i in range(self.optimizer_evaluator_config.num_iterations):
+                parameters = self.optimizer.suggest()
+                objectives = self.objective_function.evaluate_point(parameters)
+                self.optimizer.register(parameters.to_dataframe(), objectives.to_dataframe())
 
-        for i in range(self.optimizer_evaluator_config.num_iterations):
-            parameters = self.optimizer.suggest()
-            objectives = self.objective_function.evaluate_point(parameters)
-            self.optimizer.register(parameters.to_dataframe(), objectives.to_dataframe())
+                if i % self.optimizer_evaluator_config.evaluation_frequency == 0:
+                    with traced(scope_name="evaluating_optimizer"):
+                        print(f"[{i+1}/{self.optimizer_evaluator_config.num_iterations}]")
+                        if self.optimizer.trained:
+                            gof_metrics = self.optimizer.compute_surrogate_model_goodness_of_fit()
+                            regression_model_fit_state.set_gof_metrics(data_set_type=DataSetType.TRAIN, gof_metrics=gof_metrics)
 
-            if i % self.optimizer_evaluator_config.evaluation_frequency == 0:
-                print(f"[{i+1}/{self.optimizer_evaluator_config.num_iterations}]")
-                if self.optimizer.trained:
-                    gof_metrics = self.optimizer.compute_surrogate_model_goodness_of_fit()
-                    regression_model_fit_state.set_gof_metrics(data_set_type=DataSetType.TRAIN, gof_metrics=gof_metrics)
-
-                for optimum_name, optimum_over_time in optima_over_time.items():
-                    try:
-                        optimum_config, optimum_value = self.optimizer.optimum(
-                            optimum_definition=optimum_over_time.optimum_definition,
-                            alpha=optimum_over_time.alpha
-                        )
-                        optima_over_time[optimum_name].add_optimum_at_iteration(iteration=i, optimum_config=optimum_config, optimum_value=optimum_value)
-                    except ValueError as e:
-                        print(e)
+                        for optimum_name, optimum_over_time in optima_over_time.items():
+                            try:
+                                optimum_config, optimum_value = self.optimizer.optimum(
+                                    optimum_definition=optimum_over_time.optimum_definition,
+                                    alpha=optimum_over_time.alpha
+                                )
+                                optima_over_time[optimum_name].add_optimum_at_iteration(iteration=i, optimum_config=optimum_config, optimum_value=optimum_value)
+                            except ValueError as e:
+                                print(e)
 
         if self.optimizer.trained:
             gof_metrics = self.optimizer.compute_surrogate_model_goodness_of_fit()

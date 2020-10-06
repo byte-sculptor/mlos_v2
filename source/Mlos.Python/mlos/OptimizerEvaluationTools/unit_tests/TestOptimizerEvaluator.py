@@ -71,7 +71,7 @@ class TestOptimizerEvaluator(unittest.TestCase):
                 print("#####################################################################################################")
 
 
-        # Now let's do it again with the unpickled optimizer and see if we get the same results.
+        # Now let's do it again with the unpickled optimizer.
         #
         unpickled_objective_function = pickle.loads(optimizer_evaluation_report.pickled_objective_function_initial_state)
         unpickled_optimizer = pickle.loads(optimizer_evaluation_report.pickled_optimizer_initial_state)
