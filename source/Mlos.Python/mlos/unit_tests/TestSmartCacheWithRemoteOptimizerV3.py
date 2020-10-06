@@ -133,9 +133,9 @@ class TestSmartCacheWithRemoteOptimizer(unittest.TestCase):
         #
         random_forest_gof_metrics = self.optimizer.compute_surrogate_model_goodness_of_fit()
 
-        # The model might not have used all of the samples, but should have used a majority of them (I expect about 90%), but 70% is a good sanity check
+        # The model might not have used all of the samples, but should have used a majority of them (I expect about 90%), but 60% is a good sanity check
         # and should make this test not very flaky.
-        self.assertTrue(random_forest_gof_metrics.last_refit_iteration_number > 0.7 * num_iterations)
+        self.assertTrue(random_forest_gof_metrics.last_refit_iteration_number > 0.6 * num_iterations)
 
         # The invariants below should be true for all surrogate models: the random forest, and all constituent decision trees. So let's iterate over them all.
         models_gof_metrics = [random_forest_gof_metrics]
