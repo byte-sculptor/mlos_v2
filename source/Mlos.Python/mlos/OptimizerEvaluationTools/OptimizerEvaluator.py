@@ -4,6 +4,7 @@
 #
 import pickle
 import mlos.global_values
+from mlos.Logger import create_logger
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.OptimizerEvaluationTools.OptimizerEvaluationReport import OptimizerEvaluationReport
@@ -103,12 +104,16 @@ class OptimizerEvaluator:
 
     @trace()
     def evaluate_optimizer(self) -> OptimizerEvaluationReport:
+        logger, buffering_handler = create_logger("OptimizerEvaluator", create_buffering_handler=True)
+
+        self.optimizer.logger = logger
 
         evaluation_report = OptimizerEvaluationReport(
             optimizer_configuration=self.optimizer_config,
             objective_function_configuration=self.objective_function_config,
             num_optimization_iterations=self.optimizer_evaluator_config.num_iterations,
-            evaluation_frequency=self.optimizer_evaluator_config.evaluation_frequency
+            evaluation_frequency=self.optimizer_evaluator_config.evaluation_frequency,
+            log_buffer=buffering_handler
         )
 
         if self.optimizer_evaluator_config.include_execution_trace_in_report:
@@ -202,6 +207,10 @@ class OptimizerEvaluator:
         if self.optimizer_evaluator_config.include_execution_trace_in_report:
             evaluation_report.execution_trace = mlos.global_values.tracer.trace_events
             mlos.global_values.tracer.clear_events()
+
+        if self.optimizer_evaluator_config.include_log_records_in_report:
+            evaluation_report.log_buffer = buffering_handler.get_records()
+            buffering_handler.clear()
 
         if self.optimizer_evaluator_config.include_pickled_optimizer_in_report:
             evaluation_report.add_pickled_optimizer(iteration=i, pickled_optimizer=pickle.dumps(self.optimizer))

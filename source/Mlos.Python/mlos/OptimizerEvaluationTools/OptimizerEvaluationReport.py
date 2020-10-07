@@ -2,9 +2,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+import json
 import os
 import pickle
 from typing import Dict, List
+from mlos.Logger import BufferingHandler, create_logger
 from mlos.OptimizerEvaluationTools.OptimumOverTime import OptimumOverTime
 from mlos.Optimizers.RegressionModels.RegressionModelFitState import RegressionModelFitState
 from mlos.Spaces import Point
@@ -41,7 +43,8 @@ class OptimizerEvaluationReport:
         evaluation_frequency: int = None,
         regression_model_goodness_of_fit_state: RegressionModelFitState = None,
         optima_over_time: Dict[str, OptimumOverTime] = None,
-        execution_trace: List[Dict[str, object]] = None
+        execution_trace: List[Dict[str, object]] = None,
+        log_buffer: List = None
     ):
         self.success = False
         self.exception = None
@@ -59,6 +62,7 @@ class OptimizerEvaluationReport:
         self.regression_model_goodness_of_fit_state = regression_model_goodness_of_fit_state
         self.optima_over_time = optima_over_time
         self.execution_trace = execution_trace
+        self.log_buffer = log_buffer if log_buffer is not None else []
 
     @trace()
     def add_pickled_optimizer(self, iteration: int, pickled_optimizer: bytes):
@@ -79,11 +83,11 @@ class OptimizerEvaluationReport:
 
         if len(self.pickled_optimizers_over_time) > 0:
             pickled_optimizers_dir = os.path.join(target_folder, "pickled_optimizers")
-            os.mkdir(pickled_optimizers_dir)
+            if not os.path.exists(pickled_optimizers_dir):
+                os.mkdir(pickled_optimizers_dir)
             for iteration, pickled_optimizer in self.pickled_optimizers_over_time.items():
                 with open(os.path.join(pickled_optimizers_dir, f"{iteration}.pickle"), 'wb') as out_file:
                     out_file.write(pickled_optimizer)
-
 
         if self.pickled_objective_function_initial_state is not None:
             with open(os.path.join(target_folder, "objective_function_initial_state.pickle"), "wb") as out_file:
@@ -106,14 +110,19 @@ class OptimizerEvaluationReport:
             tracer.trace_events = self.execution_trace
             tracer.dump_trace_to_file(output_file_path=os.path.join(target_folder, "execution_trace.json"))
 
+        if len(self.log_buffer) > 0:
+            logger, buffer = create_logger("OptimizerEvaluator", create_buffering_handler=True)
+            buffer.buffered_log_records = self.log_buffer
+            buffer.dump_to_file(output_file_path=os.path.join(target_folder, "execution_log.log"))
+
         with open(os.path.join(target_folder, "execution_info.txt"), 'w') as out_file:
+            execution_info_dict = {
+                'success': self.success,
+                'num_optimization_iterations': self.num_optimization_iterations,
+                'evaluation_frequency': self.evaluation_frequency,
+                'exception': str(self.exception)
+            }
+            json.dump(execution_info_dict, out_file, indent=2)
 
-            out_file.write(f"Success: {self.success}\n")
-            out_file.write(f"num_optimization_iterations: {self.num_optimization_iterations}\n")
-            out_file.write(f"evaluation_frequency: {self.evaluation_frequency}\n")
-
-            if self.exception is not None:
-                out_file.write(str(self.exception))
-                out_file.write("\n")
 
 

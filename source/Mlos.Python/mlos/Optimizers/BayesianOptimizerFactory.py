@@ -41,7 +41,8 @@ class BayesianOptimizerFactory:
 
         return BayesianOptimizer(
             optimization_problem=optimization_problem,
-            optimizer_config=optimizer_config
+            optimizer_config=optimizer_config,
+            logger=self.logger
         )
 
 
