@@ -43,8 +43,7 @@ class OptimizerEvaluationReport:
         evaluation_frequency: int = None,
         regression_model_goodness_of_fit_state: RegressionModelFitState = None,
         optima_over_time: Dict[str, OptimumOverTime] = None,
-        execution_trace: List[Dict[str, object]] = None,
-        log_buffer: List = None
+        execution_trace: List[Dict[str, object]] = None
     ):
         self.success = False
         self.exception = None
@@ -62,7 +61,6 @@ class OptimizerEvaluationReport:
         self.regression_model_goodness_of_fit_state = regression_model_goodness_of_fit_state
         self.optima_over_time = optima_over_time
         self.execution_trace = execution_trace
-        self.log_buffer = log_buffer if log_buffer is not None else []
 
     @trace()
     def add_pickled_optimizer(self, iteration: int, pickled_optimizer: bytes):
@@ -109,11 +107,6 @@ class OptimizerEvaluationReport:
             tracer = Tracer()
             tracer.trace_events = self.execution_trace
             tracer.dump_trace_to_file(output_file_path=os.path.join(target_folder, "execution_trace.json"))
-
-        if len(self.log_buffer) > 0:
-            logger, buffer = create_logger("OptimizerEvaluator", create_buffering_handler=True)
-            buffer.buffered_log_records = self.log_buffer
-            buffer.dump_to_file(output_file_path=os.path.join(target_folder, "execution_log.log"))
 
         with open(os.path.join(target_folder, "execution_info.txt"), 'w') as out_file:
             execution_info_dict = {

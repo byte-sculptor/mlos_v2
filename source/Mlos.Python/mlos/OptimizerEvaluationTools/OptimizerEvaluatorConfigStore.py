@@ -27,7 +27,6 @@ optimizer_evaluator_config_store = ComponentConfigStore(
             CategoricalDimension(name="report_regression_model_goodness_of_fit", values=[True, False]),
             CategoricalDimension(name="report_optima_over_time", values=[True, False]),
             CategoricalDimension(name="include_execution_trace_in_report", values=[True, False]),
-            CategoricalDimension(name="include_log_records_in_report", values=[True, False])
         ]
     ),
     default=Point(
@@ -38,7 +37,6 @@ optimizer_evaluator_config_store = ComponentConfigStore(
         report_regression_model_goodness_of_fit=True,
         report_optima_over_time=True,
         include_execution_trace_in_report=True,
-        include_log_records_in_report=True
     )
 )
 
