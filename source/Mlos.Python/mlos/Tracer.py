@@ -115,6 +115,10 @@ class Tracer:
     def trace_events(self):
         return self._trace_events
 
+    @trace_events.setter
+    def trace_events(self, value):
+        self._trace_events = value
+
     @staticmethod
     def reformat_events(events):
         key_mappings = {

@@ -107,6 +107,8 @@ class OptimizerEvaluator:
         evaluation_report = OptimizerEvaluationReport(
             optimizer_configuration=self.optimizer_config,
             objective_function_configuration=self.objective_function_config,
+            num_optimization_iterations=self.optimizer_evaluator_config.num_iterations,
+            evaluation_frequency=self.optimizer_evaluator_config.evaluation_frequency
         )
 
         if self.optimizer_evaluator_config.include_execution_trace_in_report:
@@ -148,28 +150,39 @@ class OptimizerEvaluator:
         )
 
         #####################################################################################################
-        with traced(scope_name="optimization_loop"):
-            for i in range(self.optimizer_evaluator_config.num_iterations):
-                parameters = self.optimizer.suggest()
-                objectives = self.objective_function.evaluate_point(parameters)
-                self.optimizer.register(parameters.to_dataframe(), objectives.to_dataframe())
+        i = 0
+        try:
+            with traced(scope_name="optimization_loop"):
+                for i in range(self.optimizer_evaluator_config.num_iterations):
+                    parameters = self.optimizer.suggest()
+                    objectives = self.objective_function.evaluate_point(parameters)
+                    self.optimizer.register(parameters.to_dataframe(), objectives.to_dataframe())
 
-                if i % self.optimizer_evaluator_config.evaluation_frequency == 0:
-                    with traced(scope_name="evaluating_optimizer"):
-                        print(f"[{i+1}/{self.optimizer_evaluator_config.num_iterations}]")
-                        if self.optimizer.trained:
-                            gof_metrics = self.optimizer.compute_surrogate_model_goodness_of_fit()
-                            regression_model_fit_state.set_gof_metrics(data_set_type=DataSetType.TRAIN, gof_metrics=gof_metrics)
+                    if i % self.optimizer_evaluator_config.evaluation_frequency == 0:
 
-                        for optimum_name, optimum_over_time in optima_over_time.items():
-                            try:
-                                optimum_config, optimum_value = self.optimizer.optimum(
-                                    optimum_definition=optimum_over_time.optimum_definition,
-                                    alpha=optimum_over_time.alpha
-                                )
-                                optima_over_time[optimum_name].add_optimum_at_iteration(iteration=i, optimum_config=optimum_config, optimum_value=optimum_value)
-                            except ValueError as e:
-                                print(e)
+                        if self.optimizer_evaluator_config.include_pickled_optimizer_in_report:
+                            evaluation_report.add_pickled_optimizer(iteration=i, pickled_optimizer=pickle.dumps(self.optimizer))
+
+                        with traced(scope_name="evaluating_optimizer"):
+                            print(f"[{i+1}/{self.optimizer_evaluator_config.num_iterations}]")
+                            if self.optimizer.trained:
+                                gof_metrics = self.optimizer.compute_surrogate_model_goodness_of_fit()
+                                regression_model_fit_state.set_gof_metrics(data_set_type=DataSetType.TRAIN, gof_metrics=gof_metrics)
+
+                            for optimum_name, optimum_over_time in optima_over_time.items():
+                                try:
+                                    optimum_config, optimum_value = self.optimizer.optimum(
+                                        optimum_definition=optimum_over_time.optimum_definition,
+                                        alpha=optimum_over_time.alpha
+                                    )
+                                    optima_over_time[optimum_name].add_optimum_at_iteration(iteration=i, optimum_config=optimum_config, optimum_value=optimum_value)
+                                except ValueError as e:
+                                    print(e)
+                evaluation_report.success = True
+
+        except Exception as e:
+            evaluation_report.success = False
+            evaluation_report.exception = e
 
         if self.optimizer.trained:
             gof_metrics = self.optimizer.compute_surrogate_model_goodness_of_fit()
@@ -191,13 +204,13 @@ class OptimizerEvaluator:
             mlos.global_values.tracer.clear_events()
 
         if self.optimizer_evaluator_config.include_pickled_optimizer_in_report:
-            evaluation_report.pickled_optimizer_final_state = pickle.dumps(self.optimizer)
+            evaluation_report.add_pickled_optimizer(iteration=i, pickled_optimizer=pickle.dumps(self.optimizer))
 
         if self.optimizer_evaluator_config.include_pickled_objective_function_in_report:
             evaluation_report.pickled_objective_function_final_state = pickle.dumps(self.objective_function)
 
         if self.optimizer_evaluator_config.report_regression_model_goodness_of_fit:
-            evaluation_report.regression_model_goodness_of_fit_state=regression_model_fit_state
+            evaluation_report.regression_model_goodness_of_fit_state = regression_model_fit_state
 
         if self.optimizer_evaluator_config.report_optima_over_time:
             evaluation_report.optima_over_time = optima_over_time

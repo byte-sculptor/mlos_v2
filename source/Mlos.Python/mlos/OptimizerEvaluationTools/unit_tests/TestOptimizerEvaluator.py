@@ -26,11 +26,12 @@ class TestOptimizerEvaluator(unittest.TestCase):
         mlos.global_values.declare_singletons()
         mlos.global_values.tracer = Tracer(actor_id=cls.__name__, thread_id=0)
 
-    @classmethod
-    def tearDownClass(cls) -> None:
         cls.temp_dir = os.path.join(os.getcwd(), "temp")
         if not os.path.exists(cls.temp_dir):
             os.mkdir(cls.temp_dir)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
         trace_output_path = os.path.join(cls.temp_dir, "TestOptimizerEvaluator.json")
         print(f"Dumping trace to {trace_output_path}")
         mlos.global_values.tracer.dump_trace_to_file(output_file_path=trace_output_path)
@@ -70,6 +71,7 @@ class TestOptimizerEvaluator(unittest.TestCase):
                 print(optimum_over_time.get_dataframe().tail(10))
                 print("#####################################################################################################")
 
+        optimizer_evaluation_report.write_to_disk(target_folder=self.temp_dir)
 
         # Now let's do it again with the unpickled optimizer.
         #

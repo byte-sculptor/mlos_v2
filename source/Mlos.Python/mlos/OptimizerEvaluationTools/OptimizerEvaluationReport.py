@@ -2,10 +2,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+import os
+import pickle
 from typing import Dict, List
 from mlos.OptimizerEvaluationTools.OptimumOverTime import OptimumOverTime
 from mlos.Optimizers.RegressionModels.RegressionModelFitState import RegressionModelFitState
 from mlos.Spaces import Point
+from mlos.Tracer import trace, Tracer
 
 
 class OptimizerEvaluationReport:
@@ -32,8 +35,6 @@ class OptimizerEvaluationReport:
         self,
         optimizer_configuration: Point = None,
         objective_function_configuration: Point = None,
-        pickled_optimizer_initial_state: str = None,
-        pickled_optimizer_final_state: str = None,
         pickled_objective_function_initial_state: str = None,
         pickled_objective_function_final_state: str = None,
         num_optimization_iterations: int = None,
@@ -42,10 +43,15 @@ class OptimizerEvaluationReport:
         optima_over_time: Dict[str, OptimumOverTime] = None,
         execution_trace: List[Dict[str, object]] = None
     ):
+        self.success = False
+        self.exception = None
+
         self.optimizer_configuration = optimizer_configuration
         self.objective_function_configuration = objective_function_configuration
-        self.pickled_optimizer_initial_state = pickled_optimizer_initial_state
-        self.pickled_optimizer_final_state = pickled_optimizer_final_state
+
+        # Dictionary with iteration number as key and pickled optimizer as value
+        #
+        self.pickled_optimizers_over_time: Dict[int, bytes] = {}
         self.pickled_objective_function_initial_state = pickled_objective_function_initial_state
         self.pickled_objective_function_final_state = pickled_objective_function_final_state
         self.num_optimization_iterations = num_optimization_iterations
@@ -53,3 +59,61 @@ class OptimizerEvaluationReport:
         self.regression_model_goodness_of_fit_state = regression_model_goodness_of_fit_state
         self.optima_over_time = optima_over_time
         self.execution_trace = execution_trace
+
+    @trace()
+    def add_pickled_optimizer(self, iteration: int, pickled_optimizer: bytes):
+        assert iteration >= 0
+        self.pickled_optimizers_over_time[iteration] = pickled_optimizer
+
+    def write_to_disk(self, target_folder):
+        """Writes the report to disk.
+
+        """
+        optimizer_config_file = os.path.join(target_folder, "optimizer_config.json")
+        with open(optimizer_config_file, 'w') as out_file:
+            out_file.write(self.optimizer_configuration.to_json(indent=2))
+
+        objective_function_config_file = os.path.join(target_folder, "objective_function_config.json")
+        with open(objective_function_config_file, 'w') as out_file:
+            out_file.write(self.objective_function_configuration.to_json(indent=2))
+
+        if len(self.pickled_optimizers_over_time) > 0:
+            pickled_optimizers_dir = os.path.join(target_folder, "pickled_optimizers")
+            os.mkdir(pickled_optimizers_dir)
+            for iteration, pickled_optimizer in self.pickled_optimizers_over_time.items():
+                with open(os.path.join(pickled_optimizers_dir, f"{iteration}.pickle"), 'wb') as out_file:
+                    out_file.write(pickled_optimizer)
+
+
+        if self.pickled_objective_function_initial_state is not None:
+            with open(os.path.join(target_folder, "objective_function_initial_state.pickle"), "wb") as out_file:
+                out_file.write(self.pickled_objective_function_initial_state)
+
+        if self.pickled_objective_function_final_state is not None:
+            with open(os.path.join(target_folder, "objective_function_final_state.pickle"), "wb") as out_file:
+                out_file.write(self.pickled_objective_function_final_state)
+
+        if self.regression_model_goodness_of_fit_state is not None:
+            with open(os.path.join(target_folder, "goodness_of_fit.pickle"), "wb") as out_file:
+                pickle.dump(self.regression_model_goodness_of_fit_state, out_file)
+
+        if self.optima_over_time is not None:
+            with open(os.path.join(target_folder, "optima_over_time.pickle"), "wb") as out_file:
+                pickle.dump(self.optima_over_time, out_file)
+
+        if self.execution_trace is not None:
+            tracer = Tracer()
+            tracer.trace_events = self.execution_trace
+            tracer.dump_trace_to_file(output_file_path=os.path.join(target_folder, "execution_trace.json"))
+
+        with open(os.path.join(target_folder, "execution_info.txt"), 'w') as out_file:
+
+            out_file.write(f"Success: {self.success}\n")
+            out_file.write(f"num_optimization_iterations: {self.num_optimization_iterations}\n")
+            out_file.write(f"evaluation_frequency: {self.evaluation_frequency}\n")
+
+            if self.exception is not None:
+                out_file.write(str(self.exception))
+                out_file.write("\n")
+
+
