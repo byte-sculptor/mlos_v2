@@ -3,8 +3,9 @@
 # Licensed under the MIT License.
 #
 import pickle
+import traceback
+
 import mlos.global_values
-from mlos.Logger import create_logger
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.OptimizerEvaluationTools.OptimizerEvaluationReport import OptimizerEvaluationReport
@@ -183,6 +184,7 @@ class OptimizerEvaluator:
         except Exception as e:
             evaluation_report.success = False
             evaluation_report.exception = e
+            evaluation_report.exception_traceback = traceback.format_exc()
 
         if self.optimizer.trained:
             gof_metrics = self.optimizer.compute_surrogate_model_goodness_of_fit()

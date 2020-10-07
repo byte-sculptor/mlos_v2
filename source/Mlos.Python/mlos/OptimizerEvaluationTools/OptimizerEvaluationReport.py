@@ -47,6 +47,7 @@ class OptimizerEvaluationReport:
     ):
         self.success = False
         self.exception = None
+        self.exception_traceback = None
 
         self.optimizer_configuration = optimizer_configuration
         self.objective_function_configuration = objective_function_configuration
@@ -113,7 +114,8 @@ class OptimizerEvaluationReport:
                 'success': self.success,
                 'num_optimization_iterations': self.num_optimization_iterations,
                 'evaluation_frequency': self.evaluation_frequency,
-                'exception': str(self.exception)
+                'exception': str(self.exception),
+                'exception_stack_trace': self.exception_traceback
             }
             json.dump(execution_info_dict, out_file, indent=2)
 
