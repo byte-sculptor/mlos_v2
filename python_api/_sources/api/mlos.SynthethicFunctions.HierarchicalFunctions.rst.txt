@@ -1,7 +1,0 @@
-mlos.SynthethicFunctions.HierarchicalFunctions
-==============================================
-
-.. automodule:: mlos.SynthethicFunctions.HierarchicalFunctions
-   :members:
-   :undoc-members:
-   :show-inheritance:

@@ -8,6 +8,10 @@
   </url>
   
   <url>
+    <loc>https://microsoft.github.io/MLOS/build/uncrustify/</loc>
+  </url>
+  
+  <url>
     <loc>https://microsoft.github.io/MLOS/CODE_OF_CONDUCT/</loc>
     <priority>0</priority>
   </url>
@@ -33,17 +37,12 @@
   </url>
   
   <url>
-    <loc>https://microsoft.github.io/MLOS/documentation/04-Contributing/</loc>
+    <loc>https://microsoft.github.io/MLOS/documentation/04-Test/</loc>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://microsoft.github.io/MLOS/documentation/05-Test/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>https://microsoft.github.io/MLOS/documentation/06-Debug/</loc>
+    <loc>https://microsoft.github.io/MLOS/documentation/05-Debug/</loc>
     <priority>0</priority>
   </url>
   
@@ -73,27 +72,32 @@
   </url>
   
   <url>
+    <loc>https://microsoft.github.io/MLOS/documentation/Troubleshooting/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/notebooks/</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>https://microsoft.github.io/MLOS/notebooks/BayesianOptimization/</loc>
+    <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://microsoft.github.io/MLOS/notebooks/OptimizerMonitor/</loc>
+    <loc>https://microsoft.github.io/MLOS/notebooks/LevelDbTuning/</loc>
+    <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://microsoft.github.io/MLOS/notebooks/SmartCache/</loc>
+    <loc>https://microsoft.github.io/MLOS/notebooks/SmartCacheCPP/</loc>
+    <priority>0</priority>
   </url>
   
   <url>
-    <loc>https://microsoft.github.io/MLOS/notebooks/SmartCacheActiveLearning/</loc>
-  </url>
-  
-  <url>
-    <loc>https://microsoft.github.io/MLOS/notebooks/StartHere/</loc>
-  </url>
-  
-  <url>
-    <loc>https://microsoft.github.io/MLOS/README/</loc>
+    <loc>https://microsoft.github.io/MLOS/notebooks/SmartCacheOptimization/</loc>
     <priority>0</priority>
   </url>
   
@@ -103,11 +107,83 @@
   </url>
   
   <url>
+    <loc>https://microsoft.github.io/MLOS/source/Examples/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Examples/SmartCache/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Examples/SmartSharedChannel/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.Core/doc/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.Core/doc/SharedChannel/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.Core/doc/SharedMemoryManagement/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.NetCore/Doc/SharedChannelScaleout/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.Python/Docker/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.Python/Docs/BayesianOptimizerArchitecture/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.Python/Docs/BayesianOptimizerV1/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.Python/Docs/OptimizerMonitoring/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.Python/Docs/SimpleImportGraph/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.Python/mlos/Examples/SmartCache/OverviewOfCachingStrategies/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.Python/mlos/Spaces/HypergridAdapters/AboutHypergridAdapters/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.SettingsSystem.Attributes/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.SettingsSystem.CodeGen/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.Streaming/Doc/AggregateStreaming/</loc>
+  </url>
+  
+  <url>
+    <loc>https://microsoft.github.io/MLOS/build/</loc>
+  </url>
+  
+  <url>
     <loc>https://microsoft.github.io/MLOS/categories/</loc>
   </url>
   
   <url>
-    <loc>https://microsoft.github.io/MLOS/notebooks/</loc>
+    <loc>https://microsoft.github.io/MLOS/source/</loc>
   </url>
   
   <url>

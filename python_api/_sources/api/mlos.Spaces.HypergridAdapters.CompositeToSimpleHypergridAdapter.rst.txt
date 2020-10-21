@@ -1,7 +1,0 @@
-mlos.Spaces.HypergridAdapters.CompositeToSimpleHypergridAdapter
-===============================================================
-
-.. automodule:: mlos.Spaces.HypergridAdapters.CompositeToSimpleHypergridAdapter
-   :members:
-   :undoc-members:
-   :show-inheritance:

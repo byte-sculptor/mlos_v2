@@ -1,7 +1,0 @@
-mlos.Optimizers.SimpleBayesianOptimizer
-=======================================
-
-.. automodule:: mlos.Optimizers.SimpleBayesianOptimizer
-   :members:
-   :undoc-members:
-   :show-inheritance:

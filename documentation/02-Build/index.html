@@ -4,21 +4,13 @@
 <head>
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Build Instructions for MLOS Prerequisites See 01-Prerequisites/ for initial build tools setup instructions.
-Linux TODO
-Windows CLI Visual Studio build tools need to be added to the shell environment.
- Note: Visual Studio build tools are available free.
-Please see the initial setup instructions linked above for details.
-   Setup the powershell environment to find the Visual Studio build tools.
-.\scripts\init.windows.ps1 Note: you can also execute .\scripts\init.windows.cmd if you prefer a cmd environment.">
+<meta name="description" content="Build Instructions for MLOS Prerequisites See 01-Prerequisites.md for initial build tools setup instructions.
+There are different instructions according to the environment setup you chose.
+Contents  Build Instructions for MLOS  Prerequisites Contents Docker  Create a new container instance  Using the upstream container image Using the locally built image   Other useful docker commands Start an existing container instance Get a new shell in a running container instance   Linux  CLI: make VSCode   Windows  CLI: msbuild Building with Visual Studio      Docker If you chose to use the Docker build environment and have already built or pulled a container image using the instructions in 01-Prerequisites.">
 <meta name="theme-color" content="#FFFFFF"><meta property="og:title" content="" />
-<meta property="og:description" content="Build Instructions for MLOS Prerequisites See 01-Prerequisites/ for initial build tools setup instructions.
-Linux TODO
-Windows CLI Visual Studio build tools need to be added to the shell environment.
- Note: Visual Studio build tools are available free.
-Please see the initial setup instructions linked above for details.
-   Setup the powershell environment to find the Visual Studio build tools.
-.\scripts\init.windows.ps1 Note: you can also execute .\scripts\init.windows.cmd if you prefer a cmd environment." />
+<meta property="og:description" content="Build Instructions for MLOS Prerequisites See 01-Prerequisites.md for initial build tools setup instructions.
+There are different instructions according to the environment setup you chose.
+Contents  Build Instructions for MLOS  Prerequisites Contents Docker  Create a new container instance  Using the upstream container image Using the locally built image   Other useful docker commands Start an existing container instance Get a new shell in a running container instance   Linux  CLI: make VSCode   Windows  CLI: msbuild Building with Visual Studio      Docker If you chose to use the Docker build environment and have already built or pulled a container image using the instructions in 01-Prerequisites." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://microsoft.github.io/MLOS/documentation/02-Build/" />
 
@@ -26,7 +18,7 @@ Please see the initial setup instructions linked above for details.
 <link rel="manifest" href="/MLOS/manifest.json">
 <link rel="icon" href="/MLOS/favicon.png" type="image/x-icon">
 <link rel="stylesheet" href="/MLOS/book.min.6cd8553a6854f4812343f0f0c8baca31271e686434f381fbe3c7226f66639176.css" integrity="sha256-bNhVOmhU9IEjQ/DwyLrKMSceaGQ084H748cib2ZjkXY=">
-<script defer src="/MLOS/en.search.min.cc96a7413791751526756cae4211f52e5ac1ca9a4e40b13267c3b93354caf41e.js" integrity="sha256-zJanQTeRdRUmdWyuQhH1LlrByppOQLEyZ8O5M1TK9B4="></script>
+<script defer src="/MLOS/en.search.min.9d3d826a74a238923dfb862edd7dd7495c7867e2bd880c50b9c513f2a94d39b1.js" integrity="sha256-nT2CanSiOJI9&#43;4Yu3X3XSVx4Z&#43;K9iAxQucUT8qlNObE="></script>
 <!--
 Made with Book Theme
 https://github.com/alex-shpak/hugo-book
@@ -68,22 +60,21 @@ https://github.com/alex-shpak/hugo-book
 <li>
 <p><a href="/MLOS/documentation/">Documentation</a></p>
 <ul>
-<li><a href="/MLOS/documentation/01-Prerequisites/">Prerequisits</a></li>
+<li><a href="/MLOS/documentation/01-Prerequisites/">Prerequisites</a></li>
 <li><a href="/MLOS/documentation/02-Build/"class=active>Build</a></li>
-<li><a href="/MLOS/documentation/05-Test/">Test</a></li>
+<li><a href="/MLOS/documentation/04-Test/">Test</a></li>
 <li><a href="/MLOS/documentation/CodingStandard/">Coding Standard</a></li>
 <li><a href="/MLOS/documentation/MlosArchitecture/">Architecture</a></li>
 <li><a href="/MLOS/documentation/RepoOrganization/">Repo Organization</a></li>
 </ul>
 </li>
 <li>
-<p>Notebooks</p>
+<p><a href="/MLOS/notebooks/">Notebooks</a></p>
 <ul>
-<li><a href="/MLOS/notebooks/StartHere/">Start Here</a></li>
-<li><a href="/MLOS/notebooks/SmartCache/">Smart Cache</a></li>
-<li><a href="/MLOS/notebooks/SmartCacheActiveLearning/">Smart Cache Active Learning</a></li>
-<li><a href="/MLOS/notebooks/OptimizerMonitor/">Optimizer Monitor</a></li>
 <li><a href="/MLOS/notebooks/BayesianOptimization/">Bayesian Optimization</a></li>
+<li><a href="/MLOS/notebooks/SmartCacheOptimization/">Smart Cache Optimization</a></li>
+<li><a href="/MLOS/notebooks/SmartCacheCPP/">Smart Cache Optimization in C++</a></li>
+<li><a href="/MLOS/notebooks/LevelDbTuning/">LevelDB External Tuning Example</a></li>
 </ul>
 </li>
 <li>
@@ -93,10 +84,19 @@ https://github.com/alex-shpak/hugo-book
 </ul>
 </li>
 <li>
+<p><a href="/MLOS/source/Examples/">E2E Examples</a></p>
+<ul>
+<li><a href="/MLOS/source/Examples/SmartCache/">Smart Cache</a></li>
+</ul>
+</li>
+<li>
 <p><a href="/MLOS/CODE_OF_CONDUCT/">Code of Conduct</a></p>
 </li>
 <li>
 <p><a href="/MLOS/CONTRIBUTING/">Contributing</a></p>
+</li>
+<li>
+<p><a href="https://github.com/Microsoft/MLOS">MLOS Github Repository</a></p>
 </li>
 </ul>
 
@@ -144,11 +144,25 @@ https://github.com/alex-shpak/hugo-book
   <nav id="TableOfContents">
   <ul>
     <li><a href="#prerequisites">Prerequisites</a></li>
-    <li><a href="#linux">Linux</a></li>
+    <li><a href="#contents">Contents</a></li>
+    <li><a href="#docker">Docker</a>
+      <ul>
+        <li><a href="#create-a-new-container-instance">Create a new container instance</a></li>
+        <li><a href="#other-useful-docker-commands">Other useful docker commands</a></li>
+        <li><a href="#start-an-existing-container-instance">Start an existing container instance</a></li>
+        <li><a href="#get-a-new-shell-in-a-running-container-instance">Get a new shell in a running container instance</a></li>
+      </ul>
+    </li>
+    <li><a href="#linux">Linux</a>
+      <ul>
+        <li><a href="#cli-make">CLI: <code>make</code></a></li>
+        <li><a href="#vscode">VSCode</a></li>
+      </ul>
+    </li>
     <li><a href="#windows">Windows</a>
       <ul>
-        <li><a href="#cli">CLI</a></li>
-        <li><a href="#visual-studio">Visual Studio</a></li>
+        <li><a href="#cli-msbuild">CLI: <code>msbuild</code></a></li>
+        <li><a href="#building-with-visual-studio">Building with Visual Studio</a></li>
       </ul>
     </li>
   </ul>
@@ -164,16 +178,119 @@ https://github.com/alex-shpak/hugo-book
       
   <article class="markdown"><h1 id="build-instructions-for-mlos">Build Instructions for MLOS</h1>
 <h2 id="prerequisites">Prerequisites</h2>
-<p>See <a href="./01-Prerequisites/">01-Prerequisites/</a> for initial build tools setup instructions.</p>
+<p>See <a href="/MLOS/documentation/01-Prerequisites/">01-Prerequisites.md</a> for initial build tools setup instructions.</p>
+<p>There are different instructions according to the environment setup you chose.</p>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="#build-instructions-for-mlos">Build Instructions for MLOS</a>
+<ul>
+<li><a href="#prerequisites">Prerequisites</a></li>
+<li><a href="#contents">Contents</a></li>
+<li><a href="#docker">Docker</a>
+<ul>
+<li><a href="#create-a-new-container-instance">Create a new container instance</a>
+<ul>
+<li><a href="#using-the-upstream-container-image">Using the upstream container image</a></li>
+<li><a href="#using-the-locally-built-image">Using the locally built image</a></li>
+</ul>
+</li>
+<li><a href="#other-useful-docker-commands">Other useful docker commands</a></li>
+<li><a href="#start-an-existing-container-instance">Start an existing container instance</a></li>
+<li><a href="#get-a-new-shell-in-a-running-container-instance">Get a new shell in a running container instance</a></li>
+</ul>
+</li>
+<li><a href="#linux">Linux</a>
+<ul>
+<li><a href="#cli-make">CLI: <code>make</code></a></li>
+<li><a href="#vscode">VSCode</a></li>
+</ul>
+</li>
+<li><a href="#windows">Windows</a>
+<ul>
+<li><a href="#cli-msbuild">CLI: <code>msbuild</code></a></li>
+<li><a href="#building-with-visual-studio">Building with Visual Studio</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="docker">Docker</h2>
+<p>If you chose to use the Docker build environment and have already built or pulled a container image using the instructions in <a href="/MLOS/documentation/01-Prerequisites/#docker">01-Prerequisites.md</a>, then you can start an interactive session using the container image as follows:</p>
+<h3 id="create-a-new-container-instance">Create a new container instance</h3>
+<h4 id="using-the-upstream-container-image">Using the upstream container image</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">docker run -it -v $PWD:/src/MLOS <span style="color:#ae81ff">\</span>
+  --name mlos-build <span style="color:#ae81ff">\</span>
+  ghcr.io/microsoft-cisl/mlos/mlos-build-ubuntu-20.04
+</code></pre></div><h4 id="using-the-locally-built-image">Using the locally built image</h4>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># Run the image:</span>
+docker run -it -v $PWD:/src/MLOS <span style="color:#ae81ff">\</span>
+  --name mlos-build <span style="color:#ae81ff">\</span>
+  mlos-build-ubuntu-20.04
+</code></pre></div><blockquote>
+<p>Where <code>20.04</code> can also be replaced with another <a href="/MLOS/documentation/01-Prerequisites/#linux-distribution-requirements">supported <code>UbuntuVersion</code></a>.</p>
+<p>Note: If you receive an error that the container name already exists, then you can use either the <code>docker rm</code> or <code>docker start</code> commands <a href="#other-useful-docker-commands">below</a> to retry.</p>
+<p>The <code>-v $PWD:/src/MLOS</code> option makes the current directory (assumed to be the root of the MLOS repository) available inside the container so that you can edit the code from your host machine, but build it inside the container.</p>
+<p>Note that the build artifacts located at <code>out/</code> in the container are kept separate by default, so you can test with multiple containers at a time (e.g. each using different Ubuntu versions).
+You can use additional <code>-v /path/to/out-20.04:/src/MLOS/out</code> style arguments to direct that output to a host accessible locations if desired.</p>
+</blockquote>
+<h3 id="other-useful-docker-commands">Other useful docker commands</h3>
+<p>Here are some additional basic docker commands to help manage the container instance.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># List the MLOS related container instances</span>
+docker ps -a | grep -i mlos
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># Gracefully stop the container instance</span>
+docker stop mlos-build
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># Forcefully stop the container instance.</span>
+docker kill mlos-build
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># Remove the container instance.</span>
+docker rm mlos-build
+</code></pre></div><h3 id="start-an-existing-container-instance">Start an existing container instance</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh"><span style="color:#75715e"># Start the image if it already exists and was stopped:</span>
+docker start -i mlos-build
+</code></pre></div><h3 id="get-a-new-shell-in-a-running-container-instance">Get a new shell in a running container instance</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">docker exec -it mlos-build /bin/bash
+</code></pre></div><p>Once you have an interactive session in the container, the MLOS source code is available at <code>/src/MLOS</code> and can be built using the same instructions in the <a href="#cli-make">Linux: CLI <code>make</code></a> section below.</p>
 <h2 id="linux">Linux</h2>
+<h3 id="cli-make">CLI: <code>make</code></h3>
+<p>We provide <code>Makefile</code> wrappers to invoke the language specific build systems.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">make
+</code></pre></div><blockquote>
+<p>This is equivalent to <code>make dotnet-build cmake-build</code></p>
+</blockquote>
+<p>If you want to switch to a debug build run:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">export CONFIGURATION<span style="color:#f92672">=</span>Debug
+make
+</code></pre></div><blockquote>
+<p>Note: <code>export CONFIGURATION=Release</code> to switch back to <code>Release</code> builds.</p>
+</blockquote>
+<p>The <code>Makefile</code>s in most source folders are simply wrappers around the <code>cmake</code> build system and allow easier interactive building during development without having to maintain shell environment variables or additional paths.</p>
+<p>In general <code>cmake</code> is used for C++ projects, with simple <code>CMakeLists.txt</code> wrappers around <code>dotnet build</code> for their C# dependencies to do code generation.</p>
+<p>In top-level directories you can restrict the build to just <code>dotnet</code> wrappers or just <code>cmake</code> wrappers like so:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">make dotnet-build
+make dotnet-test
+make dotnet-clean
+
+make cmake-build
+make cmake-test
+make cmake-clean
+</code></pre></div><blockquote>
+<p>Note: A similar shell environment setup can optionally be obtained with the following</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">source ./scripts/init.linux.sh
+</code></pre></div></blockquote>
+<p>To build <em>and</em> run the tests below the current directory run</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">make check
+</code></pre></div><blockquote>
+<p>This is equivalent to <code>make all test</code></p>
+</blockquote>
+<h3 id="vscode">VSCode</h3>
 <p>TODO</p>
 <h2 id="windows">Windows</h2>
-<h3 id="cli">CLI</h3>
-<p>Visual Studio build tools need to be added to the shell environment.</p>
+<p>For the C++ and C# project components, Visual Studio <code>msbuild</code> can be used on Windows systems.</p>
 <blockquote>
 <p>Note: Visual Studio build tools are available free.<br>
 Please see the initial setup instructions linked <a href="#prerequisites">above</a> for details.</p>
 </blockquote>
+<h3 id="cli-msbuild">CLI: <code>msbuild</code></h3>
+<p>To build from the command line on Windows, the Visual Studio build tools need to be added to the shell environment.</p>
 <ol>
 <li>
 <p>Setup the <code>powershell</code> environment to find the Visual Studio build tools.</p>
@@ -187,12 +304,17 @@ Please see the initial setup instructions linked <a href="#prerequisites">above<
 <blockquote>
 <p>e.g. when run from the root of the MLOS repo this will recursively build all the projects and run the tests.</p>
 </blockquote>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">msbuild /m /r
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">msbuild /m /r /p:Configuration<span style="color:#f92672">=</span>Release
 </code></pre></div><p>Some additional build flags to help provide additional control over the process:</p>
 <ul>
 <li><code>/m</code> runs a multi-process parallel build process</li>
 <li><code>/r</code> is required on first build and git pull to <em>restore</em> any nuget packages required \</li>
 <li><code>/fl</code> will optionally produce a msbuild.log file</li>
+<li><code>/p:Configuration=Release</code> will perform a non-debug build.
+<blockquote>
+<p>Note: If omitted, <code>msbuild</code> will produce a Debug build by default.  Debug builds perform no compiler optimizations, so are useful for troubleshooting, but will be more difficult for MLOS to help optimize.</p>
+</blockquote>
+</li>
 <li><code>/p:RunUnitTest=false</code> will temporarily skip running unit tests</li>
 <li><code>/p:StyleCopEnabled=false</code> will temporarily skip C# style checks</li>
 <li><code>/p:UncrustifyEnabled=false</code> will temporarily skip C++ style checks</li>
@@ -201,7 +323,7 @@ Please see the initial setup instructions linked <a href="#prerequisites">above<
 </ul>
 </li>
 </ol>
-<h3 id="visual-studio">Visual Studio</h3>
+<h3 id="building-with-visual-studio">Building with Visual Studio</h3>
 <blockquote>
 <p>Note: Visual Studio 2019 Community Edition is available free.<br>
 Please see the initial setup instructions linked <a href="#prerequisites">above</a> for details.</p>
@@ -217,10 +339,10 @@ Please see the initial setup instructions linked <a href="#prerequisites">above<
 </li>
 <li>
 <p>Launch Visual Studio for a given solution:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">devenv MLOS.NetCore.sln
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">devenv Mlos.NetCore.sln
 </code></pre></div><p>Alternatively, you can launch <code>devenv</code> for a project and manually add its dependencies to the solution that Visual Studio creates.
 For instance:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">devenv MLOS.Core.vcxproj
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">devenv Mlos.Core.vcxproj
 </code></pre></div></li>
 </ol>
 </article>
@@ -258,11 +380,25 @@ For instance:</p>
   <nav id="TableOfContents">
   <ul>
     <li><a href="#prerequisites">Prerequisites</a></li>
-    <li><a href="#linux">Linux</a></li>
+    <li><a href="#contents">Contents</a></li>
+    <li><a href="#docker">Docker</a>
+      <ul>
+        <li><a href="#create-a-new-container-instance">Create a new container instance</a></li>
+        <li><a href="#other-useful-docker-commands">Other useful docker commands</a></li>
+        <li><a href="#start-an-existing-container-instance">Start an existing container instance</a></li>
+        <li><a href="#get-a-new-shell-in-a-running-container-instance">Get a new shell in a running container instance</a></li>
+      </ul>
+    </li>
+    <li><a href="#linux">Linux</a>
+      <ul>
+        <li><a href="#cli-make">CLI: <code>make</code></a></li>
+        <li><a href="#vscode">VSCode</a></li>
+      </ul>
+    </li>
     <li><a href="#windows">Windows</a>
       <ul>
-        <li><a href="#cli">CLI</a></li>
-        <li><a href="#visual-studio">Visual Studio</a></li>
+        <li><a href="#cli-msbuild">CLI: <code>msbuild</code></a></li>
+        <li><a href="#building-with-visual-studio">Building with Visual Studio</a></li>
       </ul>
     </li>
   </ul>

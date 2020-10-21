@@ -1,7 +1,0 @@
-mlos.Optimizers.ExperimentDesigner.NumericOptimizers.RandomSearchOptimizer
-==========================================================================
-
-.. automodule:: mlos.Optimizers.ExperimentDesigner.NumericOptimizers.RandomSearchOptimizer
-   :members:
-   :undoc-members:
-   :show-inheritance:

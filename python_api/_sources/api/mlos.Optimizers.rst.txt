@@ -12,10 +12,12 @@ mlos.Optimizers
    :maxdepth: 1
 
    mlos.Optimizers.BayesianOptimizer
-   mlos.Optimizers.DistributableSimpleBayesianOptimizer
+   mlos.Optimizers.BayesianOptimizerConfigStore
+   mlos.Optimizers.BayesianOptimizerConvergenceState
+   mlos.Optimizers.BayesianOptimizerFactory
    mlos.Optimizers.OptimizationProblem
-   mlos.Optimizers.OptimizerInterface
-   mlos.Optimizers.SimpleBayesianOptimizer
+   mlos.Optimizers.OptimizerBase
+   mlos.Optimizers.OptimumDefinition
 
 .. toctree::
    :maxdepth: 1

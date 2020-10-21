@@ -11,11 +11,16 @@ mlos.Optimizers.RegressionModels
 .. toctree::
    :maxdepth: 1
 
+   mlos.Optimizers.RegressionModels.DecisionTreeConfigStore
    mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel
+   mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics
+   mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore
+   mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState
    mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel
    mlos.Optimizers.RegressionModels.Prediction
    mlos.Optimizers.RegressionModels.RegressionEnhancedRandomForestModel
    mlos.Optimizers.RegressionModels.RegressionModel
+   mlos.Optimizers.RegressionModels.RegressionModelFitState
    mlos.Optimizers.RegressionModels.SklearnLassoRegressionModelConfig
    mlos.Optimizers.RegressionModels.SklearnRandomForestRegressionModelConfig
    mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig

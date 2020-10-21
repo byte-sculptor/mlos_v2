@@ -38,8 +38,8 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="mlos.Optimizers.OptimizerInterface" href="mlos.Optimizers.OptimizerInterface.html" />
-    <link rel="prev" title="mlos.Optimizers.DistributableSimpleBayesianOptimizer" href="mlos.Optimizers.DistributableSimpleBayesianOptimizer.html" /> 
+    <link rel="next" title="mlos.Optimizers.OptimizerBase" href="mlos.Optimizers.OptimizerBase.html" />
+    <link rel="prev" title="mlos.Optimizers.BayesianOptimizerFactory" href="mlos.Optimizers.BayesianOptimizerFactory.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -95,7 +95,6 @@
 <li class="toctree-l2"><a class="reference internal" href="mlos.Logger.html">mlos.Logger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.Tracer.html">mlos.Tracer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.global_values.html">mlos.global_values</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlos.start_mlos_optimization_runtime.html">mlos.start_mlos_optimization_runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.start_optimizer_microservice.html">mlos.start_optimizer_microservice</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.Examples.html">mlos.Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Examples.SmartCache.html">mlos.Examples.SmartCache</a><ul>
@@ -111,7 +110,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.Grpc.html">mlos.Grpc</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.BayesianOptimizerFactory.html">mlos.Grpc.BayesianOptimizerFactory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.BayesianOptimizerProxy.html">mlos.Grpc.BayesianOptimizerProxy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerMicroservice.html">mlos.Grpc.OptimizerMicroservice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerMicroserviceServer.html">mlos.Grpc.OptimizerMicroserviceServer</a></li>
@@ -166,24 +164,54 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="mlos.OptimizerEvaluationTools.html">mlos.OptimizerEvaluationTools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.ObjectiveFunctionBase.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionBase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.html">mlos.OptimizerEvaluationTools.SyntheticFunctions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlos.OptimizerMonitoring.html">mlos.OptimizerMonitoring</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerMonitoring.GoodnessOfFitTensorboardWriter.html">mlos.OptimizerMonitoring.GoodnessOfFitTensorboardWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.html">mlos.OptimizerMonitoring.Tomograph</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.Heatmap.html">mlos.OptimizerMonitoring.Tomograph.Heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.ModelTomograph.html">mlos.OptimizerMonitoring.Tomograph.ModelTomograph</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2 current"><a class="reference internal" href="mlos.Optimizers.html">mlos.Optimizers</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.BayesianOptimizer.html">mlos.Optimizers.BayesianOptimizer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.DistributableSimpleBayesianOptimizer.html">mlos.Optimizers.DistributableSimpleBayesianOptimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.BayesianOptimizerConfigStore.html">mlos.Optimizers.BayesianOptimizerConfigStore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.BayesianOptimizerConvergenceState.html">mlos.Optimizers.BayesianOptimizerConvergenceState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.BayesianOptimizerFactory.html">mlos.Optimizers.BayesianOptimizerFactory</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">mlos.Optimizers.OptimizationProblem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.OptimizerInterface.html">mlos.Optimizers.OptimizerInterface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.SimpleBayesianOptimizer.html">mlos.Optimizers.SimpleBayesianOptimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.OptimizerBase.html">mlos.Optimizers.OptimizerBase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.OptimumDefinition.html">mlos.Optimizers.OptimumDefinition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.html">mlos.Optimizers.ExperimentDesigner</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.ExperimentDesigner.html">mlos.Optimizers.ExperimentDesigner.ExperimentDesigner</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.NumericOptimizers.html">mlos.Optimizers.ExperimentDesigner.NumericOptimizers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.html">mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.UtilityFunctions.html">mlos.Optimizers.ExperimentDesigner.UtilityFunctions</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.RegressionModels.html">mlos.Optimizers.RegressionModels</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.DecisionTreeConfigStore.html">mlos.Optimizers.RegressionModels.DecisionTreeConfigStore</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel.html">mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics.html">mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore.html">mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState.html">mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel.html">mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.Prediction.html">mlos.Optimizers.RegressionModels.Prediction</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.RegressionEnhancedRandomForestModel.html">mlos.Optimizers.RegressionModels.RegressionEnhancedRandomForestModel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.RegressionModel.html">mlos.Optimizers.RegressionModels.RegressionModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.RegressionModelFitState.html">mlos.Optimizers.RegressionModels.RegressionModelFitState</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.SklearnLassoRegressionModelConfig.html">mlos.Optimizers.RegressionModels.SklearnLassoRegressionModelConfig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.SklearnRandomForestRegressionModelConfig.html">mlos.Optimizers.RegressionModels.SklearnRandomForestRegressionModelConfig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.html">mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig</a></li>
@@ -201,10 +229,16 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.Spaces.html">mlos.Spaces</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.DefaultConfigMeta.html">mlos.Spaces.DefaultConfigMeta</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.Hypergrids.html">mlos.Spaces.Hypergrids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.Hypergrid.html">mlos.Spaces.Hypergrid</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.HypergridsJsonEncoderDecoder.html">mlos.Spaces.HypergridsJsonEncoderDecoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.Point.html">mlos.Spaces.Point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.SimpleHypergrid.html">mlos.Spaces.SimpleHypergrid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.Configs.html">mlos.Spaces.Configs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.Configs.ComponentConfigStore.html">mlos.Spaces.Configs.ComponentConfigStore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.Configs.DefaultConfigMeta.html">mlos.Spaces.Configs.DefaultConfigMeta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.Configs.NamedConfig.html">mlos.Spaces.Configs.NamedConfig</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.Dimensions.html">mlos.Spaces.Dimensions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.Dimensions.CategoricalDimension.html">mlos.Spaces.Dimensions.CategoricalDimension</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.Dimensions.CompositeDimension.html">mlos.Spaces.Dimensions.CompositeDimension</a></li>
@@ -221,7 +255,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.html">mlos.Spaces.HypergridAdapters</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.CategoricalToDiscreteHypergridAdapter.html">mlos.Spaces.HypergridAdapters.CategoricalToDiscreteHypergridAdapter</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.CompositeToSimpleHypergridAdapter.html">mlos.Spaces.HypergridAdapters.CompositeToSimpleHypergridAdapter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.DiscreteToUnitContinuousHypergridAdapter.html">mlos.Spaces.HypergridAdapters.DiscreteToUnitContinuousHypergridAdapter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter.html">mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.HypergridAdapter.html">mlos.Spaces.HypergridAdapters.HypergridAdapter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.unit_tests.html">mlos.Spaces.HypergridAdapters.unit_tests</a></li>
 </ul>
@@ -232,32 +267,18 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.unit_tests.html">mlos.Spaces.unit_tests</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestCategoricalDimension.html">mlos.Spaces.unit_tests.TestCategoricalDimension</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestCompositeHypergrid.html">mlos.Spaces.unit_tests.TestCompositeHypergrid</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestCompositeHypergrid2.html">mlos.Spaces.unit_tests.TestCompositeHypergrid2</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestCompositeHypergrid3.html">mlos.Spaces.unit_tests.TestCompositeHypergrid3</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestCompositeHypergridJSONEncoderDecoder.html">mlos.Spaces.unit_tests.TestCompositeHypergridJSONEncoderDecoder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestDimensions.html">mlos.Spaces.unit_tests.TestDimensions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestFilteringOutInvalidRows.html">mlos.Spaces.unit_tests.TestFilteringOutInvalidRows</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestHierarchicalHypergrid.html">mlos.Spaces.unit_tests.TestHierarchicalHypergrid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestHierarchicalHypergrid2.html">mlos.Spaces.unit_tests.TestHierarchicalHypergrid2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestHierarchicalHypergrid3.html">mlos.Spaces.unit_tests.TestHierarchicalHypergrid3</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestHierarchicalHypergridJSONEncoderDecoder.html">mlos.Spaces.unit_tests.TestHierarchicalHypergridJSONEncoderDecoder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestHypergridJsonEncoderDecoderForDimensions.html">mlos.Spaces.unit_tests.TestHypergridJsonEncoderDecoderForDimensions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestIntervalTree.html">mlos.Spaces.unit_tests.TestIntervalTree</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestSimpleHypergrid.html">mlos.Spaces.unit_tests.TestSimpleHypergrid</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestSortedBinaryTree.html">mlos.Spaces.unit_tests.TestSortedBinaryTree</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="mlos.SynthethicFunctions.html">mlos.SynthethicFunctions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="mlos.SynthethicFunctions.HierarchicalFunctions.html">mlos.SynthethicFunctions.HierarchicalFunctions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.SynthethicFunctions.PolynomialObjective.html">mlos.SynthethicFunctions.PolynomialObjective</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.SynthethicFunctions.sample_functions.html">mlos.SynthethicFunctions.sample_functions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.SynthethicFunctions.unit_tests.html">mlos.SynthethicFunctions.unit_tests</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="mlos.SynthethicFunctions.unit_tests.TestPolynomialObjective.html">mlos.SynthethicFunctions.unit_tests.TestPolynomialObjective</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="mlos.Tomograph.html">mlos.Tomograph</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Tomograph.Heatmap.html">mlos.Tomograph.Heatmap</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Tomograph.ModelTomograph.html">mlos.Tomograph.ModelTomograph</a></li>
 </ul>
 </li>
 </ul>
@@ -335,17 +356,17 @@
 <span id="mlos-optimizers-optimizationproblem"></span><h1>mlos.Optimizers.OptimizationProblem<a class="headerlink" href="#module-mlos.Optimizers.OptimizationProblem" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="mlos.Optimizers.OptimizationProblem.Objective">
-<em class="property">class </em><code class="sig-prename descclassname">mlos.Optimizers.OptimizationProblem.</code><code class="sig-name descname">Objective</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">minimize</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.Objective" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></p>
-<dl class="py attribute">
+<em class="property">class </em><code class="sig-prename descclassname">mlos.Optimizers.OptimizationProblem.</code><code class="sig-name descname">Objective</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">minimize</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.Objective" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a></p>
+<dl class="py method">
 <dt id="mlos.Optimizers.OptimizationProblem.Objective.minimize">
-<code class="sig-name descname">minimize</code><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.Objective.minimize" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">minimize</code><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.Objective.minimize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 1</p>
 </dd></dl>
 
-<dl class="py attribute">
+<dl class="py method">
 <dt id="mlos.Optimizers.OptimizationProblem.Objective.name">
-<code class="sig-name descname">name</code><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.Objective.name" title="Permalink to this definition">¶</a></dt>
+<em class="property">property </em><code class="sig-name descname">name</code><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.Objective.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Alias for field number 0</p>
 </dd></dl>
 
@@ -353,8 +374,8 @@
 
 <dl class="py class">
 <dt id="mlos.Optimizers.OptimizationProblem.OptimizationProblem">
-<em class="property">class </em><code class="sig-prename descclassname">mlos.Optimizers.OptimizationProblem.</code><code class="sig-name descname">OptimizationProblem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameter_space</span><span class="p">:</span> <span class="n"><a class="reference internal" href="mlos.Spaces.Hypergrids.html#mlos.Spaces.Hypergrids.Hypergrid" title="mlos.Spaces.Hypergrids.Hypergrid">mlos.Spaces.Hypergrids.Hypergrid</a></span></em>, <em class="sig-param"><span class="n">objective_space</span><span class="p">:</span> <span class="n"><a class="reference internal" href="mlos.Spaces.Hypergrids.html#mlos.Spaces.Hypergrids.Hypergrid" title="mlos.Spaces.Hypergrids.Hypergrid">mlos.Spaces.Hypergrids.Hypergrid</a></span></em>, <em class="sig-param"><span class="n">objectives</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="#mlos.Optimizers.OptimizationProblem.Objective" title="mlos.Optimizers.OptimizationProblem.Objective">mlos.Optimizers.OptimizationProblem.Objective</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">context_space</span><span class="p">:</span> <span class="n"><a class="reference internal" href="mlos.Spaces.Hypergrids.html#mlos.Spaces.Hypergrids.Hypergrid" title="mlos.Spaces.Hypergrids.Hypergrid">mlos.Spaces.Hypergrids.Hypergrid</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L24"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.OptimizationProblem" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">mlos.Optimizers.OptimizationProblem.</code><code class="sig-name descname">OptimizationProblem</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">parameter_space</span><span class="p">:</span> <span class="n"><a class="reference internal" href="mlos.Spaces.Hypergrid.html#mlos.Spaces.Hypergrid.Hypergrid" title="mlos.Spaces.Hypergrid.Hypergrid">mlos.Spaces.Hypergrid.Hypergrid</a></span></em>, <em class="sig-param"><span class="n">objective_space</span><span class="p">:</span> <span class="n"><a class="reference internal" href="mlos.Spaces.Hypergrid.html#mlos.Spaces.Hypergrid.Hypergrid" title="mlos.Spaces.Hypergrid.Hypergrid">mlos.Spaces.Hypergrid.Hypergrid</a></span></em>, <em class="sig-param"><span class="n">objectives</span><span class="p">:</span> <span class="n">List<span class="p">[</span><a class="reference internal" href="#mlos.Optimizers.OptimizationProblem.Objective" title="mlos.Optimizers.OptimizationProblem.Objective">mlos.Optimizers.OptimizationProblem.Objective</a><span class="p">]</span></span></em>, <em class="sig-param"><span class="n">context_space</span><span class="p">:</span> <span class="n"><a class="reference internal" href="mlos.Spaces.Hypergrid.html#mlos.Spaces.Hypergrid.Hypergrid" title="mlos.Spaces.Hypergrid.Hypergrid">mlos.Spaces.Hypergrid.Hypergrid</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L24"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.OptimizationProblem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Models an instance of an optimization problem.</p>
 <p>An instance of OptimizationProblem can be used to create a variety of optimizers and instantly enlighten them to
 what they are working with.</p>
@@ -420,6 +441,20 @@ what they are working with.</p>
 </ul>
 </dd>
 </dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>parameter_space</strong><span class="classifier">Hypergrid</span></dt><dd><p>Input parameter space for objective, i.e. the search space.</p>
+</dd>
+<dt><strong>objective_space</strong><span class="classifier">Hypergrid(</span></dt><dd><p>Output space for the objective, can be (-inf, +inf)</p>
+</dd>
+<dt><strong>objectives</strong><span class="classifier">list[Objective]</span></dt><dd><p>Objective function(s) to optimize, with input from parameter_space and output in objective_space.</p>
+</dd>
+<dt><strong>context_space</strong><span class="classifier">Hypergrid</span></dt><dd><p>Additional run-time context features.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <dl class="py attribute">
 <dt id="mlos.Optimizers.OptimizationProblem.OptimizationProblem.META_DIMENSION_NAMES">
 <code class="sig-name descname">META_DIMENSION_NAMES</code><em class="property"> = {'contains_context', 'contains_objectives', 'contains_parameters'}</em><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.OptimizationProblem.META_DIMENSION_NAMES" title="Permalink to this definition">¶</a></dt>
@@ -427,7 +462,7 @@ what they are working with.</p>
 
 <dl class="py method">
 <dt id="mlos.Optimizers.OptimizationProblem.OptimizationProblem.from_protobuf">
-<em class="property">classmethod </em><code class="sig-name descname">from_protobuf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">optimization_problem_pb2</span><span class="p">:</span> <span class="n"><a class="reference internal" href="mlos.Grpc.OptimizerService_pb2.html#mlos.Grpc.OptimizerService_pb2.OptimizationProblem" title="mlos.Grpc.OptimizerService_pb2.OptimizationProblem">mlos.Grpc.OptimizerService_pb2.OptimizationProblem</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L126"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.OptimizationProblem.from_protobuf" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="sig-name descname">from_protobuf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">optimization_problem_pb2</span><span class="p">:</span> <span class="n"><a class="reference internal" href="mlos.Grpc.OptimizerService_pb2.html#mlos.Grpc.OptimizerService_pb2.OptimizationProblem" title="mlos.Grpc.OptimizerService_pb2.OptimizationProblem">mlos.Grpc.OptimizerService_pb2.OptimizationProblem</a></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L137"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.OptimizationProblem.from_protobuf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds an optimization problem from protobufs.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -441,12 +476,12 @@ what they are working with.</p>
 
 <dl class="py method">
 <dt id="mlos.Optimizers.OptimizationProblem.OptimizationProblem.to_dict">
-<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L105"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.OptimizationProblem.to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L116"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.OptimizationProblem.to_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="mlos.Optimizers.OptimizationProblem.OptimizationProblem.to_protobuf">
-<code class="sig-name descname">to_protobuf</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L113"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.OptimizationProblem.to_protobuf" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">to_protobuf</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L124"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.OptimizationProblem.to_protobuf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Serializes self to a protobuf.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -459,12 +494,12 @@ what they are working with.</p>
 
 <dl class="py function">
 <dt id="mlos.Optimizers.OptimizationProblem.objective_from_dict">
-<code class="sig-prename descclassname">mlos.Optimizers.OptimizationProblem.</code><code class="sig-name descname">objective_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">objective_dict</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L21"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.objective_from_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">mlos.Optimizers.OptimizationProblem.</code><code class="sig-name descname">objective_from_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">objective_dict</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L21"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.objective_from_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt id="mlos.Optimizers.OptimizationProblem.objective_to_dict">
-<code class="sig-prename descclassname">mlos.Optimizers.OptimizationProblem.</code><code class="sig-name descname">objective_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">objective</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L15"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.objective_to_dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">mlos.Optimizers.OptimizationProblem.</code><code class="sig-name descname">objective_to_dict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">objective</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Optimizers/OptimizationProblem.py#L15"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.OptimizationProblem.objective_to_dict" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -477,10 +512,10 @@ what they are working with.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="mlos.Optimizers.OptimizerInterface.html" class="btn btn-neutral float-right" title="mlos.Optimizers.OptimizerInterface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="mlos.Optimizers.OptimizerBase.html" class="btn btn-neutral float-right" title="mlos.Optimizers.OptimizerBase" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="mlos.Optimizers.DistributableSimpleBayesianOptimizer.html" class="btn btn-neutral float-left" title="mlos.Optimizers.DistributableSimpleBayesianOptimizer" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="mlos.Optimizers.BayesianOptimizerFactory.html" class="btn btn-neutral float-left" title="mlos.Optimizers.BayesianOptimizerFactory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

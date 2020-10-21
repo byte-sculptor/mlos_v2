@@ -1,7 +1,0 @@
-mlos.SynthethicFunctions.unit\_tests.TestPolynomialObjective
-============================================================
-
-.. automodule:: mlos.SynthethicFunctions.unit_tests.TestPolynomialObjective
-   :members:
-   :undoc-members:
-   :show-inheritance:

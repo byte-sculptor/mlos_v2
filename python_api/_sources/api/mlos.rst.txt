@@ -1,5 +1,5 @@
-Python API
-==========
+mlos
+====
 
 
 .. automodule:: mlos
@@ -15,13 +15,16 @@ Python API
    mlos.Logger
    mlos.Tracer
    mlos.global_values
-   mlos.start_mlos_optimization_runtime
    mlos.start_optimizer_microservice
+
+.. toctree::
+   :maxdepth: 1
+
    mlos.Examples
    mlos.Grpc
    mlos.Mlos
    mlos.MlosOptimizationServices
+   mlos.OptimizerEvaluationTools
+   mlos.OptimizerMonitoring
    mlos.Optimizers
    mlos.Spaces
-   mlos.SynthethicFunctions
-   mlos.Tomograph

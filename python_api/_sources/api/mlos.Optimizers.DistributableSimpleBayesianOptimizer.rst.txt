@@ -1,7 +1,0 @@
-mlos.Optimizers.DistributableSimpleBayesianOptimizer
-====================================================
-
-.. automodule:: mlos.Optimizers.DistributableSimpleBayesianOptimizer
-   :members:
-   :undoc-members:
-   :show-inheritance:

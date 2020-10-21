@@ -1,7 +1,0 @@
-mlos.Spaces.unit\_tests.TestCompositeHypergridJSONEncoderDecoder
-================================================================
-
-.. automodule:: mlos.Spaces.unit_tests.TestCompositeHypergridJSONEncoderDecoder
-   :members:
-   :undoc-members:
-   :show-inheritance:

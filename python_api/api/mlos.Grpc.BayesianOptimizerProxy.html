@@ -39,7 +39,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="mlos.Grpc.OptimizerMicroservice" href="mlos.Grpc.OptimizerMicroservice.html" />
-    <link rel="prev" title="mlos.Grpc.BayesianOptimizerFactory" href="mlos.Grpc.BayesianOptimizerFactory.html" /> 
+    <link rel="prev" title="mlos.Grpc" href="mlos.Grpc.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -95,7 +95,6 @@
 <li class="toctree-l2"><a class="reference internal" href="mlos.Logger.html">mlos.Logger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.Tracer.html">mlos.Tracer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.global_values.html">mlos.global_values</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mlos.start_mlos_optimization_runtime.html">mlos.start_mlos_optimization_runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.start_optimizer_microservice.html">mlos.start_optimizer_microservice</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.Examples.html">mlos.Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Examples.SmartCache.html">mlos.Examples.SmartCache</a><ul>
@@ -111,7 +110,6 @@
 </ul>
 </li>
 <li class="toctree-l2 current"><a class="reference internal" href="mlos.Grpc.html">mlos.Grpc</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.BayesianOptimizerFactory.html">mlos.Grpc.BayesianOptimizerFactory</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">mlos.Grpc.BayesianOptimizerProxy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerMicroservice.html">mlos.Grpc.OptimizerMicroservice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerMicroserviceServer.html">mlos.Grpc.OptimizerMicroserviceServer</a></li>
@@ -166,24 +164,54 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="mlos.OptimizerEvaluationTools.html">mlos.OptimizerEvaluationTools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.ObjectiveFunctionBase.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionBase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.html">mlos.OptimizerEvaluationTools.SyntheticFunctions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlos.OptimizerMonitoring.html">mlos.OptimizerMonitoring</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerMonitoring.GoodnessOfFitTensorboardWriter.html">mlos.OptimizerMonitoring.GoodnessOfFitTensorboardWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.html">mlos.OptimizerMonitoring.Tomograph</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.Heatmap.html">mlos.OptimizerMonitoring.Tomograph.Heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.ModelTomograph.html">mlos.OptimizerMonitoring.Tomograph.ModelTomograph</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.Optimizers.html">mlos.Optimizers</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.BayesianOptimizer.html">mlos.Optimizers.BayesianOptimizer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.DistributableSimpleBayesianOptimizer.html">mlos.Optimizers.DistributableSimpleBayesianOptimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.BayesianOptimizerConfigStore.html">mlos.Optimizers.BayesianOptimizerConfigStore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.BayesianOptimizerConvergenceState.html">mlos.Optimizers.BayesianOptimizerConvergenceState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.BayesianOptimizerFactory.html">mlos.Optimizers.BayesianOptimizerFactory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.OptimizationProblem.html">mlos.Optimizers.OptimizationProblem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.OptimizerInterface.html">mlos.Optimizers.OptimizerInterface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.SimpleBayesianOptimizer.html">mlos.Optimizers.SimpleBayesianOptimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.OptimizerBase.html">mlos.Optimizers.OptimizerBase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.OptimumDefinition.html">mlos.Optimizers.OptimumDefinition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.html">mlos.Optimizers.ExperimentDesigner</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.ExperimentDesigner.html">mlos.Optimizers.ExperimentDesigner.ExperimentDesigner</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.NumericOptimizers.html">mlos.Optimizers.ExperimentDesigner.NumericOptimizers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.html">mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.UtilityFunctions.html">mlos.Optimizers.ExperimentDesigner.UtilityFunctions</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.RegressionModels.html">mlos.Optimizers.RegressionModels</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.DecisionTreeConfigStore.html">mlos.Optimizers.RegressionModels.DecisionTreeConfigStore</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel.html">mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics.html">mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore.html">mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState.html">mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel.html">mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.Prediction.html">mlos.Optimizers.RegressionModels.Prediction</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.RegressionEnhancedRandomForestModel.html">mlos.Optimizers.RegressionModels.RegressionEnhancedRandomForestModel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.RegressionModel.html">mlos.Optimizers.RegressionModels.RegressionModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.RegressionModelFitState.html">mlos.Optimizers.RegressionModels.RegressionModelFitState</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.SklearnLassoRegressionModelConfig.html">mlos.Optimizers.RegressionModels.SklearnLassoRegressionModelConfig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.SklearnRandomForestRegressionModelConfig.html">mlos.Optimizers.RegressionModels.SklearnRandomForestRegressionModelConfig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.html">mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig</a></li>
@@ -201,10 +229,16 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.Spaces.html">mlos.Spaces</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.DefaultConfigMeta.html">mlos.Spaces.DefaultConfigMeta</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.Hypergrids.html">mlos.Spaces.Hypergrids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.Hypergrid.html">mlos.Spaces.Hypergrid</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.HypergridsJsonEncoderDecoder.html">mlos.Spaces.HypergridsJsonEncoderDecoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.Point.html">mlos.Spaces.Point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.SimpleHypergrid.html">mlos.Spaces.SimpleHypergrid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.Configs.html">mlos.Spaces.Configs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.Configs.ComponentConfigStore.html">mlos.Spaces.Configs.ComponentConfigStore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.Configs.DefaultConfigMeta.html">mlos.Spaces.Configs.DefaultConfigMeta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.Configs.NamedConfig.html">mlos.Spaces.Configs.NamedConfig</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.Dimensions.html">mlos.Spaces.Dimensions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.Dimensions.CategoricalDimension.html">mlos.Spaces.Dimensions.CategoricalDimension</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.Dimensions.CompositeDimension.html">mlos.Spaces.Dimensions.CompositeDimension</a></li>
@@ -221,7 +255,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.html">mlos.Spaces.HypergridAdapters</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.CategoricalToDiscreteHypergridAdapter.html">mlos.Spaces.HypergridAdapters.CategoricalToDiscreteHypergridAdapter</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.CompositeToSimpleHypergridAdapter.html">mlos.Spaces.HypergridAdapters.CompositeToSimpleHypergridAdapter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.DiscreteToUnitContinuousHypergridAdapter.html">mlos.Spaces.HypergridAdapters.DiscreteToUnitContinuousHypergridAdapter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter.html">mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.HypergridAdapter.html">mlos.Spaces.HypergridAdapters.HypergridAdapter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.unit_tests.html">mlos.Spaces.HypergridAdapters.unit_tests</a></li>
 </ul>
@@ -232,32 +267,18 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.unit_tests.html">mlos.Spaces.unit_tests</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestCategoricalDimension.html">mlos.Spaces.unit_tests.TestCategoricalDimension</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestCompositeHypergrid.html">mlos.Spaces.unit_tests.TestCompositeHypergrid</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestCompositeHypergrid2.html">mlos.Spaces.unit_tests.TestCompositeHypergrid2</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestCompositeHypergrid3.html">mlos.Spaces.unit_tests.TestCompositeHypergrid3</a></li>
-<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestCompositeHypergridJSONEncoderDecoder.html">mlos.Spaces.unit_tests.TestCompositeHypergridJSONEncoderDecoder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestDimensions.html">mlos.Spaces.unit_tests.TestDimensions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestFilteringOutInvalidRows.html">mlos.Spaces.unit_tests.TestFilteringOutInvalidRows</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestHierarchicalHypergrid.html">mlos.Spaces.unit_tests.TestHierarchicalHypergrid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestHierarchicalHypergrid2.html">mlos.Spaces.unit_tests.TestHierarchicalHypergrid2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestHierarchicalHypergrid3.html">mlos.Spaces.unit_tests.TestHierarchicalHypergrid3</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestHierarchicalHypergridJSONEncoderDecoder.html">mlos.Spaces.unit_tests.TestHierarchicalHypergridJSONEncoderDecoder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestHypergridJsonEncoderDecoderForDimensions.html">mlos.Spaces.unit_tests.TestHypergridJsonEncoderDecoderForDimensions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestIntervalTree.html">mlos.Spaces.unit_tests.TestIntervalTree</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestSimpleHypergrid.html">mlos.Spaces.unit_tests.TestSimpleHypergrid</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestSortedBinaryTree.html">mlos.Spaces.unit_tests.TestSortedBinaryTree</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="mlos.SynthethicFunctions.html">mlos.SynthethicFunctions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="mlos.SynthethicFunctions.HierarchicalFunctions.html">mlos.SynthethicFunctions.HierarchicalFunctions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.SynthethicFunctions.PolynomialObjective.html">mlos.SynthethicFunctions.PolynomialObjective</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.SynthethicFunctions.sample_functions.html">mlos.SynthethicFunctions.sample_functions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.SynthethicFunctions.unit_tests.html">mlos.SynthethicFunctions.unit_tests</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="mlos.SynthethicFunctions.unit_tests.TestPolynomialObjective.html">mlos.SynthethicFunctions.unit_tests.TestPolynomialObjective</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="mlos.Tomograph.html">mlos.Tomograph</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Tomograph.Heatmap.html">mlos.Tomograph.Heatmap</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Tomograph.ModelTomograph.html">mlos.Tomograph.ModelTomograph</a></li>
 </ul>
 </li>
 </ul>
@@ -335,8 +356,8 @@
 <span id="mlos-grpc-bayesianoptimizerproxy"></span><h1>mlos.Grpc.BayesianOptimizerProxy<a class="headerlink" href="#module-mlos.Grpc.BayesianOptimizerProxy" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy">
-<em class="property">class </em><code class="sig-prename descclassname">mlos.Grpc.BayesianOptimizerProxy.</code><code class="sig-name descname">BayesianOptimizerProxy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">grpc_channel</span></em>, <em class="sig-param"><span class="n">optimization_problem</span></em>, <em class="sig-param"><span class="n">optimizer_config</span></em>, <em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">logger</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Grpc/BayesianOptimizerProxy.py#L14"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="mlos.Optimizers.OptimizerInterface.html#mlos.Optimizers.OptimizerInterface.OptimizerInterface" title="mlos.Optimizers.OptimizerInterface.OptimizerInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlos.Optimizers.OptimizerInterface.OptimizerInterface</span></code></a></p>
+<em class="property">class </em><code class="sig-prename descclassname">mlos.Grpc.BayesianOptimizerProxy.</code><code class="sig-name descname">BayesianOptimizerProxy</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">grpc_channel</span></em>, <em class="sig-param"><span class="n">optimization_problem</span></em>, <em class="sig-param"><span class="n">optimizer_config</span></em>, <em class="sig-param"><span class="n">id</span></em>, <em class="sig-param"><span class="n">logger</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Grpc/BayesianOptimizerProxy.py#L19"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="mlos.Optimizers.OptimizerBase.html#mlos.Optimizers.OptimizerBase.OptimizerBase" title="mlos.Optimizers.OptimizerBase.OptimizerBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlos.Optimizers.OptimizerBase.OptimizerBase</span></code></a></p>
 <p>Client to remote BayesianOptimizer.</p>
 <p>Wraps all implementation details around communicating with the remote BayesianOptimizer.
 Benefits:</p>
@@ -347,9 +368,25 @@ Benefits:</p>
 <li><p>All logic related to gRPC is in one place</p></li>
 </ul>
 </div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>grpc_channel</strong><span class="classifier">grpc_channel</span></dt><dd><p>GRPC channel to connect to existing remote optimizer.</p>
+</dd>
+<dt><strong>optimization_problem</strong><span class="classifier">OptimizationProblem</span></dt><dd><p>Problem to optimizer.</p>
+</dd>
+<dt><strong>optimizer_config</strong><span class="classifier">Point</span></dt><dd><p>Optimizer Configuation.</p>
+</dd>
+<dt><strong>id</strong><span class="classifier">str</span></dt><dd><p>Unique identifying string.</p>
+</dd>
+<dt><strong>logger</strong><span class="classifier">logger, default=None</span></dt><dd><p>Logger to use. By default, a new logger is created internally.</p>
+</dd>
+</dl>
+</dd>
+</dl>
 <dl class="py method">
 <dt id="mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.focus">
-<code class="sig-name descname">focus</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">subspace</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Grpc/BayesianOptimizerProxy.py#L101"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.focus" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">focus</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">subspace</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Grpc/BayesianOptimizerProxy.py#L124"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.focus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Force the optimizer to focus on a specific subspace.</p>
 <p>This could be a great way to pass priors to the optimizer, as well as play with the component for the developers.</p>
 <dl class="field-list simple">
@@ -363,25 +400,23 @@ Benefits:</p>
 </dd></dl>
 
 <dl class="py method">
+<dt id="mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.get_all_observations">
+<code class="sig-name descname">get_all_observations</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>pandas.core.frame.DataFrame<span class="p">, </span>pandas.core.frame.DataFrame<span class="p">]</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Tracer.py#L94"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.get_all_observations" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.get_optimizer_convergence_state">
+<code class="sig-name descname">get_optimizer_convergence_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Tracer.py#L66"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.get_optimizer_convergence_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
 <dt id="mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.optimizer_handle">
 <em class="property">property </em><code class="sig-name descname">optimizer_handle</code><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.optimizer_handle" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.optimum">
-<code class="sig-name descname">optimum</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">stay_focused</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Grpc/BayesianOptimizerProxy.py#L98"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.optimum" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return the optimal value found so far along with the related parameter values.</p>
-<p>This could be either min or max, depending on the settings.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt id="mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.predict">
-<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feature_values_pandas_frame</span></em>, <em class="sig-param"><span class="n">t</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Grpc/BayesianOptimizerProxy.py#L75"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.predict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">predict</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feature_values_pandas_frame</span></em>, <em class="sig-param"><span class="n">t</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Tracer.py#L101"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.predict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Predict target value based on the parameters supplied.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -395,7 +430,7 @@ Benefits:</p>
 
 <dl class="py method">
 <dt id="mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.register">
-<code class="sig-name descname">register</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feature_values_pandas_frame</span></em>, <em class="sig-param"><span class="n">target_values_pandas_frame</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Grpc/BayesianOptimizerProxy.py#L57"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.register" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">register</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">feature_values_pandas_frame</span></em>, <em class="sig-param"><span class="n">target_values_pandas_frame</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Tracer.py#L81"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.register" title="Permalink to this definition">¶</a></dt>
 <dd><p>Registers a new result with the optimizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -412,7 +447,7 @@ Benefits:</p>
 
 <dl class="py method">
 <dt id="mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.reset_focus">
-<code class="sig-name descname">reset_focus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Grpc/BayesianOptimizerProxy.py#L104"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.reset_focus" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">reset_focus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Grpc/BayesianOptimizerProxy.py#L127"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.reset_focus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Changes focus back to the full search space.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -423,7 +458,7 @@ Benefits:</p>
 
 <dl class="py method">
 <dt id="mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.suggest">
-<code class="sig-name descname">suggest</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">random</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">context</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/44f3667/source/Mlos.Python/mlos/Grpc/BayesianOptimizerProxy.py#L48"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.suggest" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">suggest</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">random</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">context</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/732b9d7/source/Mlos.Python/mlos/Tracer.py#L71"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Grpc.BayesianOptimizerProxy.BayesianOptimizerProxy.suggest" title="Permalink to this definition">¶</a></dt>
 <dd><p>Suggest the next set of parameters to try.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -447,7 +482,7 @@ Benefits:</p>
         <a href="mlos.Grpc.OptimizerMicroservice.html" class="btn btn-neutral float-right" title="mlos.Grpc.OptimizerMicroservice" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="mlos.Grpc.BayesianOptimizerFactory.html" class="btn btn-neutral float-left" title="mlos.Grpc.BayesianOptimizerFactory" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="mlos.Grpc.html" class="btn btn-neutral float-left" title="mlos.Grpc" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

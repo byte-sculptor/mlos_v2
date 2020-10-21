@@ -11,7 +11,6 @@ mlos.Grpc
 .. toctree::
    :maxdepth: 1
 
-   mlos.Grpc.BayesianOptimizerFactory
    mlos.Grpc.BayesianOptimizerProxy
    mlos.Grpc.OptimizerMicroservice
    mlos.Grpc.OptimizerMicroserviceServer

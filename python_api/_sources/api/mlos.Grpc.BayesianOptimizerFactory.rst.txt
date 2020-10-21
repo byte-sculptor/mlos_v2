@@ -1,7 +1,0 @@
-mlos.Grpc.BayesianOptimizerFactory
-==================================
-
-.. automodule:: mlos.Grpc.BayesianOptimizerFactory
-   :members:
-   :undoc-members:
-   :show-inheritance:

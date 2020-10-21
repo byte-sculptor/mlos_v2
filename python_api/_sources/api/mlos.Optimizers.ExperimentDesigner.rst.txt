@@ -16,5 +16,5 @@ mlos.Optimizers.ExperimentDesigner
 .. toctree::
    :maxdepth: 1
 
-   mlos.Optimizers.ExperimentDesigner.NumericOptimizers
+   mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers
    mlos.Optimizers.ExperimentDesigner.UtilityFunctions

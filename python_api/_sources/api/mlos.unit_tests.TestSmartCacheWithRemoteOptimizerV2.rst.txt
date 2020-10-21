@@ -1,7 +1,0 @@
-mlos.unit\_tests.TestSmartCacheWithRemoteOptimizerV2
-====================================================
-
-.. automodule:: mlos.unit_tests.TestSmartCacheWithRemoteOptimizerV2
-   :members:
-   :undoc-members:
-   :show-inheritance:

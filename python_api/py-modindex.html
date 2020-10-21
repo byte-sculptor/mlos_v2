@@ -91,12 +91,11 @@
             
               <ul>
 <li class="toctree-l1"><a class="reference external" href="https://microsoft.github.io/MLOS/">Main website</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api/mlos.html">Python API</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="api/mlos.html">mlos</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/mlos.Exceptions.html">mlos.Exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/mlos.Logger.html">mlos.Logger</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/mlos.Tracer.html">mlos.Tracer</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/mlos.global_values.html">mlos.global_values</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api/mlos.start_mlos_optimization_runtime.html">mlos.start_mlos_optimization_runtime</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/mlos.start_optimizer_microservice.html">mlos.start_optimizer_microservice</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api/mlos.Examples.html">mlos.Examples</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Examples.SmartCache.html">mlos.Examples.SmartCache</a><ul>
@@ -112,7 +111,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/mlos.Grpc.html">mlos.Grpc</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/mlos.Grpc.BayesianOptimizerFactory.html">mlos.Grpc.BayesianOptimizerFactory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Grpc.BayesianOptimizerProxy.html">mlos.Grpc.BayesianOptimizerProxy</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Grpc.OptimizerMicroservice.html">mlos.Grpc.OptimizerMicroservice</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Grpc.OptimizerMicroserviceServer.html">mlos.Grpc.OptimizerMicroserviceServer</a></li>
@@ -167,24 +165,54 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="api/mlos.OptimizerEvaluationTools.html">mlos.OptimizerEvaluationTools</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.OptimizerEvaluationTools.ObjectiveFunctionBase.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionBase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.OptimizerEvaluationTools.SyntheticFunctions.html">mlos.OptimizerEvaluationTools.SyntheticFunctions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/mlos.OptimizerMonitoring.html">mlos.OptimizerMonitoring</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.OptimizerMonitoring.GoodnessOfFitTensorboardWriter.html">mlos.OptimizerMonitoring.GoodnessOfFitTensorboardWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.OptimizerMonitoring.Tomograph.html">mlos.OptimizerMonitoring.Tomograph</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.OptimizerMonitoring.Tomograph.Heatmap.html">mlos.OptimizerMonitoring.Tomograph.Heatmap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.OptimizerMonitoring.Tomograph.ModelTomograph.html">mlos.OptimizerMonitoring.Tomograph.ModelTomograph</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="api/mlos.Optimizers.html">mlos.Optimizers</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Optimizers.BayesianOptimizer.html">mlos.Optimizers.BayesianOptimizer</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/mlos.Optimizers.DistributableSimpleBayesianOptimizer.html">mlos.Optimizers.DistributableSimpleBayesianOptimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.Optimizers.BayesianOptimizerConfigStore.html">mlos.Optimizers.BayesianOptimizerConfigStore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.Optimizers.BayesianOptimizerConvergenceState.html">mlos.Optimizers.BayesianOptimizerConvergenceState</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.Optimizers.BayesianOptimizerFactory.html">mlos.Optimizers.BayesianOptimizerFactory</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Optimizers.OptimizationProblem.html">mlos.Optimizers.OptimizationProblem</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/mlos.Optimizers.OptimizerInterface.html">mlos.Optimizers.OptimizerInterface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/mlos.Optimizers.SimpleBayesianOptimizer.html">mlos.Optimizers.SimpleBayesianOptimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.Optimizers.OptimizerBase.html">mlos.Optimizers.OptimizerBase</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.Optimizers.OptimumDefinition.html">mlos.Optimizers.OptimumDefinition</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Optimizers.ExperimentDesigner.html">mlos.Optimizers.ExperimentDesigner</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.ExperimentDesigner.ExperimentDesigner.html">mlos.Optimizers.ExperimentDesigner.ExperimentDesigner</a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.ExperimentDesigner.NumericOptimizers.html">mlos.Optimizers.ExperimentDesigner.NumericOptimizers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.html">mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.ExperimentDesigner.UtilityFunctions.html">mlos.Optimizers.ExperimentDesigner.UtilityFunctions</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.html">mlos.Optimizers.RegressionModels</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.DecisionTreeConfigStore.html">mlos.Optimizers.RegressionModels.DecisionTreeConfigStore</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel.html">mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics.html">mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore.html">mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState.html">mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel.html">mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.Prediction.html">mlos.Optimizers.RegressionModels.Prediction</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.RegressionEnhancedRandomForestModel.html">mlos.Optimizers.RegressionModels.RegressionEnhancedRandomForestModel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.RegressionModel.html">mlos.Optimizers.RegressionModels.RegressionModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.RegressionModelFitState.html">mlos.Optimizers.RegressionModels.RegressionModelFitState</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.SklearnLassoRegressionModelConfig.html">mlos.Optimizers.RegressionModels.SklearnLassoRegressionModelConfig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.SklearnRandomForestRegressionModelConfig.html">mlos.Optimizers.RegressionModels.SklearnRandomForestRegressionModelConfig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.html">mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig</a></li>
@@ -202,10 +230,16 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="api/mlos.Spaces.html">mlos.Spaces</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/mlos.Spaces.DefaultConfigMeta.html">mlos.Spaces.DefaultConfigMeta</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/mlos.Spaces.Hypergrids.html">mlos.Spaces.Hypergrids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.Spaces.Hypergrid.html">mlos.Spaces.Hypergrid</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Spaces.HypergridsJsonEncoderDecoder.html">mlos.Spaces.HypergridsJsonEncoderDecoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Spaces.Point.html">mlos.Spaces.Point</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.Spaces.SimpleHypergrid.html">mlos.Spaces.SimpleHypergrid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="api/mlos.Spaces.Configs.html">mlos.Spaces.Configs</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.Configs.ComponentConfigStore.html">mlos.Spaces.Configs.ComponentConfigStore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.Configs.DefaultConfigMeta.html">mlos.Spaces.Configs.DefaultConfigMeta</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.Configs.NamedConfig.html">mlos.Spaces.Configs.NamedConfig</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Spaces.Dimensions.html">mlos.Spaces.Dimensions</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.Dimensions.CategoricalDimension.html">mlos.Spaces.Dimensions.CategoricalDimension</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.Dimensions.CompositeDimension.html">mlos.Spaces.Dimensions.CompositeDimension</a></li>
@@ -222,7 +256,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Spaces.HypergridAdapters.html">mlos.Spaces.HypergridAdapters</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.HypergridAdapters.CategoricalToDiscreteHypergridAdapter.html">mlos.Spaces.HypergridAdapters.CategoricalToDiscreteHypergridAdapter</a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.HypergridAdapters.CompositeToSimpleHypergridAdapter.html">mlos.Spaces.HypergridAdapters.CompositeToSimpleHypergridAdapter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.HypergridAdapters.DiscreteToUnitContinuousHypergridAdapter.html">mlos.Spaces.HypergridAdapters.DiscreteToUnitContinuousHypergridAdapter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter.html">mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.HypergridAdapters.HypergridAdapter.html">mlos.Spaces.HypergridAdapters.HypergridAdapter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.HypergridAdapters.unit_tests.html">mlos.Spaces.HypergridAdapters.unit_tests</a></li>
 </ul>
@@ -233,32 +268,18 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/mlos.Spaces.unit_tests.html">mlos.Spaces.unit_tests</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestCategoricalDimension.html">mlos.Spaces.unit_tests.TestCategoricalDimension</a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestCompositeHypergrid.html">mlos.Spaces.unit_tests.TestCompositeHypergrid</a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestCompositeHypergrid2.html">mlos.Spaces.unit_tests.TestCompositeHypergrid2</a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestCompositeHypergrid3.html">mlos.Spaces.unit_tests.TestCompositeHypergrid3</a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestCompositeHypergridJSONEncoderDecoder.html">mlos.Spaces.unit_tests.TestCompositeHypergridJSONEncoderDecoder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestDimensions.html">mlos.Spaces.unit_tests.TestDimensions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestFilteringOutInvalidRows.html">mlos.Spaces.unit_tests.TestFilteringOutInvalidRows</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestHierarchicalHypergrid.html">mlos.Spaces.unit_tests.TestHierarchicalHypergrid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestHierarchicalHypergrid2.html">mlos.Spaces.unit_tests.TestHierarchicalHypergrid2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestHierarchicalHypergrid3.html">mlos.Spaces.unit_tests.TestHierarchicalHypergrid3</a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestHierarchicalHypergridJSONEncoderDecoder.html">mlos.Spaces.unit_tests.TestHierarchicalHypergridJSONEncoderDecoder</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestHypergridJsonEncoderDecoderForDimensions.html">mlos.Spaces.unit_tests.TestHypergridJsonEncoderDecoderForDimensions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestIntervalTree.html">mlos.Spaces.unit_tests.TestIntervalTree</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestSimpleHypergrid.html">mlos.Spaces.unit_tests.TestSimpleHypergrid</a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/mlos.Spaces.unit_tests.TestSortedBinaryTree.html">mlos.Spaces.unit_tests.TestSortedBinaryTree</a></li>
 </ul>
 </li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api/mlos.SynthethicFunctions.html">mlos.SynthethicFunctions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/mlos.SynthethicFunctions.HierarchicalFunctions.html">mlos.SynthethicFunctions.HierarchicalFunctions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/mlos.SynthethicFunctions.PolynomialObjective.html">mlos.SynthethicFunctions.PolynomialObjective</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/mlos.SynthethicFunctions.sample_functions.html">mlos.SynthethicFunctions.sample_functions</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/mlos.SynthethicFunctions.unit_tests.html">mlos.SynthethicFunctions.unit_tests</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/mlos.SynthethicFunctions.unit_tests.TestPolynomialObjective.html">mlos.SynthethicFunctions.unit_tests.TestPolynomialObjective</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="api/mlos.Tomograph.html">mlos.Tomograph</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="api/mlos.Tomograph.Heatmap.html">mlos.Tomograph.Heatmap</a></li>
-<li class="toctree-l3"><a class="reference internal" href="api/mlos.Tomograph.ModelTomograph.html">mlos.Tomograph.ModelTomograph</a></li>
 </ul>
 </li>
 </ul>
@@ -339,7 +360,7 @@
        <td><img src="_static/minus.png" class="toggler"
               id="toggle-1" style="display: none" alt="-" /></td>
        <td>
-       <a href="api/mlos.html#module-mlos"><code class="xref">mlos</code></a></td><td>
+       <a href="index.html#module-mlos"><code class="xref">mlos</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -470,11 +491,6 @@
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="api/mlos.Grpc.html#module-mlos.Grpc"><code class="xref">mlos.Grpc</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.Grpc.BayesianOptimizerFactory.html#module-mlos.Grpc.BayesianOptimizerFactory"><code class="xref">mlos.Grpc.BayesianOptimizerFactory</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -719,6 +735,81 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerEvaluationTools.html#module-mlos.OptimizerEvaluationTools"><code class="xref">mlos.OptimizerEvaluationTools</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerEvaluationTools.ObjectiveFunctionBase.html#module-mlos.OptimizerEvaluationTools.ObjectiveFunctionBase"><code class="xref">mlos.OptimizerEvaluationTools.ObjectiveFunctionBase</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore.html#module-mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore"><code class="xref">mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory.html#module-mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory"><code class="xref">mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerEvaluationTools.SyntheticFunctions.html#module-mlos.OptimizerEvaluationTools.SyntheticFunctions"><code class="xref">mlos.OptimizerEvaluationTools.SyntheticFunctions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.html#module-mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower"><code class="xref">mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective.html#module-mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective"><code class="xref">mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper.html#module-mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper"><code class="xref">mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions.html#module-mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions"><code class="xref">mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic.html#module-mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic"><code class="xref">mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerMonitoring.html#module-mlos.OptimizerMonitoring"><code class="xref">mlos.OptimizerMonitoring</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerMonitoring.GoodnessOfFitTensorboardWriter.html#module-mlos.OptimizerMonitoring.GoodnessOfFitTensorboardWriter"><code class="xref">mlos.OptimizerMonitoring.GoodnessOfFitTensorboardWriter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerMonitoring.Tomograph.html#module-mlos.OptimizerMonitoring.Tomograph"><code class="xref">mlos.OptimizerMonitoring.Tomograph</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerMonitoring.Tomograph.Heatmap.html#module-mlos.OptimizerMonitoring.Tomograph.Heatmap"><code class="xref">mlos.OptimizerMonitoring.Tomograph.Heatmap</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.OptimizerMonitoring.Tomograph.ModelTomograph.html#module-mlos.OptimizerMonitoring.Tomograph.ModelTomograph"><code class="xref">mlos.OptimizerMonitoring.Tomograph.ModelTomograph</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/mlos.Optimizers.html#module-mlos.Optimizers"><code class="xref">mlos.Optimizers</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -729,7 +820,17 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.Optimizers.DistributableSimpleBayesianOptimizer.html#module-mlos.Optimizers.DistributableSimpleBayesianOptimizer"><code class="xref">mlos.Optimizers.DistributableSimpleBayesianOptimizer</code></a></td><td>
+       <a href="api/mlos.Optimizers.BayesianOptimizerConfigStore.html#module-mlos.Optimizers.BayesianOptimizerConfigStore"><code class="xref">mlos.Optimizers.BayesianOptimizerConfigStore</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Optimizers.BayesianOptimizerConvergenceState.html#module-mlos.Optimizers.BayesianOptimizerConvergenceState"><code class="xref">mlos.Optimizers.BayesianOptimizerConvergenceState</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Optimizers.BayesianOptimizerFactory.html#module-mlos.Optimizers.BayesianOptimizerFactory"><code class="xref">mlos.Optimizers.BayesianOptimizerFactory</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -744,22 +845,32 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.Optimizers.ExperimentDesigner.NumericOptimizers.html#module-mlos.Optimizers.ExperimentDesigner.NumericOptimizers"><code class="xref">mlos.Optimizers.ExperimentDesigner.NumericOptimizers</code></a></td><td>
+       <a href="api/mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.html#module-mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers"><code class="xref">mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.Optimizers.ExperimentDesigner.NumericOptimizers.RandomSearchOptimizer.html#module-mlos.Optimizers.ExperimentDesigner.NumericOptimizers.RandomSearchOptimizer"><code class="xref">mlos.Optimizers.ExperimentDesigner.NumericOptimizers.RandomSearchOptimizer</code></a></td><td>
+       <a href="api/mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.GlowWormSwarmOptimizer.html#module-mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.GlowWormSwarmOptimizer"><code class="xref">mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.GlowWormSwarmOptimizer</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.Optimizers.ExperimentDesigner.NumericOptimizers.unit_tests.html#module-mlos.Optimizers.ExperimentDesigner.NumericOptimizers.unit_tests"><code class="xref">mlos.Optimizers.ExperimentDesigner.NumericOptimizers.unit_tests</code></a></td><td>
+       <a href="api/mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomSearchOptimizer.html#module-mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomSearchOptimizer"><code class="xref">mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomSearchOptimizer</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.Optimizers.ExperimentDesigner.NumericOptimizers.unit_tests.TestRandomSearchOptimizer.html#module-mlos.Optimizers.ExperimentDesigner.NumericOptimizers.unit_tests.TestRandomSearchOptimizer"><code class="xref">mlos.Optimizers.ExperimentDesigner.NumericOptimizers.unit_tests.TestRandomSearchOptimizer</code></a></td><td>
+       <a href="api/mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.unit_tests.html#module-mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.unit_tests"><code class="xref">mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.unit_tests</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.unit_tests.TestUtilityFunctionOptimizers.html#module-mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.unit_tests.TestUtilityFunctionOptimizers"><code class="xref">mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.unit_tests.TestUtilityFunctionOptimizers</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.UtilityFunctionOptimizer.html#module-mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.UtilityFunctionOptimizer"><code class="xref">mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.UtilityFunctionOptimizer</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -784,6 +895,11 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/mlos.Optimizers.ExperimentDesigner.UtilityFunctions.UtilityFunction.html#module-mlos.Optimizers.ExperimentDesigner.UtilityFunctions.UtilityFunction"><code class="xref">mlos.Optimizers.ExperimentDesigner.UtilityFunctions.UtilityFunction</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/mlos.Optimizers.long_haul_tests.html#module-mlos.Optimizers.long_haul_tests"><code class="xref">mlos.Optimizers.long_haul_tests</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -799,7 +915,12 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.Optimizers.OptimizerInterface.html#module-mlos.Optimizers.OptimizerInterface"><code class="xref">mlos.Optimizers.OptimizerInterface</code></a></td><td>
+       <a href="api/mlos.Optimizers.OptimizerBase.html#module-mlos.Optimizers.OptimizerBase"><code class="xref">mlos.Optimizers.OptimizerBase</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Optimizers.OptimumDefinition.html#module-mlos.Optimizers.OptimumDefinition"><code class="xref">mlos.Optimizers.OptimumDefinition</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -809,7 +930,27 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/mlos.Optimizers.RegressionModels.DecisionTreeConfigStore.html#module-mlos.Optimizers.RegressionModels.DecisionTreeConfigStore"><code class="xref">mlos.Optimizers.RegressionModels.DecisionTreeConfigStore</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel.html#module-mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel"><code class="xref">mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics.html#module-mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics"><code class="xref">mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore.html#module-mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore"><code class="xref">mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState.html#module-mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState"><code class="xref">mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -830,6 +971,11 @@
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="api/mlos.Optimizers.RegressionModels.RegressionModel.html#module-mlos.Optimizers.RegressionModels.RegressionModel"><code class="xref">mlos.Optimizers.RegressionModels.RegressionModel</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Optimizers.RegressionModels.RegressionModelFitState.html#module-mlos.Optimizers.RegressionModels.RegressionModelFitState"><code class="xref">mlos.Optimizers.RegressionModels.RegressionModelFitState</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -874,11 +1020,6 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.Optimizers.SimpleBayesianOptimizer.html#module-mlos.Optimizers.SimpleBayesianOptimizer"><code class="xref">mlos.Optimizers.SimpleBayesianOptimizer</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
        <a href="api/mlos.Optimizers.unit_tests.html#module-mlos.Optimizers.unit_tests"><code class="xref">mlos.Optimizers.unit_tests</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -894,7 +1035,22 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.Spaces.DefaultConfigMeta.html#module-mlos.Spaces.DefaultConfigMeta"><code class="xref">mlos.Spaces.DefaultConfigMeta</code></a></td><td>
+       <a href="api/mlos.Spaces.Configs.html#module-mlos.Spaces.Configs"><code class="xref">mlos.Spaces.Configs</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Spaces.Configs.ComponentConfigStore.html#module-mlos.Spaces.Configs.ComponentConfigStore"><code class="xref">mlos.Spaces.Configs.ComponentConfigStore</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Spaces.Configs.DefaultConfigMeta.html#module-mlos.Spaces.Configs.DefaultConfigMeta"><code class="xref">mlos.Spaces.Configs.DefaultConfigMeta</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Spaces.Configs.NamedConfig.html#module-mlos.Spaces.Configs.NamedConfig"><code class="xref">mlos.Spaces.Configs.NamedConfig</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -959,6 +1115,11 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
+       <a href="api/mlos.Spaces.Hypergrid.html#module-mlos.Spaces.Hypergrid"><code class="xref">mlos.Spaces.Hypergrid</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
        <a href="api/mlos.Spaces.HypergridAdapters.html#module-mlos.Spaces.HypergridAdapters"><code class="xref">mlos.Spaces.HypergridAdapters</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
@@ -969,7 +1130,12 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.Spaces.HypergridAdapters.CompositeToSimpleHypergridAdapter.html#module-mlos.Spaces.HypergridAdapters.CompositeToSimpleHypergridAdapter"><code class="xref">mlos.Spaces.HypergridAdapters.CompositeToSimpleHypergridAdapter</code></a></td><td>
+       <a href="api/mlos.Spaces.HypergridAdapters.DiscreteToUnitContinuousHypergridAdapter.html#module-mlos.Spaces.HypergridAdapters.DiscreteToUnitContinuousHypergridAdapter"><code class="xref">mlos.Spaces.HypergridAdapters.DiscreteToUnitContinuousHypergridAdapter</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter.html#module-mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter"><code class="xref">mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -989,17 +1155,17 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.Spaces.Hypergrids.html#module-mlos.Spaces.Hypergrids"><code class="xref">mlos.Spaces.Hypergrids</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
        <a href="api/mlos.Spaces.HypergridsJsonEncoderDecoder.html#module-mlos.Spaces.HypergridsJsonEncoderDecoder"><code class="xref">mlos.Spaces.HypergridsJsonEncoderDecoder</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
        <a href="api/mlos.Spaces.Point.html#module-mlos.Spaces.Point"><code class="xref">mlos.Spaces.Point</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Spaces.SimpleHypergrid.html#module-mlos.Spaces.SimpleHypergrid"><code class="xref">mlos.Spaces.SimpleHypergrid</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -1024,27 +1190,32 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.Spaces.unit_tests.TestCompositeHypergrid.html#module-mlos.Spaces.unit_tests.TestCompositeHypergrid"><code class="xref">mlos.Spaces.unit_tests.TestCompositeHypergrid</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.Spaces.unit_tests.TestCompositeHypergrid2.html#module-mlos.Spaces.unit_tests.TestCompositeHypergrid2"><code class="xref">mlos.Spaces.unit_tests.TestCompositeHypergrid2</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.Spaces.unit_tests.TestCompositeHypergrid3.html#module-mlos.Spaces.unit_tests.TestCompositeHypergrid3"><code class="xref">mlos.Spaces.unit_tests.TestCompositeHypergrid3</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.Spaces.unit_tests.TestCompositeHypergridJSONEncoderDecoder.html#module-mlos.Spaces.unit_tests.TestCompositeHypergridJSONEncoderDecoder"><code class="xref">mlos.Spaces.unit_tests.TestCompositeHypergridJSONEncoderDecoder</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
        <a href="api/mlos.Spaces.unit_tests.TestDimensions.html#module-mlos.Spaces.unit_tests.TestDimensions"><code class="xref">mlos.Spaces.unit_tests.TestDimensions</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Spaces.unit_tests.TestFilteringOutInvalidRows.html#module-mlos.Spaces.unit_tests.TestFilteringOutInvalidRows"><code class="xref">mlos.Spaces.unit_tests.TestFilteringOutInvalidRows</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Spaces.unit_tests.TestHierarchicalHypergrid.html#module-mlos.Spaces.unit_tests.TestHierarchicalHypergrid"><code class="xref">mlos.Spaces.unit_tests.TestHierarchicalHypergrid</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Spaces.unit_tests.TestHierarchicalHypergrid2.html#module-mlos.Spaces.unit_tests.TestHierarchicalHypergrid2"><code class="xref">mlos.Spaces.unit_tests.TestHierarchicalHypergrid2</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Spaces.unit_tests.TestHierarchicalHypergrid3.html#module-mlos.Spaces.unit_tests.TestHierarchicalHypergrid3"><code class="xref">mlos.Spaces.unit_tests.TestHierarchicalHypergrid3</code></a></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="api/mlos.Spaces.unit_tests.TestHierarchicalHypergridJSONEncoderDecoder.html#module-mlos.Spaces.unit_tests.TestHierarchicalHypergridJSONEncoderDecoder"><code class="xref">mlos.Spaces.unit_tests.TestHierarchicalHypergridJSONEncoderDecoder</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
@@ -1069,92 +1240,12 @@
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.start_mlos_optimization_runtime.html#module-mlos.start_mlos_optimization_runtime"><code class="xref">mlos.start_mlos_optimization_runtime</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
        <a href="api/mlos.start_optimizer_microservice.html#module-mlos.start_optimizer_microservice"><code class="xref">mlos.start_optimizer_microservice</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>
        <td>&#160;&#160;&#160;
-       <a href="api/mlos.SynthethicFunctions.html#module-mlos.SynthethicFunctions"><code class="xref">mlos.SynthethicFunctions</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.SynthethicFunctions.HierarchicalFunctions.html#module-mlos.SynthethicFunctions.HierarchicalFunctions"><code class="xref">mlos.SynthethicFunctions.HierarchicalFunctions</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.SynthethicFunctions.PolynomialObjective.html#module-mlos.SynthethicFunctions.PolynomialObjective"><code class="xref">mlos.SynthethicFunctions.PolynomialObjective</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.SynthethicFunctions.sample_functions.html#module-mlos.SynthethicFunctions.sample_functions"><code class="xref">mlos.SynthethicFunctions.sample_functions</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.SynthethicFunctions.unit_tests.html#module-mlos.SynthethicFunctions.unit_tests"><code class="xref">mlos.SynthethicFunctions.unit_tests</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.SynthethicFunctions.unit_tests.TestPolynomialObjective.html#module-mlos.SynthethicFunctions.unit_tests.TestPolynomialObjective"><code class="xref">mlos.SynthethicFunctions.unit_tests.TestPolynomialObjective</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.Tomograph.html#module-mlos.Tomograph"><code class="xref">mlos.Tomograph</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.Tomograph.Heatmap.html#module-mlos.Tomograph.Heatmap"><code class="xref">mlos.Tomograph.Heatmap</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.Tomograph.ModelTomograph.html#module-mlos.Tomograph.ModelTomograph"><code class="xref">mlos.Tomograph.ModelTomograph</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
        <a href="api/mlos.Tracer.html#module-mlos.Tracer"><code class="xref">mlos.Tracer</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.unit_tests.html#module-mlos.unit_tests"><code class="xref">mlos.unit_tests</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.unit_tests.TestBayesianOptimizerGrpcClient.html#module-mlos.unit_tests.TestBayesianOptimizerGrpcClient"><code class="xref">mlos.unit_tests.TestBayesianOptimizerGrpcClient</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.unit_tests.TestFirstCheckinExperience.html#module-mlos.unit_tests.TestFirstCheckinExperience"><code class="xref">mlos.unit_tests.TestFirstCheckinExperience</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.unit_tests.TestSmartCacheWithRemoteOptimizerV2.html#module-mlos.unit_tests.TestSmartCacheWithRemoteOptimizerV2"><code class="xref">mlos.unit_tests.TestSmartCacheWithRemoteOptimizerV2</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.unit_tests.TestSmartCacheWithRemoteOptimizerV3.html#module-mlos.unit_tests.TestSmartCacheWithRemoteOptimizerV3"><code class="xref">mlos.unit_tests.TestSmartCacheWithRemoteOptimizerV3</code></a></td><td>
-       <em></em></td></tr>
-     <tr class="cg-1">
-       <td></td>
-       <td>&#160;&#160;&#160;
-       <a href="api/mlos.unit_tests.TestTracer.html#module-mlos.unit_tests.TestTracer"><code class="xref">mlos.unit_tests.TestTracer</code></a></td><td>
        <em></em></td></tr>
    </table>
 

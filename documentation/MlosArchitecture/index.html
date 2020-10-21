@@ -5,10 +5,10 @@
   <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="MLOS Architecture This document provides a brief overview of the MLOS architecture for supporting Machine Learning Optimized Systems.
- MLOS Architecture  High Level Description  Principles Workflows   Architecture Diagram  Main Components Shared Memory Regions Target process  Mlos.Core Shared Channel   Mlos.Agent  Mlos.NetCore Settings Registry Assemblies Grpc Server Experiment Management     Implementation Details    High Level Description At a high level, MLOS provides infrastructure to support instance-specific tuning systems software (e.">
+ MLOS Architecture  High Level Description  Principles Workflows   Architecture Diagram  Main components Shared Memory Regions Target Process  Mlos.Core Shared Channel   Mlos.Agent  Mlos.NetCore Settings registry assemblies Grpc Server Experiment management     Implementation details    High Level Description At a high level, MLOS provides infrastructure to support instance-specific tuning systems software (e.">
 <meta name="theme-color" content="#FFFFFF"><meta property="og:title" content="" />
 <meta property="og:description" content="MLOS Architecture This document provides a brief overview of the MLOS architecture for supporting Machine Learning Optimized Systems.
- MLOS Architecture  High Level Description  Principles Workflows   Architecture Diagram  Main Components Shared Memory Regions Target process  Mlos.Core Shared Channel   Mlos.Agent  Mlos.NetCore Settings Registry Assemblies Grpc Server Experiment Management     Implementation Details    High Level Description At a high level, MLOS provides infrastructure to support instance-specific tuning systems software (e." />
+ MLOS Architecture  High Level Description  Principles Workflows   Architecture Diagram  Main components Shared Memory Regions Target Process  Mlos.Core Shared Channel   Mlos.Agent  Mlos.NetCore Settings registry assemblies Grpc Server Experiment management     Implementation details    High Level Description At a high level, MLOS provides infrastructure to support instance-specific tuning systems software (e." />
 <meta property="og:type" content="article" />
 <meta property="og:url" content="https://microsoft.github.io/MLOS/documentation/MlosArchitecture/" />
 
@@ -16,7 +16,7 @@
 <link rel="manifest" href="/MLOS/manifest.json">
 <link rel="icon" href="/MLOS/favicon.png" type="image/x-icon">
 <link rel="stylesheet" href="/MLOS/book.min.6cd8553a6854f4812343f0f0c8baca31271e686434f381fbe3c7226f66639176.css" integrity="sha256-bNhVOmhU9IEjQ/DwyLrKMSceaGQ084H748cib2ZjkXY=">
-<script defer src="/MLOS/en.search.min.cc96a7413791751526756cae4211f52e5ac1ca9a4e40b13267c3b93354caf41e.js" integrity="sha256-zJanQTeRdRUmdWyuQhH1LlrByppOQLEyZ8O5M1TK9B4="></script>
+<script defer src="/MLOS/en.search.min.9d3d826a74a238923dfb862edd7dd7495c7867e2bd880c50b9c513f2a94d39b1.js" integrity="sha256-nT2CanSiOJI9&#43;4Yu3X3XSVx4Z&#43;K9iAxQucUT8qlNObE="></script>
 <!--
 Made with Book Theme
 https://github.com/alex-shpak/hugo-book
@@ -58,22 +58,21 @@ https://github.com/alex-shpak/hugo-book
 <li>
 <p><a href="/MLOS/documentation/">Documentation</a></p>
 <ul>
-<li><a href="/MLOS/documentation/01-Prerequisites/">Prerequisits</a></li>
+<li><a href="/MLOS/documentation/01-Prerequisites/">Prerequisites</a></li>
 <li><a href="/MLOS/documentation/02-Build/">Build</a></li>
-<li><a href="/MLOS/documentation/05-Test/">Test</a></li>
+<li><a href="/MLOS/documentation/04-Test/">Test</a></li>
 <li><a href="/MLOS/documentation/CodingStandard/">Coding Standard</a></li>
 <li><a href="/MLOS/documentation/MlosArchitecture/"class=active>Architecture</a></li>
 <li><a href="/MLOS/documentation/RepoOrganization/">Repo Organization</a></li>
 </ul>
 </li>
 <li>
-<p>Notebooks</p>
+<p><a href="/MLOS/notebooks/">Notebooks</a></p>
 <ul>
-<li><a href="/MLOS/notebooks/StartHere/">Start Here</a></li>
-<li><a href="/MLOS/notebooks/SmartCache/">Smart Cache</a></li>
-<li><a href="/MLOS/notebooks/SmartCacheActiveLearning/">Smart Cache Active Learning</a></li>
-<li><a href="/MLOS/notebooks/OptimizerMonitor/">Optimizer Monitor</a></li>
 <li><a href="/MLOS/notebooks/BayesianOptimization/">Bayesian Optimization</a></li>
+<li><a href="/MLOS/notebooks/SmartCacheOptimization/">Smart Cache Optimization</a></li>
+<li><a href="/MLOS/notebooks/SmartCacheCPP/">Smart Cache Optimization in C++</a></li>
+<li><a href="/MLOS/notebooks/LevelDbTuning/">LevelDB External Tuning Example</a></li>
 </ul>
 </li>
 <li>
@@ -83,10 +82,19 @@ https://github.com/alex-shpak/hugo-book
 </ul>
 </li>
 <li>
+<p><a href="/MLOS/source/Examples/">E2E Examples</a></p>
+<ul>
+<li><a href="/MLOS/source/Examples/SmartCache/">Smart Cache</a></li>
+</ul>
+</li>
+<li>
 <p><a href="/MLOS/CODE_OF_CONDUCT/">Code of Conduct</a></p>
 </li>
 <li>
 <p><a href="/MLOS/CONTRIBUTING/">Contributing</a></p>
+</li>
+<li>
+<p><a href="https://github.com/Microsoft/MLOS">MLOS Github Repository</a></p>
 </li>
 </ul>
 
@@ -161,8 +169,6 @@ https://github.com/alex-shpak/hugo-book
       
   <article class="markdown"><h1 id="mlos-architecture">MLOS Architecture</h1>
 <p>This document provides a brief overview of the MLOS architecture for supporting <strong>M</strong>achine <strong>L</strong>earning <strong>O</strong>ptimized <strong>S</strong>ystems.</p>
-<!-- raw HTML omitted -->
-<!-- raw HTML omitted -->
 <ul>
 <li><a href="#mlos-architecture">MLOS Architecture</a>
 <ul>
@@ -174,9 +180,9 @@ https://github.com/alex-shpak/hugo-book
 </li>
 <li><a href="#architecture-diagram">Architecture Diagram</a>
 <ul>
-<li><a href="#main-components">Main Components</a></li>
+<li><a href="#main-components">Main components</a></li>
 <li><a href="#shared-memory-regions">Shared Memory Regions</a></li>
-<li><a href="#target-process">Target process</a>
+<li><a href="#target-process">Target Process</a>
 <ul>
 <li><a href="#mloscore">Mlos.Core</a></li>
 <li><a href="#shared-channel">Shared Channel</a></li>
@@ -185,18 +191,17 @@ https://github.com/alex-shpak/hugo-book
 <li><a href="#mlosagent">Mlos.Agent</a>
 <ul>
 <li><a href="#mlosnetcore">Mlos.NetCore</a></li>
-<li><a href="#settings-registry-assemblies">Settings Registry Assemblies</a></li>
+<li><a href="#settings-registry-assemblies">Settings registry assemblies</a></li>
 <li><a href="#grpc-server">Grpc Server</a></li>
-<li><a href="#experiment-management">Experiment Management</a></li>
+<li><a href="#experiment-management">Experiment management</a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><a href="#implementation-Details">Implementation Details</a></li>
+<li><a href="#implementation-details">Implementation details</a></li>
 </ul>
 </li>
 </ul>
-<!-- raw HTML omitted -->
 <h2 id="high-level-description">High Level Description</h2>
 <p>At a high level, MLOS provides infrastructure to support instance-specific tuning systems software (e.g. written in C++) in a trackable and reproducible way.</p>
 <p>MLOS does this by focusing on optimizing <em>tunables</em> that exist in code.</p>
@@ -249,7 +254,7 @@ It communicates with the target system using <em>shared memory channels</em> for
 </li>
 </ol>
 <h2 id="architecture-diagram">Architecture Diagram</h2>
-<p><!-- raw HTML omitted --></p>
+<p><img src="/MLOS/documentation/images/MLOS_architecture.svg" alt="Mlos Component Architecture Diagram" /></p>
 <h3 id="main-components">Main components</h3>
 <ul>
 <li>
@@ -302,7 +307,7 @@ Configuration objects are accessible from the <em>Target process</em> and from <
 The exceptions are shared channel memory regions, where the channel uses all memory.
 Control and Feedback Channels are circular buffers whose size must be a power of two (2<!-- raw HTML omitted --><!-- raw HTML omitted -->N<!-- raw HTML omitted --><!-- raw HTML omitted -->).
 Prepending a header would prevent proper alignment which is why all communication channel metadata and synchronization objects are located in the <em>Global Shared Memory</em> region.</p>
-<p>See Also: <a href="../source/Mlos.Core/doc/SharedChannel/">SharedChannel/</a> for more details about their implementation.</p>
+<p>See Also: <a href="/MLOS/documentation/../source/Mlos.Core/doc/SharedChannel/">SharedChannel.md</a> for more details about their implementation.</p>
 <h3 id="target-process">Target Process</h3>
 <h4 id="mloscore">Mlos.Core</h4>
 <p><em>Mlos.Core</em> is a (C++) library used inside the target process.
@@ -331,7 +336,7 @@ It allows for registering configs in shared memory.</p>
 <h4 id="grpc-server">Grpc Server</h4>
 <h4 id="experiment-management">Experiment management</h4>
 <h2 id="implementation-details">Implementation details</h2>
-<p><a href="../source/Mlos.Core/doc/SharedChannel/">Shared Memory Channel</a></p>
+<p><a href="/MLOS/documentation/../source/Mlos.Core/doc/SharedChannel/">Shared Memory Channel</a></p>
 </article>
  
       

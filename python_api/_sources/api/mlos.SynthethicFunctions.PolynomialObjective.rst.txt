@@ -1,7 +1,0 @@
-mlos.SynthethicFunctions.PolynomialObjective
-============================================
-
-.. automodule:: mlos.SynthethicFunctions.PolynomialObjective
-   :members:
-   :undoc-members:
-   :show-inheritance:

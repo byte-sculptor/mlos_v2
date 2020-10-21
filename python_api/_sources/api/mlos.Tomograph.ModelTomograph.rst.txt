@@ -1,7 +1,0 @@
-mlos.Tomograph.ModelTomograph
-=============================
-
-.. automodule:: mlos.Tomograph.ModelTomograph
-   :members:
-   :undoc-members:
-   :show-inheritance:
