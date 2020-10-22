@@ -12,3 +12,4 @@ mlos.Spaces.HypergridAdapters.unit\_tests
    :maxdepth: 1
 
    mlos.Spaces.HypergridAdapters.unit_tests.TestCategoricalToDiscreteHypergridAdapter
+   mlos.Spaces.HypergridAdapters.unit_tests.TestCategoricalToOneHotEncodedHypergridAdapter
