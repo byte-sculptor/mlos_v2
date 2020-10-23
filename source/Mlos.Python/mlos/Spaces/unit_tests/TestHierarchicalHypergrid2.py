@@ -189,5 +189,3 @@ class TestHierarchicalHypergrid2(unittest.TestCase):
             unpickled = pickle.loads(pickled)
             self.assertTrue(unpickled == random_point)
 
-
-
