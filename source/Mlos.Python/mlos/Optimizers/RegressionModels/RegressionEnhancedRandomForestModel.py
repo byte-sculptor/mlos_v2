@@ -12,17 +12,15 @@ from sklearn.metrics import r2_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.preprocessing import PolynomialFeatures
 
-from mlos.Spaces import Hypergrid, SimpleHypergrid, \
-    ContinuousDimension, DiscreteDimension, CategoricalDimension, Point
-from mlos.Tracer import trace
 from mlos.Logger import create_logger
-from mlos.Spaces.Configs.DefaultConfigMeta import DefaultConfigMeta
-
 from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Optimizers.RegressionModels.SklearnLassoRegressionModelConfig import SklearnLassoRegressionModelConfig
 from mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig import SklearnRidgeRegressionModelConfig
 from mlos.Optimizers.RegressionModels.SklearnRandomForestRegressionModelConfig import SklearnRandomForestRegressionModelConfig
+from mlos.Spaces import Hypergrid, SimpleHypergrid, ContinuousDimension, DiscreteDimension, CategoricalDimension, Point
+from mlos.Spaces.Configs.DefaultConfigMeta import DefaultConfigMeta
+from mlos.Tracer import trace
 
 # sklearn injects many warnings, so from
 #   https://stackoverflow.com/questions/32612180/eliminating-warnings-from-scikit-learn
