@@ -87,9 +87,9 @@ class RegressionEnhancedRandomForestRegressionModelConfig(metaclass=DefaultConfi
         residual_model_name=SklearnRandomForestRegressionModelConfig.__name__,
         boosting_root_model_name=SklearnLassoRegressionModelConfig.__name__,
         min_abs_root_model_coef=0.01,
-        sklearn_lasso_regression_model_config=SklearnLassoRegressionModelConfig._DEFAULT,
-        sklearn_ridge_regression_model_config=SklearnRidgeRegressionModelConfig._DEFAULT,
-        sklearn_random_forest_regression_model_config=SklearnRandomForestRegressionModelConfig._DEFAULT,
+        sklearn_lasso_regression_model_config=SklearnLassoRegressionModelConfig.DEFAULT,
+        sklearn_ridge_regression_model_config=SklearnRidgeRegressionModelConfig.DEFAULT,
+        sklearn_random_forest_regression_model_config=SklearnRandomForestRegressionModelConfig.DEFAULT,
         perform_initial_root_model_hyper_parameter_search=True,
         perform_initial_random_forest_hyper_parameter_search=True
     )

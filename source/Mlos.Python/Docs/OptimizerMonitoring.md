@@ -1,7 +1,7 @@
 # Optimizer Monitoring
 
 ## Motivation
-The goal of this document is to outline the process of monitoring the optimizers, enumerate the metrics we wish to collect and the tools required to do so.
+The goal of this document is to outline the process of monitoring the optimizers, enumerate the metrics we wish to collect and the tools required to do so. 
 
 
 ## What we wish to monitor
@@ -9,9 +9,9 @@ For each optimizer we should be able to:
 1. View it's current configuration (done).
 1. View all the data that it was trained on.
 1. View the state of the surrogate models:
-    1. Have they been trained?
-    1. How many times has it been trained?
-    1. In case of an ensemble: has each of the component models been trained?
+    1. Have they been fitted?
+    1. How many times has it been refitted?
+    1. In case of an ensemble: has each of the component models been fitted?
     1. What are the values of goodness of fit measures?
     1. How many samples did the model consume?
     1. What exact data was each model trained on?

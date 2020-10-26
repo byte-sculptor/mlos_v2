@@ -92,11 +92,11 @@ class DecisionTreeRegressionModel(RegressionModel):
         #return self.fit_state.train_set_size
 
     def should_fit(self, num_samples):
-        """ Returns true if the model should be trained.
+        """ Returns true if the model should be fitted.
 
-        This model should be trained under the following conditions:
-        1) It has not been trained yet and num_samples is larger than min_samples_to_fit
-        2) The model has been trained and the number of new samples is larger than n_new_samples_before_refit
+        This model should be fitted under the following conditions:
+        1) It has not been fitted yet and num_samples is larger than min_samples_to_fit
+        2) The model has been fitted and the number of new samples is larger than n_new_samples_before_refit
 
         :param num_samples:
         :return:

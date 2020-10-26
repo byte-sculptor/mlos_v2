@@ -13,7 +13,7 @@ class RegressionModelFitState:
     The key information we keep here are:
 
         1. The input and output spaces.
-        2. Has the model been trained.
+        2. Has the model been fitted.
         3. Goodness of fit metrics (separately on training and testing sets).
         4. ...
 
