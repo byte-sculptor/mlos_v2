@@ -8,9 +8,7 @@ from mlos.Spaces import SimpleHypergrid, ContinuousDimension, DiscreteDimension,
 from mlos.Spaces.Configs.DefaultConfigMeta import DefaultConfigMeta
 
 
-
-
-class SklearnRidgeRegressionModelConfig(DefaultConfigMeta):
+class SklearnRidgeRegressionModelConfig(metaclass=DefaultConfigMeta):
     class Solver(Enum):
         """
         From https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html:

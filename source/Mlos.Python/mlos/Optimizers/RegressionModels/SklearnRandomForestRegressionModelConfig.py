@@ -7,7 +7,7 @@ from enum import Enum
 from mlos.Spaces import SimpleHypergrid, ContinuousDimension, DiscreteDimension, CategoricalDimension, Point
 from mlos.Spaces.Configs.DefaultConfigMeta import DefaultConfigMeta
 
-class SklearnRandomForestRegressionModelConfig(DefaultConfigMeta):
+class SklearnRandomForestRegressionModelConfig(metaclass=DefaultConfigMeta):
     class MaxFeatures(Enum):
         """
         The number of features to consider when looking for the best split
