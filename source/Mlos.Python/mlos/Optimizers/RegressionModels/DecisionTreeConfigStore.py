@@ -66,8 +66,8 @@ decision_tree_config_store = ComponentConfigStore(
     ),
     description="Governs the construction of an instance of a decision tree regressor. Most of the parameters are passed directly"
                 "to the DecisionTreeRegressor constructor. Two exceptions: "
-                "min_samples_to_fit determines the minimum number of samples required for the tree to be trained."
-                "n_new_samples_before_refit determines the number of new samples before a tree will be retrained."
+                "min_samples_to_fit determines the minimum number of samples required for the tree to be fitted."
+                "n_new_samples_before_refit determines the number of new samples before a tree will be refitted."
                 "Copied from scikit-learn docs:"
                 "criterion: The function to measure the quality of a split."
                 "splitter: The strategy used to choose the split at each node."
