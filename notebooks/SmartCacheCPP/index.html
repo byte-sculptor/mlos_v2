@@ -14,7 +14,7 @@
 <link rel="manifest" href="/MLOS/manifest.json">
 <link rel="icon" href="/MLOS/favicon.png" type="image/x-icon">
 <link rel="stylesheet" href="/MLOS/book.min.6cd8553a6854f4812343f0f0c8baca31271e686434f381fbe3c7226f66639176.css" integrity="sha256-bNhVOmhU9IEjQ/DwyLrKMSceaGQ084H748cib2ZjkXY=">
-<script defer src="/MLOS/en.search.min.6f8607039e872b0ebd0977f20627054c383bb384cd90e5bc04a448b73838a4d8.js" integrity="sha256-b4YHA56HKw69CXfyBicFTDg7s4TNkOW8BKRItzg4pNg="></script>
+<script defer src="/MLOS/en.search.min.54ed2ca53b7a584405cfc3bc1da5934bf42271669fa479214232497a625f77bf.js" integrity="sha256-VO0spTt6WEQFz8O8HaWTS/QicWafpHkhQjJJemJfd78="></script>
 <!--
 Made with Book Theme
 https://github.com/alex-shpak/hugo-book
@@ -74,15 +74,23 @@ https://github.com/alex-shpak/hugo-book
 </ul>
 </li>
 <li>
+<p><a href="/MLOS/source/Examples/">E2E Examples</a></p>
+<ul>
+<li><a href="/MLOS/source/Examples/SmartCache/">Smart Cache</a></li>
+</ul>
+</li>
+<li>
 <p>API Documentation</p>
 <ul>
 <li><a href="/MLOS/python_api/">Python</a></li>
 </ul>
 </li>
 <li>
-<p><a href="/MLOS/source/Examples/">E2E Examples</a></p>
+<p>Component Documentation</p>
 <ul>
-<li><a href="/MLOS/source/Examples/SmartCache/">Smart Cache</a></li>
+<li><a href="/MLOS/source/Mlos.SettingsSystem.CodeGen/">Mlos Settings System Code Generation System</a></li>
+<li><a href="/MLOS/source/Mlos.Core/doc/">Mlos.Core Shared Memory Communication Channel</a></li>
+<li><a href="/MLOS/source/Mlos.Agent.Server/">Mlos.Agent.Server</a></li>
 </ul>
 </li>
 <li>
@@ -161,7 +169,7 @@ https://github.com/alex-shpak/hugo-book
 We will start a docker container, and run an MLOS Agent within it. The MLOS Agent will start the actual application, and communicate with it via a shared memory channel.
 In this example, the MLOS Agent controls the execution of the workloads on the application, and we will later connect to the agent to optimize the configuration of our application.</p>
 <p>The application is a &ldquo;SmartCache&rdquo; similar to the one in the SmartCacheOptimization notebook, though with some more parameters to tune.
-The source for this example is in the <code>source/Examples/SmartCache</code> folder.</p>
+The source for this example is in the <a href="https://github.com/Microsoft/MLOS/tree/main/source/Examples/SmartCache"><code>source/Examples/SmartCache</code></a> folder.</p>
 <h2 id="building-the-application">Building the application</h2>
 <p>To build and run the necessary components for this example you need to create and run a docker image.
 To that end, open a separate terminal and go to the MLOS main folder. Within that folder, run the following commands:</p>
@@ -189,30 +197,31 @@ This will allow us later to connect to the optimizer that runs inside the docker
 <li>
 <p>Mlos.Agent.Server:</p>
 <p>This file corresponds to the main entry point for MLOS, written in C#. You can find the source in
-<code>source/Mlos.Agent.Server/MlosAgentServer.cs</code> and the binary at
+<a href="https://github.com/Microsoft/MLOS/tree/main/source/Mlos.Agent.Server/MlosAgentServer.cs"><code>source/Mlos.Agent.Server/MlosAgentServer.cs</code></a> and the binary at
 <code>target/bin/Release/AnyCPU/Mlos.Agent.Server/Mlos.Agent.Server.dll</code></p>
 </li>
 <li>
 <p>SmartCache:</p>
 <p>This is the C++ executable that implements the SmartCache and executes some workloads.
-You can find the source in <code>source/Examples/SmartCache/Main.cpp</code> and the binary at
+You can find the source in <a href="https://github.com/Microsoft/MLOS/tree/main/source/Examples/SmartCache/Main.cpp"><code>source/Examples/SmartCache/Main.cpp</code></a> and the binary at
 <code>target/bin/Release/x86_64/SmartCache</code></p>
 </li>
 <li>
 <p>SmartCache.SettingsRegistry:</p>
 <p>This is the C# code that declares the configuration options for the SmartCache component, and defines the communication
 between the the MLOS Agent and the SmartCache component. You can find the source in
-<code>source/Examples/SmartCache/SmartCache.SettingsRegistry/AssemblyInitializer.cs</code> and the binary at
+<a href="https://github.com/Microsoft/MLOS/tree/main/source/Examples/SmartCache/SmartCache.SettingsRegistry/AssemblyInitializer.cs"><code>source/Examples/SmartCache/SmartCache.SettingsRegistry/AssemblyInitializer.cs</code></a> and the binary at
 <code>target/bin/Release/AnyCPU/SmartCache.SettingsRegistry.dll</code></p>
 </li>
 </ul>
 <h2 id="starting-the-mlos-agent-and-executing-the-workloads">Starting the MLOS Agent and executing the workloads:</h2>
-<p>Within the docker container, we can now tell the agent where the configuration options are stored, by setting the <code>MLOS_Settings_REGISTRY_PATH</code>.
+<p>Within the docker container, we can now tell the agent where the configuration options are stored, by setting the <code>MLOS_SETTINGS_REGISTRY_PATH</code>.
 Then, we can run the MLOS Agent, which will in turn run the SmartCache executable.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-sh" data-lang="sh">tools/bin/dotnet target/bin/Release/AnyCPU/Mlos.Agent.Server/Mlos.Agent.Server.dll <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    --settings-registry-path target/bin/Release/AnyCPU <span style="color:#ae81ff">\
 </span><span style="color:#ae81ff"></span>    --executable target/bin/Release/x86_64/SmartCache
-</code></pre></div><p>The main loop of <code>SmartCache</code> contains the following:</p>
+</code></pre></div><p>For a more detailed explanation of what&rsquo;s going on, please see the <a href="https://microsoft.github.io/MLOS/source/Examples/SmartCache#explanation">SmartCache README</a>.</p>
+<p>The main loop of <code>SmartCache</code> contains the following:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-cpp" data-lang="cpp">    <span style="color:#66d9ef">for</span> (<span style="color:#66d9ef">int</span> observations <span style="color:#f92672">=</span> <span style="color:#ae81ff">0</span>; observations <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">100</span>; observations<span style="color:#f92672">++</span>)
     {
         <span style="color:#75715e">// run 100 observations

@@ -12,6 +12,7 @@ mlos.OptimizerEvaluationTools.SyntheticFunctions
    :maxdepth: 1
 
    mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower
+   mlos.OptimizerEvaluationTools.SyntheticFunctions.NestedPolynomialObjective
    mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective
    mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper
    mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic

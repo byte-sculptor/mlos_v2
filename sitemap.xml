@@ -119,6 +119,10 @@
   </url>
   
   <url>
+    <loc>https://microsoft.github.io/MLOS/source/Mlos.Agent.Server/</loc>
+  </url>
+  
+  <url>
     <loc>https://microsoft.github.io/MLOS/source/Mlos.Core/doc/</loc>
   </url>
   

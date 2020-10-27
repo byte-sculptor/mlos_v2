@@ -38,7 +38,7 @@
     
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective.html" />
+    <link rel="next" title="mlos.OptimizerEvaluationTools.SyntheticFunctions.NestedPolynomialObjective" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.NestedPolynomialObjective.html" />
     <link rel="prev" title="mlos.OptimizerEvaluationTools.SyntheticFunctions" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.html" /> 
 </head>
 
@@ -170,6 +170,7 @@
 <li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory</a></li>
 <li class="toctree-l3 current"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.html">mlos.OptimizerEvaluationTools.SyntheticFunctions</a><ul class="current">
 <li class="toctree-l4 current"><a class="current reference internal" href="#">mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.NestedPolynomialObjective.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.NestedPolynomialObjective</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic</a></li>
@@ -359,17 +360,17 @@
 <span id="mlos-optimizerevaluationtools-syntheticfunctions-flower"></span><h1>mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower<a class="headerlink" href="#module-mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.Flower">
-<em class="property">class </em><code class="sig-prename descclassname">mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.</code><code class="sig-name descname">Flower</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">objective_function_config</span><span class="p">:</span> <span class="n"><a class="reference internal" href="mlos.Spaces.Point.html#mlos.Spaces.Point.Point" title="mlos.Spaces.Point.Point">mlos.Spaces.Point.Point</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/0207287/source/Mlos.Python/mlos/OptimizerEvaluationTools/SyntheticFunctions/Flower.py#L13"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.Flower" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.</code><code class="sig-name descname">Flower</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">objective_function_config</span><span class="p">:</span> <span class="n"><a class="reference internal" href="mlos.Spaces.Point.html#mlos.Spaces.Point.Point" title="mlos.Spaces.Point.Point">mlos.Spaces.Point.Point</a></span> <span class="o">=</span> <span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/1a313f4/source/Mlos.Python/mlos/OptimizerEvaluationTools/SyntheticFunctions/Flower.py#L13"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.Flower" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="mlos.OptimizerEvaluationTools.ObjectiveFunctionBase.html#mlos.OptimizerEvaluationTools.ObjectiveFunctionBase.ObjectiveFunctionBase" title="mlos.OptimizerEvaluationTools.ObjectiveFunctionBase.ObjectiveFunctionBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">mlos.OptimizerEvaluationTools.ObjectiveFunctionBase.ObjectiveFunctionBase</span></code></a></p>
 <p>Flower function exposing the ObjectiveFunctionBase interface.</p>
 <dl class="py method">
 <dt id="mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.Flower.evaluate_dataframe">
-<code class="sig-name descname">evaluate_dataframe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataframe</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/0207287/source/Mlos.Python/mlos/OptimizerEvaluationTools/SyntheticFunctions/Flower.py#L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.Flower.evaluate_dataframe" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">evaluate_dataframe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">dataframe</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/1a313f4/source/Mlos.Python/mlos/OptimizerEvaluationTools/SyntheticFunctions/Flower.py#L46"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.Flower.evaluate_dataframe" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.Flower.get_context">
-<code class="sig-name descname">get_context</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="mlos.Spaces.Point.html#mlos.Spaces.Point.Point" title="mlos.Spaces.Point.Point">mlos.Spaces.Point.Point</a><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/0207287/source/Mlos.Python/mlos/OptimizerEvaluationTools/SyntheticFunctions/Flower.py#L57"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.Flower.get_context" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">get_context</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="mlos.Spaces.Point.html#mlos.Spaces.Point.Point" title="mlos.Spaces.Point.Point">mlos.Spaces.Point.Point</a><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/1a313f4/source/Mlos.Python/mlos/OptimizerEvaluationTools/SyntheticFunctions/Flower.py#L57"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.Flower.get_context" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns a context value for this objective function.</p>
 <p>If the context changes on every invokation, this should return the latest one.
 :return:</p>
@@ -409,7 +410,7 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective.html" class="btn btn-neutral float-right" title="mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="mlos.OptimizerEvaluationTools.SyntheticFunctions.NestedPolynomialObjective.html" class="btn btn-neutral float-right" title="mlos.OptimizerEvaluationTools.SyntheticFunctions.NestedPolynomialObjective" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="mlos.OptimizerEvaluationTools.SyntheticFunctions.html" class="btn btn-neutral float-left" title="mlos.OptimizerEvaluationTools.SyntheticFunctions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
