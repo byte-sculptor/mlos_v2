@@ -33,6 +33,7 @@ class PolynomialObjectiveWrapper(ObjectiveFunctionBase):
 
         if domain_name is None:
             domain_name = "domain"
+
         self._parameter_space = SimpleHypergrid(
             name=domain_name,
             dimensions=[

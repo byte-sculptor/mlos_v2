@@ -83,9 +83,7 @@ class NestedPolynomialObjective(ObjectiveFunctionBase):
 
     def get_context(self) -> Point:
         """ Returns the config used to create the polynomial.
-
         Down the road it could return some more info about the resulting polynomial.
-
         :return:
         """
         return self._polynomial_objective_config

@@ -39,6 +39,7 @@ class BufferingHandler(logging.StreamHandler):
             for record in self.buffered_log_records:
                 out_file.write(self.format(record=record))
 
+
 def create_logger(logger_name, create_console_handler=True, create_file_handler=False, create_buffering_handler=False, logging_level=logging.INFO):
     """Create a new logger.
 
