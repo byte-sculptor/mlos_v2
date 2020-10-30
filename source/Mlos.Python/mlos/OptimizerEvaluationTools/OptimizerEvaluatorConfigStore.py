@@ -11,7 +11,7 @@ optimizer_evaluator_config_store = ComponentConfigStore(
                 "Dimensions:\n"
                 "- num_iterations: how many optimization iterations to run.\n"
                 "- evaluation_frequency: how often should the evaluator capture the optima and goodness of fit metrics (e.g. every 10 iterations).\n"
-                "- include_pickled_optimizer_in_report: should the final state of the optimizer be pickled and saved.\n"
+                "- include_pickled_optimizer_in_report: should the state of the optimizer be pickled and saved.\n"
                 "- include_pickled_objective_function_in_report: should the final state of the objective function be pickled and saved.\n"
                 "- report_regression_model_goodness_of_fit: should the goodness of fit metrics be included in the evaluation report.\n"
                 "- report_optima_over_time: should the optima over time be included in the evaluation report.\n"

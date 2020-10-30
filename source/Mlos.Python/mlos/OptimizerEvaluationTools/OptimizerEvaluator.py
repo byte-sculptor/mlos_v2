@@ -28,12 +28,8 @@ class OptimizerEvaluator:
         1. instantiating an optimizer
         2. instantiating an objective function
         3. launching an optimizer against that objective function
-        4. keeping track of the goodness of fit, and of the various optima over time.
-        5. Producing a report containing:
-            1. Optimizer configuration
-            1. Objective function configuration
-            1. Goodness of fit over time
-            1. Optima (best observation, best predicted value, best ucb, best lcb) over time
+        4. keeping track of the goodness of fit, and of the various optima over time
+        5. producing an instance of OptimizerEvaluationReport.
 
     """
 
@@ -128,23 +124,23 @@ class OptimizerEvaluator:
         regression_model_fit_state = RegressionModelFitState()
 
         optima_over_time = {}
-        optima_over_time["best_observation"] = OptimumOverTime(
+        optima_over_time[OptimumDefinition.BEST_OBSERVATION.value] = OptimumOverTime(
             optimization_problem=self.optimizer.optimization_problem,
             optimum_definition=OptimumDefinition.BEST_OBSERVATION
         )
 
-        optima_over_time["best_predicted_value"] = OptimumOverTime(
+        optima_over_time[OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG.value] = OptimumOverTime(
             optimization_problem=self.optimizer.optimization_problem,
             optimum_definition=OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG
         )
 
-        optima_over_time["ucb_99"] = OptimumOverTime(
+        optima_over_time[f"{OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG.value}_99"] = OptimumOverTime(
             optimization_problem=self.optimizer.optimization_problem,
             optimum_definition=OptimumDefinition.UPPER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
             alpha=0.01
         )
 
-        optima_over_time["lcb_99"] = OptimumOverTime(
+        optima_over_time[f"{OptimumDefinition.LOWER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG.value}_99"] = OptimumOverTime(
             optimization_problem=self.optimizer.optimization_problem,
             optimum_definition=OptimumDefinition.LOWER_CONFIDENCE_BOUND_FOR_OBSERVED_CONFIG,
             alpha=0.01
@@ -160,12 +156,11 @@ class OptimizerEvaluator:
                     self.optimizer.register(parameters.to_dataframe(), objectives.to_dataframe())
 
                     if i % self.optimizer_evaluator_config.evaluation_frequency == 0:
-
-                        if self.optimizer_evaluator_config.include_pickled_optimizer_in_report:
-                            evaluation_report.add_pickled_optimizer(iteration=i, pickled_optimizer=pickle.dumps(self.optimizer))
-
+                        print(f"[{i + 1}/{self.optimizer_evaluator_config.num_iterations}]")
                         with traced(scope_name="evaluating_optimizer"):
-                            print(f"[{i+1}/{self.optimizer_evaluator_config.num_iterations}]")
+                            if self.optimizer_evaluator_config.include_pickled_optimizer_in_report:
+                                evaluation_report.add_pickled_optimizer(iteration=i, pickled_optimizer=pickle.dumps(self.optimizer))
+
                             if self.optimizer.trained:
                                 gof_metrics = self.optimizer.compute_surrogate_model_goodness_of_fit()
                                 regression_model_fit_state.set_gof_metrics(data_set_type=DataSetType.TRAIN, gof_metrics=gof_metrics)
@@ -186,20 +181,23 @@ class OptimizerEvaluator:
             evaluation_report.exception = e
             evaluation_report.exception_traceback = traceback.format_exc()
 
-        if self.optimizer.trained:
-            gof_metrics = self.optimizer.compute_surrogate_model_goodness_of_fit()
-            regression_model_fit_state.set_gof_metrics(data_set_type=DataSetType.TRAIN, gof_metrics=gof_metrics)
+        with traced(scope_name="evaluating_optimizer"):
+            """Once the optimization is done, we performa final evaluation of the optimizer."""
 
-        for optimum_name, optimum_over_time in optima_over_time.items():
-            try:
-                optimum_config, optimum_value = self.optimizer.optimum(optimum_definition=optimum_over_time.optimum_definition, alpha=optimum_over_time.alpha)
-                optima_over_time[optimum_name].add_optimum_at_iteration(
-                    iteration=self.optimizer_evaluator_config.num_iterations,
-                    optimum_config=optimum_config,
-                    optimum_value=optimum_value
-                )
-            except Exception as e:
-                print(e)
+            if self.optimizer.trained:
+                gof_metrics = self.optimizer.compute_surrogate_model_goodness_of_fit()
+                regression_model_fit_state.set_gof_metrics(data_set_type=DataSetType.TRAIN, gof_metrics=gof_metrics)
+
+            for optimum_name, optimum_over_time in optima_over_time.items():
+                try:
+                    optimum_config, optimum_value = self.optimizer.optimum(optimum_definition=optimum_over_time.optimum_definition, alpha=optimum_over_time.alpha)
+                    optima_over_time[optimum_name].add_optimum_at_iteration(
+                        iteration=self.optimizer_evaluator_config.num_iterations,
+                        optimum_config=optimum_config,
+                        optimum_value=optimum_value
+                    )
+                except Exception as e:
+                    print(e)
 
         if self.optimizer_evaluator_config.include_execution_trace_in_report:
             evaluation_report.execution_trace = mlos.global_values.tracer.trace_events

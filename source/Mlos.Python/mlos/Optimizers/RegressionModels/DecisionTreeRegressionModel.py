@@ -89,7 +89,6 @@ class DecisionTreeRegressionModel(RegressionModel):
     @property
     def num_observations_used_to_fit(self):
         return self.last_refit_iteration_number
-        #return self.fit_state.train_set_size
 
     def should_fit(self, num_samples):
         """ Returns true if the model should be fitted.

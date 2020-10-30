@@ -71,6 +71,17 @@ class OptimizerEvaluationReport:
     def write_to_disk(self, target_folder):
         """Writes the report to disk.
 
+        The layout on disk is as follows:
+        - optimizer_config.json
+        - objective_function_config.json
+        - goodness_of_fit.pickle
+        - objective_function_initial_state.pickle
+        - objective_function_final_state.pickle
+        - execution_trace.json
+        - execution_info.json
+        - pickled_optimizers:
+            - {iteration_number}.pickle
+
         """
         optimizer_config_file = os.path.join(target_folder, "optimizer_config.json")
         with open(optimizer_config_file, 'w') as out_file:
@@ -109,7 +120,7 @@ class OptimizerEvaluationReport:
             tracer.trace_events = self.execution_trace
             tracer.dump_trace_to_file(output_file_path=os.path.join(target_folder, "execution_trace.json"))
 
-        with open(os.path.join(target_folder, "execution_info.txt"), 'w') as out_file:
+        with open(os.path.join(target_folder, "execution_info.json"), 'w') as out_file:
             execution_info_dict = {
                 'success': self.success,
                 'num_optimization_iterations': self.num_optimization_iterations,

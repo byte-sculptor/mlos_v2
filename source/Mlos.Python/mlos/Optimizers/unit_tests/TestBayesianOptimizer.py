@@ -246,8 +246,6 @@ class TestBayesianOptimizer(unittest.TestCase):
             random_forest_gof_metrics = bayesian_optimizer.compute_surrogate_model_goodness_of_fit()
             self.assertTrue(random_forest_gof_metrics.last_refit_iteration_number > 0.7 * num_iterations)
             models_gof_metrics = [random_forest_gof_metrics]
-            #for decision_tree_fit_state in random_forest_fit_state.decision_trees_fit_states:
-            #    models_gof_metrics.append(decision_tree_fit_state.current_train_gof_metrics)
 
             for model_gof_metrics in models_gof_metrics:
                 self.assertTrue(0 <= model_gof_metrics.relative_absolute_error <= 1)  # This could fail if the models are really wrong. Not expected in this unit test though.
@@ -390,7 +388,7 @@ class TestBayesianOptimizer(unittest.TestCase):
                 print(f"[Restart:  {restart_num}/{num_restarts}] Optimum config: {best_config_point}, optimum objective: {best_objective}")
                 self.validate_optima(optimizer=bayesian_optimizer)
 
-            # Test if pickling works.
+            # Test if pickling works
             #
             pickled_optimizer = pickle.dumps(local_optimizer)
             unpickled_optimizer = pickle.loads(pickled_optimizer)
@@ -438,7 +436,7 @@ class TestBayesianOptimizer(unittest.TestCase):
 
             self.assertTrue(should_raise_for_confidence_bounds)
 
-            # Computing prediction based optima should fail if the surrogate model is not trained.
+            # Computing prediction based optima should fail if the surrogate model is not fitted.
             #
             with self.assertRaises(ValueError):
                 optimizer.optimum(OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG)

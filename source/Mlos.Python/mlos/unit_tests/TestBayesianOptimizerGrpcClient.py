@@ -120,8 +120,6 @@ class TestBayesianOptimizerGrpcClient(unittest.TestCase):
 
         # The invariants below should be true for all surrogate models: the random forest, and all constituent decision trees. So let's iterate over them all.
         models_gof_metrics = [random_forest_gof_metrics]
-        # for decision_tree_fit_state in random_forest_fit_state.decision_trees_fit_states:
-        #     models_gof_metrics.append(decision_tree_fit_state.current_train_gof_metrics)
 
         for model_gof_metrics in models_gof_metrics:
             self.assertTrue(0 <= model_gof_metrics.relative_absolute_error <= 1) # This could fail if the models are really wrong. Not expected in this unit test though.
