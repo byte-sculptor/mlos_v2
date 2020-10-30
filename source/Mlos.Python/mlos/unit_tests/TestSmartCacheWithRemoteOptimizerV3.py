@@ -99,9 +99,11 @@ class TestSmartCacheWithRemoteOptimizer(unittest.TestCase):
         """ Periodically invokes the optimizer to improve cache performance.
 
         """
+        optimizer_config = bayesian_optimizer_config_store.default
+        optimizer_config.homogeneous_random_forest_regression_model_config.decision_tree_regression_model_config.n_new_samples_before_refit = 5
         self.optimizer = self.bayesian_optimizer_factory.create_remote_optimizer(
             optimization_problem=self.optimization_problem,
-            optimizer_config=bayesian_optimizer_config_store.default
+            optimizer_config=optimizer_config
         )
         self.mlos_agent.start_experiment(self.smart_cache_experiment)
 
