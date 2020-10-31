@@ -46,7 +46,7 @@ class RegressionModelFitState:
         return self.current_train_gof_metrics.observation_count
 
     # pylint: disable=unused-argument
-    def get_goodness_of_fit_dataframe(self, data_set_type: DataSetType, deep=False):
+    def get_goodness_of_fit_dataframe(self, data_set_type: DataSetType = DataSetType.TRAIN, deep=False):
         """ Converts the historical goodness of fit metrics into a data frame.
 
         :param data_set_type:
