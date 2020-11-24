@@ -9,6 +9,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 
+from mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore import objective_function_config_store
 from mlos.Optimizers.ParetoFrontier import ParetoFrontier
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
 from mlos.Spaces import SimpleHypergrid, ContinuousDimension, DiscreteDimension

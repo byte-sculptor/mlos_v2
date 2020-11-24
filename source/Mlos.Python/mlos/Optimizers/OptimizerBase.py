@@ -3,16 +3,17 @@
 # Licensed under the MIT License.
 #
 from abc import ABC, abstractmethod
-from typing import Tuple
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
 import scipy.stats
 
+from mlos.Optimizers.ExperimentDesigner.UtilityFunctions.PredictedValueUtilityFunction import PredictedValueUtilityFunction
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.OptimumDefinition import OptimumDefinition
+from mlos.Optimizers.ParetoFrontier import ParetoFrontier
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
-from mlos.Optimizers.ExperimentDesigner.UtilityFunctions.PredictedValueUtilityFunction import PredictedValueUtilityFunction
 
 from mlos.Spaces import Point
 from mlos.Tracer import trace
@@ -204,3 +205,30 @@ class OptimizerBase(ABC):
         :return:
         """
         raise NotImplementedError("All subclasses must implement this method.")
+
+
+    @trace()
+    def pareto_frontier(
+        self,
+        objective_names: List[str] = None,
+        optimum_definitions: List[OptimumDefinition] = None
+    ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+        if objective_names is None:
+            objective_names = [objective.name for objective in self.optimization_problem.objectives]
+
+        if optimum_definitions is None:
+            optimum_definitions = [OptimumDefinition.BEST_OBSERVATION for _ in objective_names]
+
+        assert len(objective_names) == len(optimum_definitions)
+
+        params_df, targets_df, context_df = self.get_all_observations()
+
+        pareto_objectives_df = ParetoFrontier.compute_pareto(optimization_problem=self.optimization_problem, objectives_df=targets_df)
+        pareto_params_df = params_df.iloc[pareto_objectives_df.index]
+
+        if (context_df is not None) and (not context_df.empty):
+            pareto_context_df = context_df.iloc[pareto_objectives_df.index]
+        else:
+            pareto_context_df = None
+
+        return pareto_params_df, pareto_objectives_df, pareto_context_df

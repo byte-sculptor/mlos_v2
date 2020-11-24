@@ -3,7 +3,6 @@
 # Licensed under the MIT License.
 #
 import math
-from math import e
 import os
 import pickle
 import random
@@ -685,3 +684,25 @@ class TestBayesianOptimizer:
                 else:
                     print(predicted_optimum.predicted_value, ucb_90_ci_optimum.upper_confidence_bound, ucb_95_ci_optimum.upper_confidence_bound, ucb_99_ci_optimum.upper_confidence_bound)
                     assert False
+
+
+    def test_multi_objective_optimization(self):
+        """Tests if multiobjective optimization works.
+
+        :return:
+        """
+
+        objective_function_config = objective_function_config_store.get_config_by_name("2d_hypersphere_minimize_some")
+        objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config=objective_function_config)
+        optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
+            optimization_problem=objective_function.default_optimization_problem
+        )
+
+        for _ in range(100):
+            params = optimizer.suggest()
+            objective_values = objective_function.evaluate_point(params)
+            optimizer.register(params.to_dataframe(), objective_values.to_dataframe())
+
+        params_df, pareto_df, context_df = optimizer.pareto_frontier()
+        print(pareto_df)
+
