@@ -3,7 +3,8 @@
 # Licensed under the MIT License.
 #
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower import Flower
-from mlos.OptimizerEvaluationTools.SyntheticFunctions.Hypersphere import Hypersphere, hypersphere_config_store
+from mlos.OptimizerEvaluationTools.SyntheticFunctions.Hypersphere import Hypersphere
+from mlos.OptimizerEvaluationTools.SyntheticFunctions.HypersphereConfigStore import hypersphere_config_store
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.NestedPolynomialObjective import NestedPolynomialObjective
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective import PolynomialObjective
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.ThreeLevelQuadratic import ThreeLevelQuadratic
