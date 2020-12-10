@@ -23,4 +23,4 @@ class NamedConfig:
         return self.__str__()
 
     def __str__(self):
-        return f"{self.name}\n\nDescription: {self.description}\n\nConfig Values: {self.config_point.to_json(indent=2)}"
+        return f"Name: {self.name}\n\nDescription: {self.description}\n\nConfig Values: {self.config_point.to_json(indent=2)}"
