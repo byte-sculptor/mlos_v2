@@ -44,6 +44,7 @@ class BayesianOptimizer(OptimizerBase):
 
         # Let's initialize the optimizer.
         #
+        assert len(optimization_problem.objectives) == 1, "For now this is a single-objective optimizer."
         OptimizerBase.__init__(self, optimization_problem)
 
         # Since the optimization_problem.objective_space can now be multi-dimensional (as a milestone towards multi-objective
