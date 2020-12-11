@@ -12,6 +12,7 @@ from mlos.Spaces.HypergridAdapters import HierarchicalToFlatHypergridAdapter
 from mlos.Tracer import trace
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
+from mlos.Optimizers.RegressionModels.MultiObjectivePrediction import MultiObjectivePrediction
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore import homogeneous_random_forest_config_store
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState import HomogeneousRandomForestFitState
@@ -68,6 +69,7 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
 
         self.target_dimension_names = [dimension.name for dimension in self._output_space_adapter.dimensions]
         assert len(self.target_dimension_names) == 1, "Single target predictions for now."
+        self.target_dimension_name = self.target_dimension_names[0]
 
         self._decision_trees = []
         self._create_estimators()
@@ -207,7 +209,7 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
         self._trained = any(tree.trained for tree in self._decision_trees)
 
     @trace()
-    def predict(self, feature_values_pandas_frame, include_only_valid_rows=True):
+    def predict(self, feature_values_pandas_frame, include_only_valid_rows=True) -> MultiObjectivePrediction:
         """ Aggregate predictions from all estimators
 
         see: https://arxiv.org/pdf/1211.0906.pdf
@@ -229,10 +231,11 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
         dof_col = Prediction.LegalColumnNames.PREDICTED_VALUE_DEGREES_OF_FREEDOM.value
 
         # collect predictions from ensemble constituent models
-        predictions_per_tree = [
+        multi_objective_predictions_per_tree = [
             estimator.predict(feature_values_pandas_frame=feature_values_pandas_frame, include_only_valid_rows=True)
             for estimator in self._decision_trees
         ]
+        predictions_per_tree = [prediction[self.target_dimension_name] for prediction in multi_objective_predictions_per_tree]
         prediction_dataframes_per_tree = [prediction.get_dataframe() for prediction in predictions_per_tree]
         num_prediction_dataframes = len(prediction_dataframes_per_tree)
 
@@ -279,4 +282,4 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
         aggregate_predictions.set_dataframe(aggregate_predictions_df)
         if not include_only_valid_rows:
             aggregate_predictions.add_invalid_rows_at_missing_indices(desired_index=feature_values_pandas_frame.index)
-        return aggregate_predictions
+        return MultiObjectivePrediction(predictions=[aggregate_predictions])

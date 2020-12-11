@@ -53,8 +53,8 @@ class TestConfidenceBoundUtilityFunction:
 
         cls.sample_inputs = {'x': np.linspace(start=-10, stop=110, num=13, endpoint=True)}
         cls.sample_inputs_pandas_dataframe = pd.DataFrame(cls.sample_inputs)
-        cls.sample_predictions = cls.model.predict(cls.sample_inputs_pandas_dataframe)
-
+        cls.sample_multi_objective_predictions = cls.model.predict(cls.sample_inputs_pandas_dataframe)
+        cls.sample_predictions = cls.sample_multi_objective_predictions["y"]
 
     def test_lower_confidence_bound(self):
         """Tests if the lower confidence bound utility function is behaving properly."""

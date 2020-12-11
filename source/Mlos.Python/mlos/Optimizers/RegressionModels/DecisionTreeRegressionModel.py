@@ -6,6 +6,7 @@ import numpy as np
 from sklearn.tree import DecisionTreeRegressor
 
 from mlos.Logger import create_logger
+from mlos.Optimizers.RegressionModels.MultiObjectivePrediction import MultiObjectivePrediction
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel
 from mlos.Optimizers.RegressionModels.DecisionTreeConfigStore import decision_tree_config_store
@@ -152,7 +153,7 @@ class DecisionTreeRegressionModel(RegressionModel):
         self.last_refit_iteration_number = iteration_number
 
     @trace()
-    def predict(self, feature_values_pandas_frame, include_only_valid_rows=True):
+    def predict(self, feature_values_pandas_frame, include_only_valid_rows=True) -> MultiObjectivePrediction:
         self.logger.debug(f"Creating predictions for {len(feature_values_pandas_frame.index)} samples.")
 
         # dataframe column shortcuts
@@ -190,4 +191,4 @@ class DecisionTreeRegressionModel(RegressionModel):
         predictions.validate_dataframe(prediction_dataframe)
         if not include_only_valid_rows:
             predictions.add_invalid_rows_at_missing_indices(desired_index=feature_values_pandas_frame.index)
-        return predictions
+        return MultiObjectivePrediction(predictions=[predictions])

@@ -65,7 +65,8 @@ class TestOptimizerEvaluator:
         )
 
         optimizer_evaluation_report = optimizer_evaluator.evaluate_optimizer()
-        assert optimizer_evaluation_report.success
+        if not optimizer_evaluation_report.success:
+            raise optimizer_evaluation_report.exception    
 
         with pd.option_context('display.max_columns', 100):
             print(optimizer_evaluation_report.regression_model_goodness_of_fit_state.get_goodness_of_fit_dataframe(DataSetType.TRAIN).tail())
