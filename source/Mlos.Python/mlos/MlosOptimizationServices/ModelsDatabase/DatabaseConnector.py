@@ -17,7 +17,7 @@ import pyodbc  # pylint: disable=import-error
 
 from mlos.Logger import create_logger
 
-def connection_required(use_default_database=False, autocommit=False):
+def connection_required(use_default_database=False, autocommit=False, timeout_s=None):
     """ Ensures that the connection is established before the wrapped function executes.
 
     :return:
@@ -27,7 +27,7 @@ def connection_required(use_default_database=False, autocommit=False):
         @wraps(wrapped_function)
         def wrapper(*args, **kwargs):
             self = args[0]
-            self.connect(use_default_database, autocommit)
+            self.connect(use_default_database=use_default_database, autocommit=autocommit, timeout_s=timeout_s)
 
             if not self.connected:
                 logging.error("Failed to connect to the models database")

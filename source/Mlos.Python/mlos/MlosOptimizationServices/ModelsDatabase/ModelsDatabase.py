@@ -36,8 +36,8 @@ class ModelsDatabase:
     def connected(self):
         return self.database_connector.connected
 
-    def connect(self, use_default_database=False, autocommit=False):
-        return self.database_connector.connect(use_default_database=use_default_database, autocommit=autocommit)
+    def connect(self, use_default_database=False, autocommit=False, timeout_s=None):
+        return self.database_connector.connect(use_default_database=use_default_database, autocommit=autocommit, timeout_s=timeout_s)
 
     def disconnect(self):
         return self.database_connector.disconnect()
