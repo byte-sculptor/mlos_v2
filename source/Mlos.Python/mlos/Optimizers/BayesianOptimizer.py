@@ -99,7 +99,7 @@ class BayesianOptimizer(OptimizerBase):
 
         self._parameter_values_df = pd.DataFrame(columns=self._parameter_names)
         self._context_values_df = pd.DataFrame(columns=self._context_names)
-        self._target_values_df = pd.DataFrame(columns=self._target_names)
+        self._target_values_df = pd.DataFrame(columns=self._target_names, dtype='float')
 
     @property
     def trained(self):
