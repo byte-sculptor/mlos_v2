@@ -73,7 +73,7 @@ class OptimizerBase(ABC):
         """
         raise NotImplementedError("All subclasses must implement this method.")
 
-    def optimum(self, optimum_definition: OptimumDefinition = OptimumDefinition.BEST_OBSERVATION,
+    def optimum(self, optimum_definition: OptimumDefinition = OptimumDefinition.PREDICTED_VALUE_FOR_OBSERVED_CONFIG,
                 alpha: float = 0.05, context: pd.DataFrame = None) -> Tuple[Point, Point]:
         """Return the optimal value found so far along with the related parameter values.
 

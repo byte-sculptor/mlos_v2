@@ -17,8 +17,19 @@ class Heatmap:
     def __init__(self, x_dimension, y_dimension, x_resolution, y_resolution):
         self.x_dimension = x_dimension
         self.y_dimension = y_dimension
+
+        if isinstance(x_dimension, CategoricalDimension):
+            x_resolution = len(x_dimension)
+
         self.x_resolution = x_resolution
+
+        if isinstance(y_dimension, CategoricalDimension):
+            y_resolution = len(y_dimension)
+
         self.y_resolution = y_resolution
+
+        self.x_linspace = x_dimension.linspace(self.x_resolution)
+        self.y_linspace = y_dimension.linspace(self.y_resolution)
 
         self.x_ticks, self.x_tick_labels = self._get_ticks_and_labels(dimension=x_dimension, resolution=x_resolution)
         self.y_ticks, self.y_tick_labels = self._get_ticks_and_labels(dimension=y_dimension, resolution=y_resolution)
@@ -27,7 +38,7 @@ class Heatmap:
 
         # Preallocate the values array to later fill with predicted values.
         #
-        self.values = np.zeros((self.x_resolution, self.y_resolution))
+        self.values = np.zeros((self.y_resolution, self.x_resolution))
         self.min_value = 0
         self.max_value = 0
 
@@ -40,7 +51,7 @@ class Heatmap:
         return self.y_dimension.name
 
     def set_values_to_zero(self):
-        self.values = np.zeros((self.x_resolution, self.y_resolution))
+        self.values = np.zeros((self.y_resolution, self.x_resolution))
 
     def update_values(self, new_values):
         """ Updates self.values to reflect the new values.
@@ -84,11 +95,9 @@ class Heatmap:
         elif isinstance(dimension, CategoricalDimension):
             # We insert some empty tick labels to align the actual labels with centers of their respective buckets.
             #
-            num_ticks = len(dimension) * 2 + 1
+            num_ticks = len(dimension)
             ticks = np.linspace(0, resolution, num_ticks)
-            tick_labels = ['' for _ in range(num_ticks)]
-            for i, value in enumerate(dimension.values):
-                tick_labels[i * 2 + 1] = value
+            tick_labels = dimension.values
         else:
             raise InvalidDimensionException()
 

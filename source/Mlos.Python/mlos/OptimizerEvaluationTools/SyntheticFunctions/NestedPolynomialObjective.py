@@ -10,6 +10,7 @@ from mlos.Spaces import CategoricalDimension, ContinuousDimension, Hypergrid, Po
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective import PolynomialObjective
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper import PolynomialObjectiveWrapper
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
 
 class NestedPolynomialObjective(ObjectiveFunctionBase):
     """A hierarchical function with multiple nested polynomials.
@@ -56,6 +57,12 @@ class NestedPolynomialObjective(ObjectiveFunctionBase):
             dimensions=[
                 ContinuousDimension(name='y', min=-math.inf, max=math.inf)
             ]
+        )
+
+        self._default_optimization_problem = OptimizationProblem(
+            parameter_space=self._parameter_space,
+            objective_space=self._output_space,
+            objectives=[Objective(name='y', minimize=False)]
         )
 
     @property

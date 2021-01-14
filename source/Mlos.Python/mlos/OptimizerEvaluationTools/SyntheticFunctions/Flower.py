@@ -9,6 +9,7 @@ import pandas as pd
 
 from mlos.Spaces import ContinuousDimension, Hypergrid, Point, SimpleHypergrid
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
 
 class Flower(ObjectiveFunctionBase):
     """ Flower function exposing the ObjectiveFunctionBase interface.
@@ -18,8 +19,8 @@ class Flower(ObjectiveFunctionBase):
     _domain = SimpleHypergrid(
         name="flower",
         dimensions=[
-            ContinuousDimension(name='x1', min=-100, max=100),
-            ContinuousDimension(name='x2', min=-100, max=100)
+            ContinuousDimension(name='x1', min=-10, max=10),
+            ContinuousDimension(name='x2', min=-10, max=10)
         ]
     )
 
@@ -30,9 +31,16 @@ class Flower(ObjectiveFunctionBase):
         ]
     )
 
+
+
     def __init__(self, objective_function_config: Point = None):
         assert objective_function_config is None, "This function takes no configuration."
         ObjectiveFunctionBase.__init__(self, objective_function_config)
+        self._default_optimization_problem = OptimizationProblem(
+            parameter_space=self.parameter_space,
+            objective_space=self.output_space,
+            objectives=[Objective(name='y', minimize=True)]
+        )
 
     @property
     def parameter_space(self) -> Hypergrid:

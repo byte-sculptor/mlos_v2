@@ -133,8 +133,8 @@ class ModelTomograph:
                     #
                     fig.add_trace(
                         go.Heatmap(
-                            x=self.linspaces_by_name[col_dim_name],
-                            y=self.linspaces_by_name[row_dim_name],
+                            x=heatmap.x_linspace,
+                            y=heatmap.y_linspace,
                             z=heatmap.values,
                             zmin=self.known_objective_value_min,
                             zmax=self.known_objective_value_max,
@@ -157,8 +157,8 @@ class ModelTomograph:
                 if row == self.num_plottable_dimensions - 1:
                     fig.update_xaxes(
                         title_text=col_dim_name,
-                        tickvals=self._heatmaps_grid[row][col].x_ticks,
-                        ticktext=self._heatmaps_grid[row][col].x_tick_labels,
+                        #tickvals=self._heatmaps_grid[row][col].x_ticks * 10,
+                        #ticktext=self._heatmaps_grid[row][col].x_tick_labels,
                         row=row + 1,
                         col=col + 1
                     )
@@ -225,15 +225,6 @@ class ModelTomograph:
                     # Lastly: remember min and max for plotting
                     #
                     self._update_known_extremes(current_min=np.min(predicted_mean), current_max=np.max(predicted_mean))
-
-    def _create_figure_and_axes(self):
-        self._figure, self._axes = plt.subplots(
-            nrows=self.num_plottable_dimensions,
-            ncols=self.num_plottable_dimensions,
-            figsize=self._figure_size
-        )
-        if self.num_plottable_dimensions == 1:
-            self._axes = [[self._axes]]
 
     def _create_features_dataframe(self, x_dim, y_dim, point):
         """ Creates a dataframe where each row corresponds to one pixel in the heatmap.

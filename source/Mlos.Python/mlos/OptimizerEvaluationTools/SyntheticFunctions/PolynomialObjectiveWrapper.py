@@ -9,6 +9,7 @@ import pandas as pd
 from mlos.Spaces import ContinuousDimension, Hypergrid, Point, SimpleHypergrid
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective import PolynomialObjective
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
 
 class PolynomialObjectiveWrapper(ObjectiveFunctionBase):
     """Wraps the PolynomialObjective to provide the interface defined in the ObjectiveFunctionBase.
@@ -50,6 +51,12 @@ class PolynomialObjectiveWrapper(ObjectiveFunctionBase):
             dimensions=[
                 ContinuousDimension(name='y', min=-math.inf, max=math.inf)
             ]
+        )
+
+        self._default_optimization_problem = OptimizationProblem(
+            parameter_space = self._parameter_space,
+            objective_space = self._output_space,
+            objectives=[Objective(name='y', minimize=True)]
         )
 
     @property
