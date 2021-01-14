@@ -2,7 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-from pandas import DataFrame
+import pandas as pd
 from mlos.Spaces import CategoricalDimension, DiscreteDimension, Hypergrid, Point, SimpleHypergrid
 from mlos.Spaces.HypergridAdapters.HypergridAdapter import HypergridAdapter
 from mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter import HierarchicalToFlatHypergridAdapter
@@ -66,16 +66,17 @@ class CategoricalToDiscreteHypergridAdapter(HypergridAdapter):
                 unprojected_point[dim_name] = backward_mapping[projected_dim_value]
         return unprojected_point
 
-    def _project_dataframe(self, df: DataFrame, in_place=True) -> DataFrame:
+    def _project_dataframe(self, df: pd.DataFrame, in_place=True) -> pd.DataFrame:
         # For each dimension that has a forward mapping, apply the mapping to the corresponding column.
         #
         if not in_place:
             df = df.copy(deep=True)
         for dim_name, forward_mapping in self._adaptee_to_target_dimension_mappings.items():
             df[dim_name] = df[dim_name].apply(lambda original_value: forward_mapping.get(original_value, original_value))  # pylint: disable=cell-var-from-loop
+            df[dim_name] = pd.to_numeric(df[dim_name])
         return df
 
-    def _unproject_dataframe(self, df: DataFrame, in_place=True) -> DataFrame:
+    def _unproject_dataframe(self, df: pd.DataFrame, in_place=True) -> pd.DataFrame:
         if not in_place:
             df = df.copy(deep=True)
         for dim_name, backward_mapping in self._target_to_adaptee_dimension_mappings.items():

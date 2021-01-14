@@ -6,9 +6,11 @@ import math
 
 import pandas as pd
 
-from mlos.Spaces import CategoricalDimension, ContinuousDimension, Hypergrid, Point, SimpleHypergrid
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions import quadratic
+from mlos.Spaces import CategoricalDimension, ContinuousDimension, Hypergrid, Point, SimpleHypergrid
+
 
 class ThreeLevelQuadratic(ObjectiveFunctionBase):
     """ Wraps the MultilevelQuadratic to provide the interface defined in the ObjectiveFunctionBase.
@@ -65,6 +67,11 @@ class ThreeLevelQuadratic(ObjectiveFunctionBase):
     def __init__(self, objective_function_config: Point = None):
         assert objective_function_config is None, "This function takes no configuration."
         ObjectiveFunctionBase.__init__(self, objective_function_config)
+        self._default_optimization_problem = OptimizationProblem(
+            parameter_space=self.parameter_space,
+            objective_space=self.output_space,
+            objectives=[Objective(name='y', minimize=True)]
+        )
 
     @property
     def parameter_space(self) -> Hypergrid:
