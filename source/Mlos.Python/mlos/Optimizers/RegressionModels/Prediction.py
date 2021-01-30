@@ -179,7 +179,8 @@ class Prediction:
         """
         std_dev_col_name = self.LegalColumnNames.PREDICTED_VALUE_STANDARD_DEVIATION.name
         variance_col_name = self.LegalColumnNames.PREDICTED_VALUE_VARIANCE.value
-        self._dataframe[std_dev_col_name] = np.sqrt(self._dataframe[variance_col_name])
+        if std_dev_col_name not in self._dataframe.columns:
+            self._dataframe[std_dev_col_name] = np.sqrt(self._dataframe[variance_col_name])
         return std_dev_col_name
 
 

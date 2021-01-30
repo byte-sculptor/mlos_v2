@@ -100,15 +100,9 @@ class MultiObjectiveProbabilityOfImprovementUtilityFunction(UtilityFunction):
             prediction_df = prediction.get_dataframe()
             valid_predictions_index = valid_predictions_index.intersection(prediction_df.index)
 
-        # Let's make sure all predictions have a standard deviation available.
-        #
-        for _, objective_prediction in multi_objective_predictions:
-            std_dev_column_name = objective_prediction.add_standard_deviation_column()
-
         batched_poi_df = self._batched_probability_of_improvement(
             multi_objective_predictions=multi_objective_predictions,
-            valid_predictions_index=valid_predictions_index,
-            std_dev_column_name=std_dev_column_name
+            valid_predictions_index=valid_predictions_index
         )
 
         return batched_poi_df
@@ -118,7 +112,6 @@ class MultiObjectiveProbabilityOfImprovementUtilityFunction(UtilityFunction):
             self,
             multi_objective_predictions: MultiObjectivePrediction,
             valid_predictions_index: pd.Index,
-            std_dev_column_name: str
     ):
         """Generates a single large dataframe of monte carlo samples to send to ParetoFrontier for evaluation.
 
@@ -136,10 +129,9 @@ class MultiObjectiveProbabilityOfImprovementUtilityFunction(UtilityFunction):
         monte_carlo_samples_dfs = []
 
         for config_idx in valid_predictions_index:
-            monte_carlo_samples_df = self.create_monte_carlo_samples_df(
-                multi_objective_predictions=multi_objective_predictions,
-                config_idx=config_idx,
-                std_dev_column_name=std_dev_column_name
+            monte_carlo_samples_df = multi_objective_predictions.create_monte_carlo_samples_df(
+                row_idx=config_idx,
+                num_samples=self.config.num_monte_carlo_samples
             )
             monte_carlo_samples_df['config_idx'] = config_idx
             monte_carlo_samples_dfs.append(monte_carlo_samples_df)
@@ -150,62 +142,3 @@ class MultiObjectiveProbabilityOfImprovementUtilityFunction(UtilityFunction):
         poi_series = 1 - (samples_for_all_configs_df.groupby(by=["config_idx"])["is_dominated"].sum() / self.config.num_monte_carlo_samples)
         poi_df = pd.DataFrame({'utility': poi_series}, index=poi_series.index)
         return poi_df
-
-
-    @trace()
-    def _naive_poi(
-            self,
-            multi_objective_predictions: MultiObjectivePrediction,
-            valid_predictions_index: pd.Index,
-            std_dev_column_name: str
-    ):
-        """Naively generates a monte carlo data frame for each of the feature rows and sends them to ParetoFrontier individually.
-
-        We should be able to substantially improve on this by batching all those dataframes.
-
-        :return:
-        """
-        poi_df = pd.DataFrame(index=valid_predictions_index, columns=['utility'], dtype='float')
-
-
-        with traced(scope_name="poi_monte_carlo"):
-            for config_idx in valid_predictions_index:
-                monte_carlo_samples_df = self.create_monte_carlo_samples_df(
-                    multi_objective_predictions=multi_objective_predictions,
-                    config_idx=config_idx,
-                    std_dev_column_name=std_dev_column_name
-                )
-                num_samples = len(monte_carlo_samples_df.index)
-                assert num_samples == self.config.num_monte_carlo_samples
-
-                # At this point we have a dataframe with all the randomly generated points in the objective space. Let's query the pareto
-                # frontier if they are dominated or not.
-                num_dominated_points = self.pareto_frontier.is_dominated(objectives_df=monte_carlo_samples_df).sum()
-                num_non_dominated_points = num_samples - num_dominated_points
-                probability_of_improvement = num_non_dominated_points / num_samples
-                poi_df.loc[config_idx, 'utility'] = probability_of_improvement
-
-        return poi_df
-
-    @trace()
-    def create_monte_carlo_samples_df(self, multi_objective_predictions, config_idx, std_dev_column_name):
-
-        predicted_value_col = Prediction.LegalColumnNames.PREDICTED_VALUE.value
-        dof_col = Prediction.LegalColumnNames.PREDICTED_VALUE_DEGREES_OF_FREEDOM.value
-
-        monte_carlo_samples_df = pd.DataFrame()
-
-        for objective_name, prediction in multi_objective_predictions:
-            prediction_df = prediction.get_dataframe()
-            if config_idx not in prediction_df.index:
-                # We need a valid prediction for all objectives to produce sample.
-                #
-                return monte_carlo_samples_df
-
-        for objective_name, prediction in multi_objective_predictions:
-            prediction_df = prediction.get_dataframe()
-            config_prediction = prediction_df.loc[config_idx]
-            monte_carlo_samples_df[objective_name] = np.random.standard_t(config_prediction[dof_col], self.config.num_monte_carlo_samples) \
-                                                     * config_prediction[std_dev_column_name] \
-                                                     + config_prediction[predicted_value_col]
-        return monte_carlo_samples_df

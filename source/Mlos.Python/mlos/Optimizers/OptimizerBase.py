@@ -12,6 +12,8 @@ import scipy.stats
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.OptimumDefinition import OptimumDefinition
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
+from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.UtilityFunctionOptimizerFactory import UtilityFunctionOptimizerFactory
+from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer, random_search_optimizer_config_store
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctions.PredictedValueUtilityFunction import PredictedValueUtilityFunction
 
 from mlos.Spaces import Point
@@ -109,9 +111,16 @@ class OptimizerBase(ABC):
 
     @trace()
     def _optimum_within_context(self, context: pd.DataFrame):
-        greedy_utility = PredictedValueUtilityFunction(
-            self.surrogate_model, minimize=self.optimization_problem.objectives[0].minimize)
-        utility_optimizer = self.experiment_designer.make_optimizer_for_utility(greedy_utility)
+        predicted_value_utility = PredictedValueUtilityFunction(
+            self.surrogate_model,
+            minimize=self.optimization_problem.objectives[0].minimize
+        )
+        utility_optimizer = UtilityFunctionOptimizerFactory.create_utility_function_optimizer(
+            utility_function=predicted_value_utility,
+            optimizer_type_name=RandomSearchOptimizer.__name__,
+            optimizer_config=random_search_optimizer_config_store.default,
+            optimization_problem=self.optimization_problem
+        )
         return utility_optimizer.suggest(context_values_dataframe=context)
 
     @trace()

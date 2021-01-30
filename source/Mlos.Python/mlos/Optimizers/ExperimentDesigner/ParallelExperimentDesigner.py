@@ -2,7 +2,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+import pandas as pd
 import numpy as np
+from typing import Dict
+from uuid import UUID, uuid4
+
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionModel import MultiObjectiveRegressionModel
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
@@ -12,27 +16,22 @@ from mlos.Spaces.Configs.ComponentConfigStore import ComponentConfigStore
 
 from .UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer, random_search_optimizer_config_store
 from .UtilityFunctionOptimizers.GlowWormSwarmOptimizer import GlowWormSwarmOptimizer, glow_worm_swarm_optimizer_config_store
-from .UtilityFunctions.ConfidenceBoundUtilityFunction import ConfidenceBoundUtilityFunction, confidence_bound_utility_function_config_store
 from .UtilityFunctions.MultiObjectiveProbabilityOfImprovementUtilityFunction import MultiObjectiveProbabilityOfImprovementUtilityFunction,\
     multi_objective_probability_of_improvement_utility_function_config_store
 
 from .UtilityFunctionOptimizers.UtilityFunctionOptimizerFactory import UtilityFunctionOptimizerFactory
 
 
-experiment_designer_config_store = ComponentConfigStore(
+parallel_experiment_designer_config_store = ComponentConfigStore(
     parameter_space=SimpleHypergrid(
-        name='experiment_designer_config',
+        name='parallel_experiment_designer_config',
         dimensions=[
             CategoricalDimension('utility_function_implementation', values=[
-                ConfidenceBoundUtilityFunction.__name__,
                 MultiObjectiveProbabilityOfImprovementUtilityFunction.__name__
             ]),
             CategoricalDimension('numeric_optimizer_implementation', values=[RandomSearchOptimizer.__name__, GlowWormSwarmOptimizer.__name__]),
             ContinuousDimension('fraction_random_suggestions', min=0, max=1),
         ]
-    ).join(
-        subgrid=confidence_bound_utility_function_config_store.parameter_space,
-        on_external_dimension=CategoricalDimension('utility_function_implementation', values=[ConfidenceBoundUtilityFunction.__name__])
     ).join(
         subgrid=multi_objective_probability_of_improvement_utility_function_config_store.parameter_space,
         on_external_dimension=CategoricalDimension('utility_function_implementation', values=[MultiObjectiveProbabilityOfImprovementUtilityFunction.__name__])
@@ -44,56 +43,30 @@ experiment_designer_config_store = ComponentConfigStore(
         on_external_dimension=CategoricalDimension('numeric_optimizer_implementation', values=[GlowWormSwarmOptimizer.__name__])
     ),
     default=Point(
-        utility_function_implementation=ConfidenceBoundUtilityFunction.__name__,
+        utility_function_implementation=MultiObjectiveProbabilityOfImprovementUtilityFunction.__name__,
         numeric_optimizer_implementation=RandomSearchOptimizer.__name__,
-        confidence_bound_utility_function_config=confidence_bound_utility_function_config_store.default,
+        confidence_bound_utility_function_config=multi_objective_probability_of_improvement_utility_function_config_store.default,
         random_search_optimizer_config=random_search_optimizer_config_store.default,
         fraction_random_suggestions=0.5
     )
 )
 
-experiment_designer_config_store.add_config_by_name(
-    config_name="default_glow_worm_config",
-    config_point=Point(
-        utility_function_implementation=ConfidenceBoundUtilityFunction.__name__,
-        numeric_optimizer_implementation=GlowWormSwarmOptimizer.__name__,
-        confidence_bound_utility_function_config=confidence_bound_utility_function_config_store.default,
-        glow_worm_swarm_optimizer_config=glow_worm_swarm_optimizer_config_store.default,
-        fraction_random_suggestions=0.5
-    ),
-    description="Experiment designer config with glow worm swarm optimizer as a utility function optimizer."
-)
 
+class ParallelExperimentDesigner:
+    """An experiment designer able to take advantage of experimentation platform's parallelism.
 
-experiment_designer_config_store.add_config_by_name(
-    config_name="default_multi_objective_config",
-    config_point=Point(
-        utility_function_implementation=MultiObjectiveProbabilityOfImprovementUtilityFunction.__name__,
-        numeric_optimizer_implementation=RandomSearchOptimizer.__name__,
-        multi_objective_probability_of_improvement_config=multi_objective_probability_of_improvement_utility_function_config_store.default,
-        random_search_optimizer_config=random_search_optimizer_config_store.default,
-        fraction_random_suggestions=0.5
-    ),
-    description="Default optimizer for multi-objective optimization."
-)
+    This designer keeps track of outstanding suggestions (suggestions that the experimenter committed to trying) and for each such
+    suggestion it assumes that its result will dominate the pareto frontier within the predictive distribution. It then adds
+    that presumed result to our 'tentative_pareto_frontier' and keeps it there until the true result comes back from the experimenter.
 
+    The utility function now operates on this 'tentative_pareto_frontier' scoring new suggestions against it.
 
-class ExperimentDesigner:
-    """ Portion of a BayesianOptimizer concerned with Design of Experiments.
+    The idea is that we presume that our outstanding suggestions will push a small section of the pareto frontier outwards, and we
+    make it less attractive to try new suggestions likely to advance the same section of the pareto frontier. Ideally, the optimizer
+    will be able to suggest parameters advancing a different section of the pareto frontier.
 
-    The two main components of a Bayesian Optimizer are:
-    * the surrogate model - responsible for fitting a regression function to try to predict some performance metric(s)
-        based on suggested config, and context information
-    * the experiment designer - responsible for suggesting the next configuration to try against the real system.
-
-    The experiment designer can be parameterized by the following:
-        1. The utility function - the surrogate model predicts performance (with uncertainty) for any given config.
-            The utility function indicates the value (or in other words: utility) of the predicted performance.
-
-        2. Utility function maximizer - being able to compute the utility function is insufficient. We must be able to
-            select a configuration that maximizes the utility function and to do that, we need an optimizer.
-            One way to think about it is to imagine a baby optimizer inside the big bayesian optimizer.
-
+    This is a really simple and computationally cheap way of leveraging experimenter's parallelism. We can use it as a baseline
+    for more sophisticated approaches later.
     """
 
     def __init__(
@@ -104,7 +77,7 @@ class ExperimentDesigner:
             pareto_frontier: ParetoFrontier,
             logger=None
     ):
-        assert designer_config in experiment_designer_config_store.parameter_space
+        assert designer_config in parallel_experiment_designer_config_store.parameter_space
 
         if logger is None:
             logger = create_logger(self.__class__.__name__)
@@ -113,18 +86,11 @@ class ExperimentDesigner:
         self.config: Point = designer_config
         self.optimization_problem: OptimizationProblem = optimization_problem
         self.pareto_frontier = pareto_frontier
+
         self.surrogate_model: MultiObjectiveRegressionModel = surrogate_model
         self.rng = np.random.Generator(np.random.PCG64())
 
-        if designer_config.utility_function_implementation == ConfidenceBoundUtilityFunction.__name__:
-            self.utility_function = ConfidenceBoundUtilityFunction(
-                function_config=self.config.confidence_bound_utility_function_config,
-                surrogate_model=self.surrogate_model,
-                minimize=self.optimization_problem.objectives[0].minimize,
-                logger=self.logger
-            )
-
-        elif designer_config.utility_function_implementation == MultiObjectiveProbabilityOfImprovementUtilityFunction.__name__:
+        if designer_config.utility_function_implementation == MultiObjectiveProbabilityOfImprovementUtilityFunction.__name__:
             assert self.pareto_frontier is not None
             self.utility_function = MultiObjectiveProbabilityOfImprovementUtilityFunction(
                 function_config=self.config.multi_objective_probability_of_improvement_config,
@@ -149,11 +115,47 @@ class ExperimentDesigner:
             logger=self.logger
         )
 
+
+        # This pareto frontier contains true pareto along with all tentative points for the pending suggestions.
+        #
+        self._tentative_pareto_frontier = ParetoFrontier(optimization_problem=optimization_problem)
+
+        # We need to keep track of all pending suggestions.
+        #
+        self._pending_suggestions: Dict[str, Point] = dict()
+        self._pending_suggestions_speculative_results = Dict[str, pd.DataFrame] = dict()
+
     def suggest(self, context_values_dataframe=None, random=False):
         self.logger.debug(f"Suggest(random={random})")
         random_number = self.rng.random()
         override_random = random_number < self.config.fraction_random_suggestions
         random = random or override_random
+        suggestion = None
         if random:
-            return self.optimization_problem.parameter_space.random()
-        return self.numeric_optimizer.suggest(context_values_dataframe)
+            suggestion = self.optimization_problem.parameter_space.random()
+        else:
+            suggestion = self.numeric_optimizer.suggest(context_values_dataframe)
+
+        # Need to assign an id to each of the suggestions so that we know what's up. It's a little hack for now, we can explore
+        # how to productize it later.
+        #
+        suggestion['_mlos_metadata'] = Point(
+            suggestion_id = str(uuid4()),
+            random=random
+        )
+
+    def add_pending_suggestion(
+        self,
+        suggestion: Point
+    ):
+        """Adds a pending suggestion to our internal data structures.
+
+        The experimenter has committed to testing a given suggestion so we can add it and its predictions to our tentative
+        pareto frontier. This is a resource management problem. If the experimenter never gives us back the result, we will
+        have effectively leaked this pending suggestion and actually prevented the optimizer from exploring its neighborhoods
+        in the future. So the experimenter must remember to either register a relevant observation, or drop a pending suggestion.
+
+        :param suggestion:
+        :return:
+        """
+        ...
