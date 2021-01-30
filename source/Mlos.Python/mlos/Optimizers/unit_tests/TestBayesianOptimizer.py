@@ -440,10 +440,10 @@ class TestBayesianOptimizer:
         print(original_config.experiment_designer_config.fraction_random_suggestions)
         assert original_config.experiment_designer_config.fraction_random_suggestions == .5
 
-    @pytest.mark.parametrize("objective_function_implementation", [Hypersphere, MultiObjectiveNestedPolynomialObjective])
-    @pytest.mark.parametrize("minimize", ["all", "none", "some"])
-    @pytest.mark.parametrize("num_output_dimensions", [2, 5])
-    @pytest.mark.parametrize("num_points", [30])
+    @pytest.mark.parametrize("objective_function_implementation", [Hypersphere])
+    @pytest.mark.parametrize("minimize", ["some"])
+    @pytest.mark.parametrize("num_output_dimensions", [2])
+    @pytest.mark.parametrize("num_points", [50])
     def test_multi_objective_optimization(self, objective_function_implementation, minimize, num_output_dimensions, num_points):
         if objective_function_implementation == Hypersphere:
             hypersphere_radius = 10
@@ -523,6 +523,7 @@ class TestBayesianOptimizer:
 
         while num_registered_observations < num_points:
             suggestion = optimizer.suggest()
+            self.logger.info(f"Got: {suggestion}")
             optimizer.add_pending_suggestion(suggestion)
             pending_suggestions.append(suggestion)
 
@@ -532,7 +533,9 @@ class TestBayesianOptimizer:
 
                 assert suggestion in optimization_problem.parameter_space
                 objectives = objective_function.evaluate_point(suggestion)
+                self.logger.info(f"Registering: {suggestion}")
                 optimizer.register(parameter_values_pandas_frame=suggestion.to_dataframe(), target_values_pandas_frame=objectives.to_dataframe())
+                self.logger.info(f"Registred {num_registered_observations} observations in total.")
                 num_registered_observations += 1
 
                 if num_registered_observations > 10:

@@ -13,6 +13,7 @@ from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.ParetoFrontier import ParetoFrontier
 from mlos.Spaces import CategoricalDimension, ContinuousDimension, Point, SimpleHypergrid
 from mlos.Spaces.Configs.ComponentConfigStore import ComponentConfigStore
+from mlos.Tracer import trace
 
 from .UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer, random_search_optimizer_config_store
 from .UtilityFunctionOptimizers.GlowWormSwarmOptimizer import GlowWormSwarmOptimizer, glow_worm_swarm_optimizer_config_store
@@ -122,8 +123,8 @@ class ParallelExperimentDesigner:
         # We need to keep track of all pending suggestions.
         #
         self._pending_suggestions: Dict[str, Point] = dict()
-        self._speculative_objectives_by_pending_suggestion_id: Dict[str, pd.DataFrame] = dict()
 
+    @trace()
     def suggest(self, context_values_dataframe=None, random=False):
         self.logger.debug(f"Suggest(random={random})")
         random_number = self.rng.random()
@@ -144,6 +145,7 @@ class ParallelExperimentDesigner:
         )
         return suggestion
 
+    @trace()
     def add_pending_suggestion(
         self,
         suggestion: Point
@@ -160,22 +162,12 @@ class ParallelExperimentDesigner:
         """
         suggestion_id = suggestion["__mlos_metadata"]["suggestion_id"]
         self._pending_suggestions[suggestion_id] = suggestion
-        parameters_df = suggestion.to_dataframe()
-        features_df = self.optimization_problem.construct_feature_dataframe(parameter_values=parameters_df)
-        prediction_for_suggestion = self.surrogate_model.predict(features_df=features_df)
-        monte_carlo_objectives_df = prediction_for_suggestion.create_monte_carlo_samples_df(row_idx=0, num_samples=100, max_t_statistic=2)
-        if len(monte_carlo_objectives_df.index) > 0:
-            non_dominated_monte_carlo_objectives = monte_carlo_objectives_df[~self._tentative_pareto_frontier.is_dominated(monte_carlo_objectives_df)]
-            self._speculative_objectives_by_pending_suggestion_id[suggestion_id] = non_dominated_monte_carlo_objectives
-            self._update_tentative_pareto()
+        self._update_tentative_pareto()
 
     def remove_pending_suggestion(self, suggestion: Point, update_tentative_pareto=True):
         suggestion_id = suggestion["__mlos_metadata"]["suggestion_id"]
         if suggestion_id in self._pending_suggestions:
             del self._pending_suggestions[suggestion_id]
-
-        if suggestion_id in self._speculative_objectives_by_pending_suggestion_id:
-            del self._speculative_objectives_by_pending_suggestion_id[suggestion_id]
 
         if update_tentative_pareto:
             self._update_tentative_pareto()
@@ -186,11 +178,26 @@ class ParallelExperimentDesigner:
             self.remove_pending_suggestion(suggestion, update_tentative_pareto=False)
         self._update_tentative_pareto()
 
+    @trace()
     def _update_tentative_pareto(self):
         """Updates the tentative pareto frontier to include monte carlo samples from the pending suggestions."""
 
+
+
+        features_dfs = []
+        for _, suggestion in self._pending_suggestions.items():
+            parameters_df = suggestion.to_dataframe()
+            features_df = self.optimization_problem.construct_feature_dataframe(parameter_values=parameters_df)
+            features_dfs.append(features_df)
+
+        features_for_all_pending_suggestions_df = pd.concat(features_dfs, ignore_index=True)
+        all_predictions = self.surrogate_model.predict(features_df=features_for_all_pending_suggestions_df,)
+
+        num_suggestions = len(self._pending_suggestions)
         all_objectives_dfs = [self.pareto_frontier.pareto_df]
-        for _, speculative_objectives_df in self._speculative_objectives_by_pending_suggestion_id.items():
-            all_objectives_dfs.append(speculative_objectives_df)
+        for i in range(num_suggestions):
+            monte_carlo_objectives_df = all_predictions.create_monte_carlo_samples_df(row_idx=i, num_samples=100, max_t_statistic=2)
+            all_objectives_dfs.append(monte_carlo_objectives_df)
+
         empirical_and_speculative_objectives_df = pd.concat(all_objectives_dfs)
         self._tentative_pareto_frontier.update_pareto(objectives_df=empirical_and_speculative_objectives_df)

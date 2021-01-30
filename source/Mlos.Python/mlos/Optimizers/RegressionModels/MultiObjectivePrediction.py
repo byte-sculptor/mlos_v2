@@ -22,7 +22,7 @@ class MultiObjectivePrediction(KeyOrderedDict):
 
 
     @trace()
-    def create_monte_carlo_samples_df(self, row_idx, num_samples, max_t_statistic=None):
+    def create_monte_carlo_samples_df(self, row_idx=0, num_samples=100, max_t_statistic=None):
         predicted_value_col = Prediction.LegalColumnNames.PREDICTED_VALUE.value
         dof_col = Prediction.LegalColumnNames.PREDICTED_VALUE_DEGREES_OF_FREEDOM.value
 
