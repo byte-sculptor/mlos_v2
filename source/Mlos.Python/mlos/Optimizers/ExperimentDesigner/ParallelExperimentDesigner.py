@@ -184,7 +184,7 @@ class ParallelExperimentDesigner:
 
         num_pending_suggestions = len(self._pending_suggestions)
         all_objectives_dfs = []
-        
+
         if num_pending_suggestions > 0:
             features_dfs = []
             for _, suggestion in self._pending_suggestions.items():

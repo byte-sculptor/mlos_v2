@@ -544,6 +544,12 @@ class TestBayesianOptimizer:
                     lower_bounds_on_pareto_volume.append(lower_bound)
                     upper_bounds_on_pareto_volume.append(upper_bound)
 
+        for suggestion in pending_suggestions:
+            assert suggestion in optimization_problem.parameter_space
+            objectives = objective_function.evaluate_point(suggestion)
+            optimizer.register(parameter_values_pandas_frame=suggestion.to_dataframe(), target_values_pandas_frame=objectives.to_dataframe())
+
+
 
         pareto_volumes_over_time_df = pd.DataFrame({
             'lower_bounds': lower_bounds_on_pareto_volume,
