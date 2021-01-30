@@ -155,6 +155,20 @@ class BayesianOptimizer(OptimizerBase):
         return suggested_config
 
     @trace()
+    def add_pending_suggestion(self, suggestion: Point):
+        """This function is used to notify the optimizer that the specified suggestion is being evaluated.
+
+        The point is to allow the optimizer to issue multiple suggestions in parallel, while also making sure that the concurrent
+        suggestions are not redundant.
+
+        :param suggestion:
+        :return:
+        """
+        # TODO: make sure to only do this when the experiment designer supports it. You can also make all experiment designers
+        # support it.
+        self.experiment_designer.add_pending_suggestion(suggestion)
+
+    @trace()
     def register(self, parameter_values_pandas_frame, target_values_pandas_frame, context_values_pandas_frame=None):
         # TODO: add to a Dataset and move on. The surrogate model should have a reference to the same dataset
         # TODO: and should be able to refit automatically.
@@ -163,6 +177,7 @@ class BayesianOptimizer(OptimizerBase):
             raise ValueError("Context required by optimization problem but not provided.")
 
         parameter_columns_to_retain = [column for column in parameter_values_pandas_frame.columns if column in self._parameter_names_set]
+        metadata_columns = [column for column in parameter_values_pandas_frame.columns if str(column).startswith("__mlos_metadata")]
         target_columns_to_retain = [column for column in target_values_pandas_frame.columns if column in self._target_names_set]
 
         if len(parameter_columns_to_retain) == 0:
@@ -171,6 +186,7 @@ class BayesianOptimizer(OptimizerBase):
         if len(target_columns_to_retain) == 0:
             raise ValueError(f"None of {target_values_pandas_frame.columns} is a target recognized by this optimizer.")
 
+        metadata_df = parameter_values_pandas_frame[metadata_columns]
         parameter_values_pandas_frame = parameter_values_pandas_frame[parameter_columns_to_retain]
         target_values_pandas_frame = target_values_pandas_frame[target_columns_to_retain]
 
@@ -202,7 +218,10 @@ class BayesianOptimizer(OptimizerBase):
         # TODO: ascertain that min_samples_required ... is more than min_samples to fit the model
         if self.num_observed_samples >= self.optimizer_config.min_samples_required_for_guided_design_of_experiments:
             feature_values_pandas_frame = self.optimization_problem.construct_feature_dataframe(
-                parameter_values=self._parameter_values_df, context_values=self._context_values_df)
+                parameter_values=self._parameter_values_df,
+                context_values=self._context_values_df
+            )
+
             self.surrogate_model.fit(
                 features_df=feature_values_pandas_frame,
                 targets_df=self._target_values_df,
@@ -210,6 +229,10 @@ class BayesianOptimizer(OptimizerBase):
             )
 
         self.pareto_frontier.update_pareto(objectives_df=self._target_values_df)
+
+        # TODO: make all experiment designers implement this.
+        #
+        self.experiment_designer.remove_pending_suggestions(metadata_df)
 
     @trace()
     def predict(self, parameter_values_pandas_frame, t=None, context_values_pandas_frame=None) -> Prediction:  # pylint: disable=unused-argument

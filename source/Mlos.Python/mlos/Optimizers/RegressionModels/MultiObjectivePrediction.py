@@ -32,7 +32,7 @@ class MultiObjectivePrediction(KeyOrderedDict):
             std_dev_column_name = prediction.add_standard_deviation_column()
             prediction_df = prediction.get_dataframe()
             if row_idx not in prediction_df.index:
-                return pd.DataFrame()
+                return pd.DataFrame(columns=self.ordered_keys, dtype='float')
 
             config_prediction = prediction_df.loc[row_idx]
             monte_carlo_samples_df[objective_name] = np.random.standard_t(config_prediction[dof_col], num_samples) \

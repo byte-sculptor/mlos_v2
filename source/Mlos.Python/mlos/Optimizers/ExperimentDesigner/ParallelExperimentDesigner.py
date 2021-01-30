@@ -87,6 +87,10 @@ class ParallelExperimentDesigner:
         self.optimization_problem: OptimizationProblem = optimization_problem
         self.pareto_frontier = pareto_frontier
 
+        # This pareto frontier contains true pareto along with all speculative objectives for the pending suggestions.
+        #
+        self._tentative_pareto_frontier = ParetoFrontier(optimization_problem=optimization_problem, objectives_df=pareto_frontier.pareto_df)
+
         self.surrogate_model: MultiObjectiveRegressionModel = surrogate_model
         self.rng = np.random.Generator(np.random.PCG64())
 
@@ -94,7 +98,7 @@ class ParallelExperimentDesigner:
             assert self.pareto_frontier is not None
             self.utility_function = MultiObjectiveProbabilityOfImprovementUtilityFunction(
                 function_config=self.config.multi_objective_probability_of_improvement_config,
-                pareto_frontier=pareto_frontier,
+                pareto_frontier=self._tentative_pareto_frontier,
                 surrogate_model=self.surrogate_model,
                 logger=self.logger
             )
@@ -115,22 +119,17 @@ class ParallelExperimentDesigner:
             logger=self.logger
         )
 
-
-        # This pareto frontier contains true pareto along with all tentative points for the pending suggestions.
-        #
-        self._tentative_pareto_frontier = ParetoFrontier(optimization_problem=optimization_problem)
-
         # We need to keep track of all pending suggestions.
         #
         self._pending_suggestions: Dict[str, Point] = dict()
-        self._pending_suggestions_speculative_results: Dict[str, pd.DataFrame] = dict()
+        self._speculative_objectives_by_pending_suggestion_id: Dict[str, pd.DataFrame] = dict()
 
     def suggest(self, context_values_dataframe=None, random=False):
         self.logger.debug(f"Suggest(random={random})")
         random_number = self.rng.random()
         override_random = random_number < self.config.fraction_random_suggestions
         random = random or override_random
-        suggestion = None
+
         if random:
             suggestion = self.optimization_problem.parameter_space.random()
         else:
@@ -139,8 +138,8 @@ class ParallelExperimentDesigner:
         # Need to assign an id to each of the suggestions so that we know what's up. It's a little hack for now, we can explore
         # how to productize it later.
         #
-        suggestion['_mlos_metadata'] = Point(
-            suggestion_id = str(uuid4()),
+        suggestion['__mlos_metadata'] = Point(
+            suggestion_id=str(uuid4()),
             random=random
         )
         return suggestion
@@ -159,4 +158,39 @@ class ParallelExperimentDesigner:
         :param suggestion:
         :return:
         """
-        ...
+        suggestion_id = suggestion["__mlos_metadata"]["suggestion_id"]
+        self._pending_suggestions[suggestion_id] = suggestion
+        parameters_df = suggestion.to_dataframe()
+        features_df = self.optimization_problem.construct_feature_dataframe(parameter_values=parameters_df)
+        prediction_for_suggestion = self.surrogate_model.predict(features_df=features_df)
+        monte_carlo_objectives_df = prediction_for_suggestion.create_monte_carlo_samples_df(row_idx=0, num_samples=100)
+        if len(monte_carlo_objectives_df.index) > 0:
+            non_dominated_monte_carlo_objectives = monte_carlo_objectives_df[~self._tentative_pareto_frontier.is_dominated(monte_carlo_objectives_df)]
+            self._speculative_objectives_by_pending_suggestion_id[suggestion_id] = non_dominated_monte_carlo_objectives
+            self._update_tentative_pareto()
+
+    def remove_pending_suggestion(self, suggestion: Point, update_tentative_pareto=True):
+        suggestion_id = suggestion["__mlos_metadata"]["suggestion_id"]
+        if suggestion_id in self._pending_suggestions:
+            del self._pending_suggestions[suggestion_id]
+
+        if suggestion_id in self._speculative_objectives_by_pending_suggestion_id:
+            del self._speculative_objectives_by_pending_suggestion_id[suggestion_id]
+
+        if update_tentative_pareto:
+            self._update_tentative_pareto()
+
+    def remove_pending_suggestions(self, suggestions_df: pd.DataFrame):
+        for row_idx, row in suggestions_df.iterrows():
+            suggestion = Point.from_dataframe(row.to_frame().T)
+            self.remove_pending_suggestion(suggestion, update_tentative_pareto=False)
+        self._update_tentative_pareto()
+
+    def _update_tentative_pareto(self):
+        """Updates the tentative pareto frontier to include monte carlo samples from the pending suggestions."""
+
+        all_objectives_dfs = [self.pareto_frontier.pareto_df]
+        for _, speculative_objectives_df in self._speculative_objectives_by_pending_suggestion_id.items():
+            all_objectives_dfs.append(speculative_objectives_df)
+        empirical_and_speculative_objectives_df = pd.concat(all_objectives_dfs)
+        self._tentative_pareto_frontier.update_pareto(objectives_df=empirical_and_speculative_objectives_df)

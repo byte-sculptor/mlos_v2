@@ -443,7 +443,7 @@ class TestBayesianOptimizer:
     @pytest.mark.parametrize("objective_function_implementation", [Hypersphere, MultiObjectiveNestedPolynomialObjective])
     @pytest.mark.parametrize("minimize", ["all", "none", "some"])
     @pytest.mark.parametrize("num_output_dimensions", [2, 5])
-    @pytest.mark.parametrize("num_points", [30])
+    @pytest.mark.parametrize("num_points", [50])
     def test_multi_objective_optimization(self, objective_function_implementation, minimize, num_output_dimensions, num_points):
         if objective_function_implementation == Hypersphere:
             hypersphere_radius = 10
@@ -487,11 +487,11 @@ class TestBayesianOptimizer:
             # We need to modify the default optimization problem to respect the "minimize" argument.
             #
             objectives = []
-            for i, default_objective in enumerate(optimization_problem.objectives):
+            for num_registered_observations, default_objective in enumerate(optimization_problem.objectives):
                 if minimize == "all":
                     minimize = True
                 elif minimize == "some":
-                    minimize = ((i % 2) == 0)
+                    minimize = ((num_registered_observations % 2) == 0)
                 else:
                     minimize = False
                 new_objective = Objective(name=default_objective.name, minimize=minimize)
@@ -511,21 +511,35 @@ class TestBayesianOptimizer:
         # We can now go through the optimization loop, at each point validating that:
         #   1) The suggested point is valid.
         #   2) The volume of the pareto frontier is monotonically increasing.
+        #
+        # Let's also test the ParallelExperimentDesigner by keeping some number of suggestions outstanding.
 
         lower_bounds_on_pareto_volume = []
         upper_bounds_on_pareto_volume = []
 
-        for i in range(num_points):
-            suggestion = optimizer.suggest()
-            assert suggestion in optimization_problem.parameter_space
-            objectives = objective_function.evaluate_point(suggestion)
-            optimizer.register(parameter_values_pandas_frame=suggestion.to_dataframe(), target_values_pandas_frame=objectives.to_dataframe())
+        max_num_pending_suggestions = 10
+        pending_suggestions = []
+        num_registered_observations = 0
 
-            if i > 10:
-                pareto_volume_estimator = optimizer.pareto_frontier.approximate_pareto_volume(num_samples=1000000)
-                lower_bound, upper_bound = pareto_volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.95)
-                lower_bounds_on_pareto_volume.append(lower_bound)
-                upper_bounds_on_pareto_volume.append(upper_bound)
+        while num_registered_observations < num_points:
+            suggestion = optimizer.suggest()
+            optimizer.add_pending_suggestion(suggestion)
+            pending_suggestions.append(suggestion)
+
+            if len(pending_suggestions) >= max_num_pending_suggestions:
+                random_index = random.randint(0, len(pending_suggestions) - 1)
+                suggestion = pending_suggestions.pop(random_index)
+
+                assert suggestion in optimization_problem.parameter_space
+                objectives = objective_function.evaluate_point(suggestion)
+                optimizer.register(parameter_values_pandas_frame=suggestion.to_dataframe(), target_values_pandas_frame=objectives.to_dataframe())
+                num_registered_observations += 1
+
+                if num_registered_observations > 10:
+                    pareto_volume_estimator = optimizer.pareto_frontier.approximate_pareto_volume(num_samples=1000000)
+                    lower_bound, upper_bound = pareto_volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.95)
+                    lower_bounds_on_pareto_volume.append(lower_bound)
+                    upper_bounds_on_pareto_volume.append(upper_bound)
 
 
         pareto_volumes_over_time_df = pd.DataFrame({
@@ -757,8 +771,6 @@ class TestBayesianOptimizer:
         optimum_y1 = local_optimizer.optimum(optimum_definition=OptimumDefinition.BEST_SPECULATIVE_WITHIN_CONTEXT , context=Point(y=1).to_dataframe())
         assert optimum_y1.x > .6
         assert optimum_y_1.x < .4
-
-
 
     def validate_optima(self, optimizer: OptimizerBase):
         should_raise_for_predicted_value = False
