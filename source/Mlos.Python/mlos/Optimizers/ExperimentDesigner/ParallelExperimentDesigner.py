@@ -182,22 +182,23 @@ class ParallelExperimentDesigner:
     def _update_tentative_pareto(self):
         """Updates the tentative pareto frontier to include monte carlo samples from the pending suggestions."""
 
+        num_pending_suggestions = len(self._pending_suggestions)
+        all_objectives_dfs = []
+        
+        if num_pending_suggestions > 0:
+            features_dfs = []
+            for _, suggestion in self._pending_suggestions.items():
+                parameters_df = suggestion.to_dataframe()
+                features_df = self.optimization_problem.construct_feature_dataframe(parameter_values=parameters_df)
+                features_dfs.append(features_df)
 
+            features_for_all_pending_suggestions_df = pd.concat(features_dfs, ignore_index=True)
+            all_predictions = self.surrogate_model.predict(features_df=features_for_all_pending_suggestions_df,)
 
-        features_dfs = []
-        for _, suggestion in self._pending_suggestions.items():
-            parameters_df = suggestion.to_dataframe()
-            features_df = self.optimization_problem.construct_feature_dataframe(parameter_values=parameters_df)
-            features_dfs.append(features_df)
+            for i in range(num_pending_suggestions):
+                monte_carlo_objectives_df = all_predictions.create_monte_carlo_samples_df(row_idx=i, num_samples=100, max_t_statistic=1)
+                all_objectives_dfs.append(monte_carlo_objectives_df)
 
-        features_for_all_pending_suggestions_df = pd.concat(features_dfs, ignore_index=True)
-        all_predictions = self.surrogate_model.predict(features_df=features_for_all_pending_suggestions_df,)
-
-        num_suggestions = len(self._pending_suggestions)
-        all_objectives_dfs = [self.pareto_frontier.pareto_df]
-        for i in range(num_suggestions):
-            monte_carlo_objectives_df = all_predictions.create_monte_carlo_samples_df(row_idx=i, num_samples=100, max_t_statistic=2)
-            all_objectives_dfs.append(monte_carlo_objectives_df)
-
+        all_objectives_dfs.append(self.pareto_frontier.pareto_df)
         empirical_and_speculative_objectives_df = pd.concat(all_objectives_dfs)
         self._tentative_pareto_frontier.update_pareto(objectives_df=empirical_and_speculative_objectives_df)
