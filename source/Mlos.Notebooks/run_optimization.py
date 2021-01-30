@@ -18,7 +18,7 @@ def run_optimization(run_id, max_num_pending_suggestions, num_iterations, add_pe
     objective_function_config = Point(
         implementation=Hypersphere.__name__,
         hypersphere_config=Point(
-            num_objectives=2,
+            num_objectives=5,
             minimize='none',
             radius=hypersphere_radius
         )

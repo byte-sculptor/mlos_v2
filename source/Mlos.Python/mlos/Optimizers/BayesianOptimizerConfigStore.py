@@ -83,6 +83,7 @@ default_multi_objective_optimizer_config = Point(
     homogeneous_random_forest_regression_model_config=homogeneous_random_forest_config_store.default,
     parallel_experiment_designer_config=parallel_experiment_designer_config_store.default
 )
+default_multi_objective_optimizer_config.parallel_experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = 10000
 
 bayesian_optimizer_config_store.add_config_by_name(
     config_name="default_multi_objective_optimizer_config",
