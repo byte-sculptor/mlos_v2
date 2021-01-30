@@ -6,6 +6,7 @@ from mlos.Spaces import SimpleHypergrid, DiscreteDimension, CategoricalDimension
 from mlos.Spaces.Configs.ComponentConfigStore import ComponentConfigStore
 
 from mlos.Optimizers.ExperimentDesigner.ExperimentDesigner import ExperimentDesigner, experiment_designer_config_store
+from mlos.Optimizers.ExperimentDesigner.ParallelExperimentDesigner import ParallelExperimentDesigner, parallel_experiment_designer_config_store
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore import homogeneous_random_forest_config_store
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel import HomogeneousRandomForestRegressionModel
 from mlos.Optimizers.RegressionModels.MultiObjectiveHomogeneousRandomForest import MultiObjectiveHomogeneousRandomForest
@@ -19,7 +20,10 @@ bayesian_optimizer_config_store = ComponentConfigStore(
                 HomogeneousRandomForestRegressionModel.__name__,
                 MultiObjectiveHomogeneousRandomForest.__name__
             ]),
-            CategoricalDimension(name="experiment_designer_implementation", values=[ExperimentDesigner.__name__]),
+            CategoricalDimension(name="experiment_designer_implementation", values=[
+                ExperimentDesigner.__name__,
+                ParallelExperimentDesigner.__name__
+            ]),
             DiscreteDimension(name="min_samples_required_for_guided_design_of_experiments", min=2, max=100)
         ]
     ).join(
@@ -33,6 +37,9 @@ bayesian_optimizer_config_store = ComponentConfigStore(
     ).join(
         subgrid=experiment_designer_config_store.parameter_space,
         on_external_dimension=CategoricalDimension(name="experiment_designer_implementation", values=[ExperimentDesigner.__name__])
+    ).join(
+        subgrid=parallel_experiment_designer_config_store.parameter_space,
+        on_external_dimension=CategoricalDimension(name="experiment_designer_implementation", values=[ParallelExperimentDesigner.__name__])
     ),
     default=Point(
         surrogate_model_implementation=HomogeneousRandomForestRegressionModel.__name__,
@@ -71,10 +78,10 @@ bayesian_optimizer_config_store.add_config_by_name(
 #
 default_multi_objective_optimizer_config = Point(
     surrogate_model_implementation=MultiObjectiveHomogeneousRandomForest.__name__,
-    experiment_designer_implementation=ExperimentDesigner.__name__,
+    experiment_designer_implementation=ParallelExperimentDesigner.__name__,
     min_samples_required_for_guided_design_of_experiments=10,
     homogeneous_random_forest_regression_model_config=homogeneous_random_forest_config_store.default,
-    experiment_designer_config=experiment_designer_config_store.get_config_by_name("default_multi_objective_config")
+    parallel_experiment_designer_config=parallel_experiment_designer_config_store.default
 )
 
 bayesian_optimizer_config_store.add_config_by_name(

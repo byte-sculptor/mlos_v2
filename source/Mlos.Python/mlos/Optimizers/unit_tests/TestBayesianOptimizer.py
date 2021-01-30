@@ -88,7 +88,6 @@ class TestBayesianOptimizer:
             pass
 
 
-
     @classmethod
     def teardown_class(cls) -> None:
         cls.server.stop(grace=None).wait(timeout=1)

@@ -11,6 +11,7 @@ from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.OptimizerBase import OptimizerBase
 from mlos.Optimizers.ParetoFrontier import ParetoFrontier
 from mlos.Optimizers.ExperimentDesigner.ExperimentDesigner import ExperimentDesigner
+from mlos.Optimizers.ExperimentDesigner.ParallelExperimentDesigner import ParallelExperimentDesigner
 from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel import HomogeneousRandomForestRegressionModel
 from mlos.Optimizers.RegressionModels.MultiObjectiveHomogeneousRandomForest import MultiObjectiveHomogeneousRandomForest
@@ -76,14 +77,25 @@ class BayesianOptimizer(OptimizerBase):
 
         # Now let's put together the experiment designer that will suggest parameters for each experiment.
         #
-        assert self.optimizer_config.experiment_designer_implementation == ExperimentDesigner.__name__
-        self.experiment_designer = ExperimentDesigner(
-            designer_config=self.optimizer_config.experiment_designer_config,
-            optimization_problem=self.optimization_problem,
-            pareto_frontier=self.pareto_frontier,
-            surrogate_model=self.surrogate_model,
-            logger=self.logger
-        )
+        if self.optimizer_config.experiment_designer_implementation == ExperimentDesigner.__name__:
+            self.experiment_designer = ExperimentDesigner(
+                designer_config=self.optimizer_config.experiment_designer_config,
+                optimization_problem=self.optimization_problem,
+                pareto_frontier=self.pareto_frontier,
+                surrogate_model=self.surrogate_model,
+                logger=self.logger
+            )
+        elif self.optimizer_config.experiment_designer_implementation == ParallelExperimentDesigner.__name__:
+            self.experiment_designer = ParallelExperimentDesigner(
+                designer_config=self.optimizer_config.parallel_experiment_designer_config,
+                optimization_problem=self.optimization_problem,
+                pareto_frontier=self.pareto_frontier,
+                surrogate_model=self.surrogate_model,
+                logger=self.logger
+            )
+        else:
+            assert False
+
 
         self._optimizer_convergence_state = BayesianOptimizerConvergenceState(
             surrogate_model_fit_state=self.surrogate_model.fit_state
