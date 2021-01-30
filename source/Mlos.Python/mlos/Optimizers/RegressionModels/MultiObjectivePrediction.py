@@ -22,7 +22,7 @@ class MultiObjectivePrediction(KeyOrderedDict):
 
 
     @trace()
-    def create_monte_carlo_samples_df(self, row_idx, num_samples):
+    def create_monte_carlo_samples_df(self, row_idx, num_samples, max_t_statistic=None):
         predicted_value_col = Prediction.LegalColumnNames.PREDICTED_VALUE.value
         dof_col = Prediction.LegalColumnNames.PREDICTED_VALUE_DEGREES_OF_FREEDOM.value
 
@@ -35,7 +35,9 @@ class MultiObjectivePrediction(KeyOrderedDict):
                 return pd.DataFrame(columns=self.ordered_keys, dtype='float')
 
             config_prediction = prediction_df.loc[row_idx]
-            monte_carlo_samples_df[objective_name] = np.random.standard_t(config_prediction[dof_col], num_samples) \
+            if max_t_statistic is None:
+                max_t_statistic = 1000
+            monte_carlo_samples_df[objective_name] = np.minimum(max_t_statistic, np.random.standard_t(config_prediction[dof_col], num_samples)) \
                                                      * config_prediction[std_dev_column_name] \
                                                      + config_prediction[predicted_value_col]
 

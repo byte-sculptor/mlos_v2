@@ -443,7 +443,7 @@ class TestBayesianOptimizer:
     @pytest.mark.parametrize("objective_function_implementation", [Hypersphere, MultiObjectiveNestedPolynomialObjective])
     @pytest.mark.parametrize("minimize", ["all", "none", "some"])
     @pytest.mark.parametrize("num_output_dimensions", [2, 5])
-    @pytest.mark.parametrize("num_points", [50])
+    @pytest.mark.parametrize("num_points", [30])
     def test_multi_objective_optimization(self, objective_function_implementation, minimize, num_output_dimensions, num_points):
         if objective_function_implementation == Hypersphere:
             hypersphere_radius = 10

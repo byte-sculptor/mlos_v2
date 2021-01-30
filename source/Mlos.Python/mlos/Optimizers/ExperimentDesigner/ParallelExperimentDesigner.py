@@ -163,7 +163,7 @@ class ParallelExperimentDesigner:
         parameters_df = suggestion.to_dataframe()
         features_df = self.optimization_problem.construct_feature_dataframe(parameter_values=parameters_df)
         prediction_for_suggestion = self.surrogate_model.predict(features_df=features_df)
-        monte_carlo_objectives_df = prediction_for_suggestion.create_monte_carlo_samples_df(row_idx=0, num_samples=100)
+        monte_carlo_objectives_df = prediction_for_suggestion.create_monte_carlo_samples_df(row_idx=0, num_samples=100, max_t_statistic=2)
         if len(monte_carlo_objectives_df.index) > 0:
             non_dominated_monte_carlo_objectives = monte_carlo_objectives_df[~self._tentative_pareto_frontier.is_dominated(monte_carlo_objectives_df)]
             self._speculative_objectives_by_pending_suggestion_id[suggestion_id] = non_dominated_monte_carlo_objectives
