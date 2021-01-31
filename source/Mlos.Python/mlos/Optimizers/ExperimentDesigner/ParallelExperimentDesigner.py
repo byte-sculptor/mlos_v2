@@ -165,9 +165,12 @@ class ParallelExperimentDesigner:
         self._update_tentative_pareto()
 
     def remove_pending_suggestion(self, suggestion: Point, update_tentative_pareto=True):
-        suggestion_id = suggestion["__mlos_metadata"]["suggestion_id"]
-        if suggestion_id in self._pending_suggestions:
-            del self._pending_suggestions[suggestion_id]
+        try:
+            suggestion_id = suggestion["__mlos_metadata"]["suggestion_id"]
+            if suggestion_id in self._pending_suggestions:
+                del self._pending_suggestions[suggestion_id]
+        except Exception as e:
+            self.logger.info("Failed to remove pending suggestion.", exc_info=True)
 
         if update_tentative_pareto:
             self._update_tentative_pareto()

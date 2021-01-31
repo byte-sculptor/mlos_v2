@@ -3,6 +3,8 @@
 # Licensed under the MIT License.
 #
 import numpy as np
+import pandas as pd
+
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionModel import MultiObjectiveRegressionModel
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
@@ -157,3 +159,12 @@ class ExperimentDesigner:
         if random:
             return self.optimization_problem.parameter_space.random()
         return self.numeric_optimizer.suggest(context_values_dataframe)
+
+    def add_pending_suggestion(self, suggestion: Point):
+        ...
+
+    def remove_pending_suggestion(self, suggestion: Point, update_tentative_pareto=True):
+        ...
+
+    def remove_pending_suggestions(self, suggestions_df: pd.DataFrame):
+        ...
