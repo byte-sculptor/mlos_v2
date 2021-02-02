@@ -8,6 +8,7 @@ import pandas as pd
 
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
 from mlos.Spaces import CategoricalDimension, ContinuousDimension, DiscreteDimension, Point, SimpleHypergrid, Hypergrid
+from mlos.Spaces.Configs import ComponentConfigStore
 
 enveloped_waves_config_space = SimpleHypergrid(
     name="enveloped_waves_config",
@@ -16,7 +17,7 @@ enveloped_waves_config_space = SimpleHypergrid(
         ContinuousDimension(name="num_periods", min=1, max=100),
         ContinuousDimension(name="amplitude", min=0, max=10, include_min=False),
         ContinuousDimension(name="vertical_shift", min=0, max=10),
-        ContinuousDimension(name="phase_shift", min=0, max=2 * math.pi),
+        ContinuousDimension(name="phase_shift", min=0, max=10000),
         ContinuousDimension(name="period", min=0, max=10 * math.pi, include_min=False),
         CategoricalDimension(name="envelope_type", values=["linear", "quadratic", "sine", "none"])
     ]
@@ -48,6 +49,20 @@ enveloped_waves_config_space = SimpleHypergrid(
         ]
     ),
     on_external_dimension=CategoricalDimension(name="envelope_type", values=["sine"])
+)
+
+enveloped_waves_config_store = ComponentConfigStore(
+    parameter_space=enveloped_waves_config_space,
+    default=Point(
+        num_params=3,
+        num_periods=1,
+        amplitude=1,
+        vertical_shift=1,
+        phase_shift=0,
+        period=2 * math.pi,
+        envelope_type="none"
+    ),
+    description="TODO"
 )
 
 class EnvelopedWaves(ObjectiveFunctionBase):
@@ -88,7 +103,7 @@ class EnvelopedWaves(ObjectiveFunctionBase):
     """
 
     def __init__(self, objective_function_config: Point = None):
-        assert objective_function_config in enveloped_waves_config_space
+        assert objective_function_config in enveloped_waves_config_space, f"{objective_function_config} not in {enveloped_waves_config_space}"
         ObjectiveFunctionBase.__init__(self, objective_function_config)
         self._parameter_space = SimpleHypergrid(
             name="domain",
@@ -128,14 +143,14 @@ class EnvelopedWaves(ObjectiveFunctionBase):
         objectives_df = pd.DataFrame(0, index=dataframe.index, columns=['y'], dtype='float')
         for param_name in self._parameter_space.dimension_names:
             objectives_df['y'] += np.sin((dataframe[param_name] - self.objective_function_config.phase_shift) / self.objective_function_config.period) \
-            * self.objective_function_config.amplitude \
-            * self._envelope(dataframe[param_name]) \
-            + self.objective_function_config.vertical_shift
+                                  * self.objective_function_config.amplitude \
+                                  * self._envelope(dataframe[param_name])
+        objectives_df['y'] += self.objective_function_config.vertical_shift
 
         return objectives_df
 
     def _envelope(self, x: pd.Series):
-        return x * 0
+        return x * 0 + 1
 
     def _linear_envelope(self, x: pd.Series):
         return x * self.objective_function_config.linear_envelope_config.slope
