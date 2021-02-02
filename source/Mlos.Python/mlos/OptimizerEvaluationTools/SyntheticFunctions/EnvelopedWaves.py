@@ -3,10 +3,11 @@
 # Licensed under the MIT License.
 #
 import math
+import numpy as np
 import pandas as pd
 
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
-from mlos.Spaces import CategoricalDimension, ContinuousDimension, DiscreteDimension, Point, SimpleHypergrid
+from mlos.Spaces import CategoricalDimension, ContinuousDimension, DiscreteDimension, Point, SimpleHypergrid, Hypergrid
 
 enveloped_waves_config_space = SimpleHypergrid(
     name="enveloped_waves_config",
@@ -17,7 +18,7 @@ enveloped_waves_config_space = SimpleHypergrid(
         ContinuousDimension(name="vertical_shift", min=0, max=10),
         ContinuousDimension(name="phase_shift", min=0, max=2 * math.pi),
         ContinuousDimension(name="period", min=0, max=10 * math.pi, include_min=False),
-        CategoricalDimension(name="envelope_type", values=["linear", "quadratic", "sine"])
+        CategoricalDimension(name="envelope_type", values=["linear", "quadratic", "sine", "none"])
     ]
 ).join(
     subgrid=SimpleHypergrid(
@@ -80,13 +81,14 @@ class EnvelopedWaves(ObjectiveFunctionBase):
         WHERE:
             envelope(x_i) = envelope.slope * x_i + envelope.y_intercept
             OR
-            envelope(x_i) = a * (x_i - p) * (x_i - q)
+            envelope(x_i) = a * (x_i - p) ** 2 + q
             OR
             envelope(x_i) = envelope.amplitude * sin((x_i - envelope.phase_shift) / envelope.period)
 
     """
 
     def __init__(self, objective_function_config: Point = None):
+        assert objective_function_config in enveloped_waves_config_space
         ObjectiveFunctionBase.__init__(self, objective_function_config)
         self._parameter_space = SimpleHypergrid(
             name="domain",
@@ -103,9 +105,53 @@ class EnvelopedWaves(ObjectiveFunctionBase):
             ]
         )
 
+        if self.objective_function_config.envelope_type == "linear":
+            self._envelope = self._linear_envelope
+        elif self.objective_function_config.envelope_type == "quadratic":
+            self._envelope = self._quadratic_envelope
+        elif self.objective_function_config.envelope_type == "sine":
+            self._envelope = self._sine_envelope
+        else:
+            pass # It's set to noop by default
+
+
+    @property
+    def parameter_space(self) -> Hypergrid:
+        return self._parameter_space
+
+    @property
+    def output_space(self) -> Hypergrid:
+        return self._output_space
+
+
     def evaluate_dataframe(self, dataframe: pd.DataFrame) -> pd.DataFrame:
-        ...
+        objectives_df = pd.DataFrame(0, index=dataframe.index, columns=['y'], dtype='float')
+        for param_name in self._parameter_space.dimension_names:
+            objectives_df['y'] += np.sin((dataframe[param_name] - self.objective_function_config.phase_shift) / self.objective_function_config.period) \
+            * self.objective_function_config.amplitude \
+            * self._envelope(dataframe[param_name]) \
+            + self.objective_function_config.vertical_shift
+
+        return objectives_df
+
+    def _envelope(self, x: pd.Series):
+        return x * 0
+
+    def _linear_envelope(self, x: pd.Series):
+        return x * self.objective_function_config.linear_envelope_config.slope
+
+    def _quadratic_envelope(self, x: pd.Series):
+        a = self.objective_function_config.quadratic_envelope_config.a
+        p = self.objective_function_config.quadratic_envelope_config.p
+        q = self.objective_function_config.quadratic_envelope_config.q
+        return a * (x - p) ** 2 + q
+
+    def _sine_envelope(self, x: pd.Series):
+        amplitude = self.objective_function_config.sine_envelope_config.amplitude
+        phase_shift = self.objective_function_config.sine_envelope_config.phase_shift
+        period = self.objective_function_config.sine_envelope_config.period
+        return amplitude * (np.sin((x - phase_shift) / period))
 
 
-
-
+    def get_context(self) -> Point:
+        return self.objective_function_config
