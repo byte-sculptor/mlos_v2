@@ -41,8 +41,8 @@ class TestEnvelopedWaves:
 
     def test_random_multi_objective_configs(self):
         for i in range(100):
-            print(i)
             function_config = multi_objective_enveloped_waves_config_space.random()
+            print(f"[{i}] Function config: {function_config}")
             objective_function = MultiObjectiveEnvelopedWaves(function_config)
             random_params_df = objective_function.parameter_space.random_dataframe(100)
             objectives_df = objective_function.evaluate_dataframe(random_params_df)
