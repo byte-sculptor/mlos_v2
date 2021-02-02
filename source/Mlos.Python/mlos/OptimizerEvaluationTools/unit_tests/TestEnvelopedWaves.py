@@ -26,3 +26,10 @@ class TestEnvelopedWaves:
         random_params_df = objective_function.parameter_space.random_dataframe(100)
         objectives_df = objective_function.evaluate_dataframe(random_params_df)
         assert ((objectives_df['y'] <= 2) & (objectives_df['y'] >= 0)).all()
+
+    def test_random_configs(self):
+        for _ in range(100):
+            function_config = enveloped_waves_config_space.random()
+            objective_function = EnvelopedWaves(function_config)
+            random_params_df = objective_function.parameter_space.random_dataframe(100)
+            objectives_df = objective_function.evaluate_dataframe(random_params_df)
