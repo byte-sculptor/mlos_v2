@@ -19,6 +19,7 @@ multi_objective_enveloped_waves_config_space = SimpleHypergrid(
     dimensions=[
         DiscreteDimension(name="num_objectives", min=1, max=10),
         ContinuousDimension(name="phase_difference", min=0, max=2 * math.pi),
+        ContinuousDimension(name="period_change", min=1, max=2),
         CategoricalDimension(name="single_objective_function", values=[EnvelopedWaves.__name__])
     ]
 ).join(
@@ -31,6 +32,7 @@ multi_objective_enveloped_waves_config_store = ComponentConfigStore(
     default=Point(
         num_objectives=2,
         phase_difference=0.5 * math.pi,
+        period_change=1.1,
         single_objective_function=EnvelopedWaves.__name__,
         enveloped_waves_config=enveloped_waves_config_store.default
     ),
@@ -78,6 +80,7 @@ class MultiObjectiveEnvelopedWaves(ObjectiveFunctionBase):
         for objective_id in range(objective_function_config.num_objectives):
             config = single_objective_enveloped_waves_config.copy()
             config.phase_shift += objective_function_config.phase_difference * objective_id
+            config.period *= objective_function_config.period_change ** objective_id
             self._individual_objectives[objective_id] = EnvelopedWaves(objective_function_config=config)
 
         self._parameter_space = self._individual_objectives[0].parameter_space

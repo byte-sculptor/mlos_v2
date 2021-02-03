@@ -15,7 +15,6 @@ enveloped_waves_config_space = SimpleHypergrid(
     dimensions=[
         DiscreteDimension(name="num_params", min=1, max=100),
         ContinuousDimension(name="num_periods", min=1, max=100),
-        ContinuousDimension(name="amplitude", min=0, max=10, include_min=False),
         ContinuousDimension(name="vertical_shift", min=0, max=10),
         ContinuousDimension(name="phase_shift", min=0, max=10000),
         ContinuousDimension(name="period", min=0, max=10 * math.pi, include_min=False),
@@ -35,7 +34,6 @@ enveloped_waves_config_space = SimpleHypergrid(
         dimensions=[
             ContinuousDimension(name="a", min=-100, max=100),
             ContinuousDimension(name="p", min=-100, max=100),
-            ContinuousDimension(name="q", min=-100, max=100),
         ]
     ),
     on_external_dimension=CategoricalDimension(name="envelope_type", values=["quadratic"])
@@ -56,7 +54,6 @@ enveloped_waves_config_store = ComponentConfigStore(
     default=Point(
         num_params=3,
         num_periods=1,
-        amplitude=1,
         vertical_shift=1,
         phase_shift=0,
         period=2 * math.pi,
@@ -142,8 +139,7 @@ class EnvelopedWaves(ObjectiveFunctionBase):
     def evaluate_dataframe(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         objectives_df = pd.DataFrame(0, index=dataframe.index, columns=['y'], dtype='float')
         for param_name in self._parameter_space.dimension_names:
-            objectives_df['y'] += np.sin((dataframe[param_name] - self.objective_function_config.phase_shift) / self.objective_function_config.period) \
-                                  * self.objective_function_config.amplitude \
+            objectives_df['y'] += np.sin(dataframe[param_name] / self.objective_function_config.period - self.objective_function_config.phase_shift) \
                                   * self._envelope(dataframe[param_name])
         objectives_df['y'] += self.objective_function_config.vertical_shift
 
@@ -158,14 +154,13 @@ class EnvelopedWaves(ObjectiveFunctionBase):
     def _quadratic_envelope(self, x: pd.Series):
         a = self.objective_function_config.quadratic_envelope_config.a
         p = self.objective_function_config.quadratic_envelope_config.p
-        q = self.objective_function_config.quadratic_envelope_config.q
-        return a * (x - p) ** 2 + q
+        return a * (x - p) ** 2
 
     def _sine_envelope(self, x: pd.Series):
         amplitude = self.objective_function_config.sine_envelope_config.amplitude
         phase_shift = self.objective_function_config.sine_envelope_config.phase_shift
         period = self.objective_function_config.sine_envelope_config.period
-        return amplitude * (np.sin((x - phase_shift) / period))
+        return amplitude * np.sin(x / period - phase_shift)
 
 
     def get_context(self) -> Point:

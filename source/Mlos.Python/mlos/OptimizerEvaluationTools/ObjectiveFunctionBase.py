@@ -44,7 +44,7 @@ class ObjectiveFunctionBase(ABC):
             return OptimizationProblem(
                 parameter_space=self.parameter_space,
                 objective_space=self.output_space,
-                objectives=[Objective(name=dim_name, minimize=True) for dim_name in self.output_space.dimension_names]
+                objectives=[Objective(name=dim_name, minimize=False) for dim_name in self.output_space.dimension_names]
             )
         return self._default_optimization_problem
 

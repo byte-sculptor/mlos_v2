@@ -3,7 +3,6 @@
 # Licensed under the MIT License.
 #
 import math
-import pytest
 
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.MultiObjectiveEnvelopedWaves import MultiObjectiveEnvelopedWaves, \
     multi_objective_enveloped_waves_config_space
