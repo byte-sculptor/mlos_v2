@@ -26,6 +26,8 @@ from mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective import
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions import quadratic
 from mlos.Optimizers.BayesianOptimizerConfigStore import bayesian_optimizer_config_store
 from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory
+from mlos.Optimizers.ExperimentDesigner.ExperimentDesigner import ExperimentDesigner
+from mlos.Optimizers.ExperimentDesigner.ParallelExperimentDesigner import ParallelExperimentDesigner
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.GlowWormSwarmOptimizer import GlowWormSwarmOptimizer
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
@@ -381,14 +383,29 @@ class TestBayesianOptimizer:
             decision_tree_config.min_samples_to_fit = 10
             decision_tree_config.n_new_samples_before_refit = 10
 
-        if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
-            optimizer_config.experiment_designer_config.glow_worm_swarm_optimizer_config.num_iterations = 5
+        if optimizer_config.experiment_designer_implementation == ExperimentDesigner.__name__:
+            if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
+                optimizer_config.experiment_designer_config.glow_worm_swarm_optimizer_config.num_iterations = 5
 
-        if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomSearchOptimizer.__name__:
-            optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = min(
-                optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration,
-                1000
-            )
+            if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomSearchOptimizer.__name__:
+                optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = min(
+                    optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration,
+                    1000
+                )
+
+        elif optimizer_config.experiment_designer_implementation == ParallelExperimentDesigner.__name__:
+            if optimizer_config.parallel_experiment_designer_config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
+                optimizer_config.parallel_experiment_designer_config.glow_worm_swarm_optimizer_config.num_iterations = 5
+
+            if optimizer_config.parallel_experiment_designer_config.numeric_optimizer_implementation == RandomSearchOptimizer.__name__:
+                optimizer_config.parallel_experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = min(
+                    optimizer_config.parallel_experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration,
+                    1000
+                )
+
+        else:
+            assert False
+
 
         print(f"[Restart: {restart_num}] Creating a BayesianOptimimizer with the following config: ")
         print(optimizer_config.to_json(indent=2))

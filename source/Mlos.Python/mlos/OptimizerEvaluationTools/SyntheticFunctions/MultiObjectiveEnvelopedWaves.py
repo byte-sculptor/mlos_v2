@@ -19,7 +19,7 @@ multi_objective_enveloped_waves_config_space = SimpleHypergrid(
     dimensions=[
         DiscreteDimension(name="num_objectives", min=1, max=10),
         ContinuousDimension(name="phase_difference", min=0, max=2 * math.pi),
-        ContinuousDimension(name="period_change", min=1, max=2),
+        ContinuousDimension(name="period_change", min=1, max=1.2),
         CategoricalDimension(name="single_objective_function", values=[EnvelopedWaves.__name__])
     ]
 ).join(

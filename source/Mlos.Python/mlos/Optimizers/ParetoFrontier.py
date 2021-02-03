@@ -83,7 +83,7 @@ class ParetoFrontier:
         # Maintains a version of the pareto frontier, where all objectives are set to be maximized. So value for the objectives that were
         # originally meant to be minimized, are multiplied by -1.
         #
-        self._pareto_df_maximize_all: pd.DataFrame = None
+        self._pareto_df_maximize_all: pd.DataFrame = pd.DataFrame(columns=self._objective_names)
 
         if objectives_df is not None:
             self.update_pareto(objectives_df)
