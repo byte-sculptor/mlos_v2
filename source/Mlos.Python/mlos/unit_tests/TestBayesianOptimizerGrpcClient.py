@@ -156,10 +156,14 @@ class TestBayesianOptimizerGrpcClient:
         for i in range(num_random_restarts):
             optimizer_config = bayesian_optimizer_config_store.parameter_space.random()
 
+            while optimizer_config.experiment_designer_implementation == "ParallelExperimentDesigner":
+                optimizer_config = bayesian_optimizer_config_store.parameter_space.random()
+
             optimizer_config.min_samples_required_for_guided_design_of_experiments = min(optimizer_config.min_samples_required_for_guided_design_of_experiments, 100)
             if optimizer_config.surrogate_model_implementation == "HomogeneousRandomForestRegressionModel":
                 rf_config = optimizer_config.homogeneous_random_forest_regression_model_config
                 rf_config.n_estimators = min(rf_config.n_estimators, 20)
+
 
             print(f"[{i+1}/{num_random_restarts}] Creating a bayesian optimizer with config: {optimizer_config}")
 

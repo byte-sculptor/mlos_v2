@@ -17,7 +17,7 @@ enveloped_waves_config_space = SimpleHypergrid(
         ContinuousDimension(name="num_periods", min=1, max=100),
         ContinuousDimension(name="vertical_shift", min=0, max=10),
         ContinuousDimension(name="phase_shift", min=0, max=10000),
-        ContinuousDimension(name="period", min=0, max=100000 * math.pi, include_min=False),
+        ContinuousDimension(name="period", min=0, max=10 * math.pi, include_min=False),
         CategoricalDimension(name="envelope_type", values=["linear", "quadratic", "sine", "none"])
     ]
 ).join(

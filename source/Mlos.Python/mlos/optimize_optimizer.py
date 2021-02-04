@@ -37,7 +37,9 @@ import pandas as pd
 
 from mlos.OptimizerEvaluationTools.OptimizerEvaluator import OptimizerEvaluator
 from mlos.OptimizerEvaluationTools.OptimizerEvaluatorConfigStore import optimizer_evaluator_config_store
-from mlos.OptimizerEvaluationTools.SyntheticFunctions.Hypersphere import Hypersphere
+from mlos.OptimizerEvaluationTools.SyntheticFunctions.EnvelopedWaves import EnvelopedWaves
+from mlos.OptimizerEvaluationTools.SyntheticFunctions.MultiObjectiveEnvelopedWaves import MultiObjectiveEnvelopedWaves
+
 from mlos.Optimizers.BayesianOptimizerConfigStore import bayesian_optimizer_config_store
 from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.GlowWormSwarmOptimizer import GlowWormSwarmOptimizer, glow_worm_swarm_optimizer_config_store
@@ -47,6 +49,11 @@ from mlos.Spaces import SimpleHypergrid, Point, CategoricalDimension, Continuous
 
 
 if __name__ == "__main__":
+
+    num_inner_optimization_iterations = 2000
+    reports_dir = r"M:\optimizing_optimizer\feb_03_2021_2"
+    os.mkdir(reports_dir)
+
     target_parameter_space = SimpleHypergrid(
         name="optimizer_parameters",
         dimensions=[
@@ -93,8 +100,8 @@ if __name__ == "__main__":
         optimizer_config=meta_optimizer_config
     )
 
-    params_file_path = f"C:\\Users\\adam_\\Documents\\Code\\temp\\optimizer_evaluator\\params.csv"
-    objectives_file_path = f"C:\\Users\\adam_\\Documents\\Code\\temp\\optimizer_evaluator\\objectives.csv"
+    params_file_path = os.path.join(reports_dir, "params.csv")
+    objectives_file_path = os.path.join(reports_dir, "objectives.csv")
 
     if os.path.exists(params_file_path) and os.path.exists(objectives_file_path):
         try:
@@ -107,19 +114,34 @@ if __name__ == "__main__":
         except Exception as e:
             print(e)
 
-    hypersphere_radius = 10
     objective_function_config = Point(
-        implementation=Hypersphere.__name__,
-        hypersphere_config=Point(
+        implementation=MultiObjectiveEnvelopedWaves.__name__,
+        multi_objective_enveloped_waves_config=Point(
             num_objectives=3,
-            minimize='some',
-            radius=hypersphere_radius
+            phase_difference=1,
+            period_change=1.12,
+            single_objective_function=EnvelopedWaves.__name__,
+            enveloped_waves_config=(Point(
+                num_params=10,
+                num_periods=100,
+                vertical_shift=1,
+                phase_shift=0,
+                period=2 * math.pi,
+                envelope_type="linear",
+                sine_envelope_config=Point(
+                    amplitude=2,
+                    phase_shift=0,
+                    period=12 * math.pi
+                ),
+                linear_envelope_config=Point(slope=30),
+                quadratic_envelope_config=Point(a=1, p=20)
+            ))
         )
     )
 
     optimizer_evaluator_config = optimizer_evaluator_config_store.default
-    optimizer_evaluator_config.num_iterations = 2001
-    optimizer_evaluator_config.evaluation_frequency = 100
+    optimizer_evaluator_config.num_iterations = num_inner_optimization_iterations + 1
+    optimizer_evaluator_config.evaluation_frequency = int(num_inner_optimization_iterations / 10)
     print(optimizer_evaluator_config)
 
     def get_suggestion(meta_optimizer):
@@ -143,9 +165,9 @@ if __name__ == "__main__":
 
 
 
-    max_workers = 12
+    max_workers = 10
     max_concurrent_runs = max_workers
-    total_runs = 10000
+    total_runs = 10
     completed_runs = 0
 
     with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
@@ -174,8 +196,8 @@ if __name__ == "__main__":
                 try:
                     optimizer_evaluation_report = future.result()
                     objectives = Point(
-                        pareto_volume_after_1000_iterations=sum(optimizer_evaluation_report.pareto_volume_over_time[1000])/2,
-                        pareto_volume_after_2000_iterations=sum(optimizer_evaluation_report.pareto_volume_over_time[2000])/2,
+                        pareto_volume_after_1000_iterations=sum(optimizer_evaluation_report.pareto_volume_over_time[int(num_inner_optimization_iterations/2)])/2,
+                        pareto_volume_after_2000_iterations=sum(optimizer_evaluation_report.pareto_volume_over_time[num_inner_optimization_iterations])/2,
                         duration_s = (optimizer_evaluation_report.end_time - optimizer_evaluation_report.start_time).total_seconds()
                     )
                     parameters = optimizer_evaluation_report.suggestion
@@ -187,9 +209,9 @@ if __name__ == "__main__":
 
                     now = datetime.datetime.utcnow()
                     now_str = now.strftime("%d.%m.%Y.%H.%M.%S.%f")
-                    report_dir = f"C:\\Users\\adam_\\Documents\\Code\\temp\\optimizer_evaluator\\{now_str}"
+                    report_dir = os.path.join(reports_dir, now_str)
                     os.mkdir(report_dir)
-                    optimizer_evaluation_report.write_to_disk(f"C:\\Users\\adam_\\Documents\\Code\\temp\\optimizer_evaluator\\{now_str}")
+                    optimizer_evaluation_report.write_to_disk(report_dir)
                 except Exception as e:
                     print(e)
 
