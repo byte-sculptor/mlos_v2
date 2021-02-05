@@ -3,14 +3,14 @@
 # Licensed under the MIT License.
 #
 import json
-from typing import Dict, Iterator, List, Tuple, Union
+from typing import Any, Dict, Iterator, List, Tuple, Union
 
 class KeyOrderedDict:
     """Dictionary where entries can be enumerated and accessed in pre-specified order.
 
     """
 
-    def __init__(self, ordered_keys: List[str], value_type: type, dictionary: Dict[str, object] = None):
+    def __init__(self, ordered_keys: List[str], value_type: type, dictionary: Dict[str, Any] = None):
         assert all(isinstance(key, str) for key in ordered_keys)
         self.value_type = value_type
         self._ordered_keys = ordered_keys

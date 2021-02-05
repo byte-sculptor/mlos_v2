@@ -82,8 +82,11 @@ class MultiObjectiveEnvelopedWaves(ObjectiveFunctionBase):
             config.phase_shift += objective_function_config.phase_difference * objective_id
             config.period *= objective_function_config.period_change ** objective_id
 
-            while config.period > 10 * math.pi:
-                config.period -= 10 * math.pi
+            while config.period > enveloped_waves_config_store.parameter_space["period"].max:
+                config.period -= enveloped_waves_config_store.parameter_space["period"].max
+
+            while config.phase_shift > enveloped_waves_config_store.parameter_space["phase_shift"].max:
+                config.phase_shift -= enveloped_waves_config_store.parameter_space["phase_shift"].max
 
             self._individual_objectives[objective_id] = EnvelopedWaves(objective_function_config=config)
 
