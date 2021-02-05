@@ -61,7 +61,7 @@ if __name__ == "__main__":
             ContinuousDimension(name="samples_fraction_per_tree", min=0.3, max=1),
             CategoricalDimension(name="bootstrap", values=[True, False]),
             DiscreteDimension(name="n_samples_before_refit", min=1, max=20),
-            ContinuousDimension(name="fraction_random_suggestions", min=0.4, max=0.5),
+            ContinuousDimension(name="fraction_random_suggestions", min=0.2, max=0.5),
             CategoricalDimension('numeric_optimizer_implementation', values=[RandomSearchOptimizer.__name__, GlowWormSwarmOptimizer.__name__]),
             DiscreteDimension(name="num_monte_carlo_samples", min=10, max=1000)
         ]
