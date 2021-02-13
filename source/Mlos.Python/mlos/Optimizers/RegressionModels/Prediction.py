@@ -177,7 +177,7 @@ class Prediction:
             TODO: format return type properly
             new column name
         """
-        std_dev_col_name = self.LegalColumnNames.PREDICTED_VALUE_STANDARD_DEVIATION.name
+        std_dev_col_name = self.LegalColumnNames.PREDICTED_VALUE_STANDARD_DEVIATION.value
         variance_col_name = self.LegalColumnNames.PREDICTED_VALUE_VARIANCE.value
         if std_dev_col_name not in self._dataframe.columns:
             self._dataframe[std_dev_col_name] = np.sqrt(self._dataframe[variance_col_name])

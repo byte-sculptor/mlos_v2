@@ -2,6 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+import math
 import pandas as pd
 
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
@@ -16,7 +17,7 @@ random_search_optimizer_config_store = ComponentConfigStore(
     parameter_space=SimpleHypergrid(
         name="random_search_optimizer_config",
         dimensions=[
-            DiscreteDimension(name="num_samples_per_iteration", min=1, max=100000)
+            DiscreteDimension(name="num_samples_per_iteration", min=1, max=1000000)
         ]
     ),
     default=Point(
@@ -53,16 +54,37 @@ class RandomSearchOptimizer(UtilityFunctionOptimizer):
         TODO: make it capable of consuming the context values
         :return:
         """
-        parameter_values_dataframe = self.optimization_problem.parameter_space.random_dataframe(num_samples=self.optimizer_config.num_samples_per_iteration)
-        feature_values_dataframe = self.optimization_problem.construct_feature_dataframe(
-            parameter_values=parameter_values_dataframe,
-            context_values=context_values_dataframe,
-            product=True
-        )
-        utility_function_values = self.utility_function(feature_values_pandas_frame=feature_values_dataframe.copy(deep=False))
-        num_utility_function_values = len(utility_function_values.index)
-        index_of_max_value = utility_function_values[['utility']].idxmax()['utility'] if num_utility_function_values > 0 else 0
-        argmax_point = Point.from_dataframe(feature_values_dataframe.loc[[index_of_max_value]])
-        config_to_suggest = argmax_point[self.optimization_problem.parameter_space.name]
+
+        # Let's do batches of 10000 points max so that we minimize the risk of OOM.
+        #
+        max_num_samples_in_batch = 10000
+        num_batches = math.ceil(self.optimizer_config.num_samples_per_iteration / max_num_samples_in_batch)
+
+        max_value = None
+        config_to_suggest = None
+
+        for i in range(num_batches):
+            parameter_values_dataframe = self.optimization_problem.parameter_space.random_dataframe(num_samples=max_num_samples_in_batch)
+            feature_values_dataframe = self.optimization_problem.construct_feature_dataframe(
+                parameter_values=parameter_values_dataframe,
+                context_values=context_values_dataframe,
+                product=True
+            )
+            utility_function_values = self.utility_function(feature_values_pandas_frame=feature_values_dataframe.copy(deep=False))
+            num_utility_function_values = len(utility_function_values.index)
+            if num_utility_function_values == 0:
+                continue
+                index_of_max_value = utility_function_values[['utility']].idxmax()['utility'] if num_utility_function_values > 0 else 0
+                max_value_fort_this_batch = utility_function_values.loc[index_of_max_value, 'utility']
+                print(f"Probability of improvement: {max_value_fort_this_batch}")
+
+                if max_value is None or max_value_fort_this_batch > max_value:
+                    max_value = max_value_fort_this_batch
+                    argmax_point = Point.from_dataframe(feature_values_dataframe.loc[[index_of_max_value]])
+                    config_to_suggest = argmax_point[self.optimization_problem.parameter_space.name]
+
+        if config_to_suggest is None:
+            config_to_suggest = self.optimization_problem.parameter_space.random()
+
         self.logger.debug(f"Suggesting: {str(config_to_suggest)}")
         return config_to_suggest

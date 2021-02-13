@@ -241,7 +241,7 @@ class BayesianOptimizer(OptimizerBase):
             context_values=context_values_pandas_frame
         )
 
-        return self.surrogate_model.predict(feature_values_pandas_frame)[0]
+        return self.surrogate_model.predict(feature_values_pandas_frame)
 
     @trace()
     def _update_pareto(self):
