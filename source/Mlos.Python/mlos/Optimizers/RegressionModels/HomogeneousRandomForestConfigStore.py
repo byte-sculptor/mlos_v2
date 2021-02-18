@@ -14,11 +14,20 @@ homogeneous_random_forest_config_store = ComponentConfigStore(
             ContinuousDimension(name="features_fraction_per_estimator", min=0, max=1, include_min=False, include_max=True),
             ContinuousDimension(name="samples_fraction_per_estimator", min=0.2, max=1, include_min=False, include_max=True),
             CategoricalDimension(name="regressor_implementation", values=[DecisionTreeRegressionModel.__name__]),
-            CategoricalDimension(name="bootstrap", values=[True, False])
+            CategoricalDimension(name="bootstrap", values=[True, False]),
+            CategoricalDimension(name="use_multiple_cpus", values=[True, False])
         ]
     ).join(
         subgrid=decision_tree_config_store.parameter_space,
         on_external_dimension=CategoricalDimension(name="regressor_implementation", values=[DecisionTreeRegressionModel.__name__])
+    ).join(
+        on_external_dimension=CategoricalDimension(name="use_multiple_cpus", values=[True]),
+        subgrid=SimpleHypergrid(
+            name="parallel_executor_config",
+            dimensions=[
+                DiscreteDimension(name="max_num_workers", min=0, max=256), # Where 0 == num_cpus
+            ]
+        )
     ),
     default=Point(
         n_estimators=10,
@@ -26,7 +35,8 @@ homogeneous_random_forest_config_store = ComponentConfigStore(
         samples_fraction_per_estimator=0.7,
         regressor_implementation=DecisionTreeRegressionModel.__name__,
         decision_tree_regression_model_config=decision_tree_config_store.default,
-        bootstrap=True
+        bootstrap=True,
+        use_multiple_cpus=False
     ),
     description="TODO"
 )

@@ -2,8 +2,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+import concurrent.futures
+from multiprocessing import cpu_count
 import math
 import random
+
 
 import pandas as pd
 
@@ -171,40 +174,90 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
 
         feature_values_pandas_frame = self._input_space_adapter.project_dataframe(feature_values_pandas_frame, in_place=False)
 
-        for i, tree in enumerate(self._decision_trees):
-            # Let's filter out samples with missing values
-            estimators_df = feature_values_pandas_frame[tree.input_dimension_names]
-            non_null_observations = estimators_df[estimators_df.notnull().all(axis=1)]
-            targets_for_non_null_observations = target_values_pandas_frame.loc[non_null_observations.index]
+        fitted_trees = []
+        if self.model_config.use_multiple_cpus:
 
-            n_samples_for_tree = math.ceil(min(self.model_config.samples_fraction_per_estimator * len(estimators_df.index), len(non_null_observations.index)))
-            observations_for_tree_training = non_null_observations.sample(
-                n=n_samples_for_tree,
-                replace=False, # TODO: add options to control bootstrapping vs. subsampling,
-                random_state=i,
-                axis='index'
-            )
-            if self.model_config.bootstrap and n_samples_for_tree < len(estimators_df.index):
-                bootstrapped_observations_for_tree_training = observations_for_tree_training.sample(
-                    frac=1.0/self.model_config.samples_fraction_per_estimator,
-                    replace=True,
-                    random_state=i,
-                    axis='index'
+            max_workers = self.model_config.parallel_executor_config.max_num_workers
+            if max_workers == 0 or max_workers > cpu_count():
+                max_workers = cpu_count()
+
+            outstanding_futures = set()
+            with concurrent.futures.ProcessPoolExecutor(max_workers=max_workers) as executor:
+                for i, tree in enumerate(self._decision_trees):
+                    future = executor.submit(self._fit_tree, tree, feature_values_pandas_frame, target_values_pandas_frame, i)
+                    outstanding_futures.add(future)
+                done_futures, outstanding_futures = concurrent.futures.wait(outstanding_futures, return_when=concurrent.futures.ALL_COMPLETED)
+
+                assert len(outstanding_futures) == 0
+                assert len(done_futures) == len(self._decision_trees)
+
+                for future in done_futures:
+                    fitted_tree = future.result()
+                    fitted_trees.append(fitted_tree)
+
+        else:
+            for i, tree in enumerate(self._decision_trees):
+                fitted_tree = self._fit_tree(
+                    tree=tree,
+                    features_df=feature_values_pandas_frame,
+                    objectives_df=target_values_pandas_frame,
+                    random_seed=i
                 )
-            else:
-                bootstrapped_observations_for_tree_training = observations_for_tree_training.copy()
-            num_selected_observations = len(observations_for_tree_training.index)
-            if tree.should_fit(num_selected_observations):
-                bootstrapped_targets_for_tree_training = targets_for_non_null_observations.loc[bootstrapped_observations_for_tree_training.index]
-                assert len(bootstrapped_observations_for_tree_training.index) == len(bootstrapped_targets_for_tree_training.index)
-                tree.fit(
-                    feature_values_pandas_frame=bootstrapped_observations_for_tree_training,
-                    target_values_pandas_frame=bootstrapped_targets_for_tree_training,
-                    iteration_number=len(feature_values_pandas_frame.index)
-                )
+                fitted_trees.append(fitted_tree)
+
+        self._decision_trees = fitted_trees
 
         self.last_refit_iteration_number = max(tree.last_refit_iteration_number for tree in self._decision_trees)
         self._trained = any(tree.trained for tree in self._decision_trees)
+
+    def _fit_tree(
+        self,
+        tree: DecisionTreeRegressionModel,
+        features_df: pd.DataFrame,
+        objectives_df: pd.DataFrame,
+        random_seed: int
+    ) -> DecisionTreeRegressionModel:
+        """Trains an individual tree.
+
+        This function can be submitted to the process pool executor for parallel processing.
+
+        :param tree:
+        :param features_df:
+        :param objectives_df:
+        :param random_seed:
+        :return:
+        """
+        # Let's filter out samples with missing values
+        estimators_df = features_df[tree.input_dimension_names]
+        non_null_observations = estimators_df[estimators_df.notnull().all(axis=1)]
+        targets_for_non_null_observations = objectives_df.loc[non_null_observations.index]
+
+        n_samples_for_tree = math.ceil(min(self.model_config.samples_fraction_per_estimator * len(estimators_df.index), len(non_null_observations.index)))
+        observations_for_tree_training = non_null_observations.sample(
+            n=n_samples_for_tree,
+            replace=False, # TODO: add options to control bootstrapping vs. subsampling,
+            random_state=random_seed,
+            axis='index'
+        )
+        if self.model_config.bootstrap and n_samples_for_tree < len(estimators_df.index):
+            bootstrapped_observations_for_tree_training = observations_for_tree_training.sample(
+                frac=1.0/self.model_config.samples_fraction_per_estimator,
+                replace=True,
+                random_state=random_seed,
+                axis='index'
+            )
+        else:
+            bootstrapped_observations_for_tree_training = observations_for_tree_training.copy()
+        num_selected_observations = len(observations_for_tree_training.index)
+        if tree.should_fit(num_selected_observations):
+            bootstrapped_targets_for_tree_training = targets_for_non_null_observations.loc[bootstrapped_observations_for_tree_training.index]
+            assert len(bootstrapped_observations_for_tree_training.index) == len(bootstrapped_targets_for_tree_training.index)
+            tree.fit(
+                feature_values_pandas_frame=bootstrapped_observations_for_tree_training,
+                target_values_pandas_frame=bootstrapped_targets_for_tree_training,
+                iteration_number=len(features_df.index)
+            )
+        return tree
 
     @trace()
     def predict(self, feature_values_pandas_frame, include_only_valid_rows=True):
