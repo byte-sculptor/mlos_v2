@@ -150,6 +150,7 @@ class GridPlot:
                     color={'field': self.objective_name, 'transform': color_mapper},
                     marker='circle',
                     source=self._observations_data_source.data_source,
+                    #name=f'{y_axis_name}_vs_{x_axis_name}'
                 )
 
                 fig.xaxis.axis_label = x_axis_name

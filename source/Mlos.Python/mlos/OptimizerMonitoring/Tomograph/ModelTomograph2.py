@@ -59,7 +59,8 @@ class ModelTomograph2:
         objectives_panel = Panel(child=objectives_plot, title="Objectives")
         panels.append(objectives_panel)
 
-        for objective_name in self.optimization_problem.objective_space.dimension_names:
+        for objective in self.optimization_problem.objectives:
+            objective_name = objective.name
             observations_plot = self.get_observations_plot(objective_names=[objective_name], refresh_data=False)
             observations_panel = Panel(child=observations_plot, title=objective_name)
             panels.append(observations_panel)
