@@ -38,7 +38,8 @@ def make_prediction(model_shared_memory_name, params_shared_memory_name, params_
     print(f"After creating dataframe: {current}, {peak}")
 
     prediction = unpickled_model.predict(params_df)
-    print(prediction.get_dataframe())
+    pd.set_option('max_columns', None)
+    print(prediction.get_dataframe().describe())
 
     current, peak = tracemalloc.get_traced_memory()
     print(f"After predictions: {current}, {peak}")

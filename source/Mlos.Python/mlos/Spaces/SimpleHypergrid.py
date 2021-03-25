@@ -2,6 +2,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+import pandas as pd
+
 from mlos.Exceptions import PointOutOfDomainException
 from mlos.Spaces.Dimensions.Dimension import Dimension
 from mlos.Spaces.Hypergrid import Hypergrid
@@ -148,6 +150,9 @@ class SimpleHypergrid(Hypergrid):
     def __contains__(self, item):
         if isinstance(item, Point):
             return self.contains_point(point=item)
+        elif isinstance(item, pd.DataFrame):
+            valid_rows_index = self.get_valid_rows_index(original_dataframe=item)
+            return len(valid_rows_index) == len(item.index)
         raise NotImplementedError
 
     def join(self, subgrid: Hypergrid, on_external_dimension: Dimension):

@@ -4,7 +4,7 @@
 #
 from abc import abstractmethod
 import numpy as np
-from pandas import DataFrame
+import pandas as pd
 from mlos.Spaces import Hypergrid, Point, SimpleHypergrid
 
 
@@ -39,6 +39,9 @@ class HypergridAdapter(Hypergrid):
         if isinstance(item, Point):
             unprojected_point = self._unproject_point(item)
             return self.adaptee.__contains__(unprojected_point)
+        elif isinstance(item, pd.DataFrame):
+            unprojected_dataframe = self._unproject_dataframe(item)
+            return self.adaptee.__contains(unprojected_dataframe)
         raise NotImplementedError
 
     def __getitem__(self, item):
@@ -80,7 +83,7 @@ class HypergridAdapter(Hypergrid):
             point = self.adaptee.unproject_point(point)
         return point
 
-    def project_dataframe(self, df: DataFrame, in_place: bool = True) -> DataFrame:
+    def project_dataframe(self, df: pd.DataFrame, in_place: bool = True) -> pd.DataFrame:
         if isinstance(self.adaptee, HypergridAdapter):
             df = self.adaptee.project_dataframe(df, in_place)
             # If the adaptee made a copy, we can do our projection in place (on that copy)
@@ -95,7 +98,7 @@ class HypergridAdapter(Hypergrid):
                 df[dimension.name] = np.nan
         return self._project_dataframe(df, in_place)
 
-    def unproject_dataframe(self, df: DataFrame, in_place: bool = True) -> DataFrame:
+    def unproject_dataframe(self, df: pd.DataFrame, in_place: bool = True) -> pd.DataFrame:
         df = self._unproject_dataframe(df, in_place)
         if isinstance(self.adaptee, HypergridAdapter):
             # If self made a copy, the adaptee can unprojecte in_place (on that copy)
@@ -132,7 +135,7 @@ class HypergridAdapter(Hypergrid):
         return unprojected_point
 
     @abstractmethod
-    def _project_dataframe(self, df: DataFrame, in_place: bool) -> DataFrame:
+    def _project_dataframe(self, df: pd.DataFrame, in_place: bool) -> pd.DataFrame:
         """ Projects a given dataframe from adaptee to target hypergrid.
 
         :param df:
@@ -141,7 +144,7 @@ class HypergridAdapter(Hypergrid):
         raise NotImplementedError()
 
     @abstractmethod
-    def _unproject_dataframe(self, df: DataFrame, in_place: bool) -> DataFrame:
+    def _unproject_dataframe(self, df: pd.DataFrame, in_place: bool) -> pd.DataFrame:
         """ Projects a given dataframe from target to adaptee hypergrid.
 
         :param df:
