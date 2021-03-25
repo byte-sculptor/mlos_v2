@@ -1,6 +1,6 @@
 import pandas as pd
 
-from mlos.DataSets.DataSetInterface import DataSetInterface
+from mlos.DataPlane.DataSetInterface import DataSetInterface
 from mlos.Spaces import Hypergrid
 
 
