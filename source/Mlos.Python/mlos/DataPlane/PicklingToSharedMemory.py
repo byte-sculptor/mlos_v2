@@ -9,6 +9,8 @@ import tracemalloc
 import time
 import pickle
 
+from mlos.DataPlane.SharedMemoryDataSet import SharedMemoryDataSet
+
 
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
@@ -90,3 +92,6 @@ if __name__ == "__main__":
 
     tree_shared_memory.unlink()
     params_shared_memory.unlink()
+
+    shared_memory_data_set = SharedMemoryDataSet(schema=objective_function.parameter_space, shared_memory_name="params")
+    shared_memory_data_set.set_dataframe(df=objective_function.parameter_space.random_dataframe(11))
