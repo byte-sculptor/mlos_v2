@@ -12,6 +12,14 @@ import pickle
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 
+def make_prediction(shared_memory_name):
+    shared_memory = SharedMemory(name=shared_memory_name, create=False)
+    unpickled_model = pickle.loads(shared_memory.buf)
+    objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config=objective_function_config_store.default)
+    params_df = objective_function.parameter_space.random_dataframe(10)
+    prediction = unpickled_model.predict(params_df)
+    print(prediction.get_dataframe())
+
 
 if __name__ == "__main__":
 
@@ -30,9 +38,13 @@ if __name__ == "__main__":
     pickled_model = pickle.dumps(model)
     print(f"pickled model size: {len(pickled_model)}")
 
-    with SharedMemoryManager() as smm:
-        shm = smm.SharedMemory(size=len(pickled_model))
-    shm.buf[:] = pickled_model
-    unpickled_model = pickle.loads(shm.buf)
-    print(unpickled_model.predict(objective_function.parameter_space.random_dataframe(1)).get_dataframe())
-    shm.unlink()
+    tree_shared_memory = SharedMemory(name='pickled_tree', size=len(pickled_model), create=True)
+
+
+    tree_shared_memory.buf[:] = pickled_model
+
+    worker = Process(target=make_prediction, kwargs={'shared_memory_name': 'pickled_tree'})
+    worker.start()
+    worker.join()
+
+    tree_shared_memory.unlink()
