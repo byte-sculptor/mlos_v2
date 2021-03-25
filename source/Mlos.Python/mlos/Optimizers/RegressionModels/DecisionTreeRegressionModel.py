@@ -74,7 +74,6 @@ class DecisionTreeRegressionModel(RegressionModel):
         )
 
         # These are used to compute the variance in predictions
-        self._observations_per_leaf = dict()
         self._mean_per_leaf = dict()
         self._mean_variance_per_leaf = dict()
         self._sample_variance_per_leaf = dict()
@@ -116,8 +115,7 @@ class DecisionTreeRegressionModel(RegressionModel):
         feature_values = feature_values_pandas_frame[self.input_dimension_names].to_numpy()
         target_values = target_values_pandas_frame[self.target_dimension_names].to_numpy()
 
-        # Clean up state before fitting again
-        self._observations_per_leaf = dict()
+        observations_per_leaf = dict()
 
         self._regressor.fit(feature_values, target_values)
 
@@ -127,15 +125,15 @@ class DecisionTreeRegressionModel(RegressionModel):
         self.logger.debug(f"The resulting three has {len(node_indices)} leaf nodes.")
 
         for node_index, sample_target_value in zip(node_indices, target_values):
-            observations_at_leaf = self._observations_per_leaf.get(node_index, [])
+            observations_at_leaf = observations_per_leaf.get(node_index, [])
             observations_at_leaf.append(sample_target_value)
-            self._observations_per_leaf[node_index] = observations_at_leaf
+            observations_per_leaf[node_index] = observations_at_leaf
 
         # Now let's compute all predictions
-        for node_index in self._observations_per_leaf:
+        for node_index in observations_per_leaf:
             # First convert the observations to a numpy array.
-            observations_at_leaf = np.array(self._observations_per_leaf[node_index])
-            self._observations_per_leaf[node_index] = observations_at_leaf
+            observations_at_leaf = np.array(observations_per_leaf[node_index])
+            observations_per_leaf[node_index] = observations_at_leaf
 
             leaf_mean = np.mean(observations_at_leaf)
             leaf_sample_variance = np.var(observations_at_leaf, ddof=1) # ddof = delta degrees of freedom. We want sample variance.

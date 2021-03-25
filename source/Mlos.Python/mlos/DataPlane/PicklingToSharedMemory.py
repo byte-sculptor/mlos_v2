@@ -23,12 +23,12 @@ if __name__ == "__main__":
         output_space=objective_function.output_space
     )
 
-    params_df = objective_function.parameter_space.random_dataframe(100)
+    params_df = objective_function.parameter_space.random_dataframe(10000)
     objectives_df = objective_function.evaluate_dataframe(params_df)
     model.fit(params_df, objectives_df, 0)
 
     pickled_model = pickle.dumps(model)
-    print('breakpoint')
+    print(f"pickled model size: {len(pickled_model)}")
 
     with SharedMemoryManager() as smm:
         shm = smm.SharedMemory(size=len(pickled_model))
