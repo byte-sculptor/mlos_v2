@@ -190,7 +190,7 @@ class TestUtilityFunctionOptimizers:
             self.logger.info(objective_vaules)
             assert suggested_params in optimization_problem.parameter_space
 
-    @pytest.mark.parametrize('objective_function_config_name', ["three_level_quadratic", "multi_objective_waves_3_params_2_objectives_half_pi_phase_difference"])
+    @pytest.mark.parametrize('objective_function_config_name', ["three_level_quadratic"])#, "multi_objective_waves_3_params_2_objectives_half_pi_phase_difference"])
     @pytest.mark.parametrize('utility_function_type_name', [ConfidenceBoundUtilityFunction.__name__, MultiObjectiveProbabilityOfImprovementUtilityFunction.__name__])
     @pytest.mark.parametrize('utility_function_optimizer_type_name', [GlowWormSwarmOptimizer.__name__, RandomSearchOptimizer.__name__, RandomNearIncumbentOptimizer.__name__])
     @trace()
