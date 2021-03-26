@@ -143,13 +143,9 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
         dimensions_for_point = []
         for dimension_name, _ in projected_random_point:
             dimensions_for_point.append(self._input_space_adapter[dimension_name])
-        #dimensions_for_point = original_space.get_dimensions_for_point(random_point, return_join_dimensions=False)
+
         selected_dimensions = random.sample(dimensions_for_point, min(len(dimensions_for_point), max_num_dimensions))
-        #flat_dimensions = []
-        #for dimension in selected_dimensions:
-        #    flat_dimension = dimension.copy()
-        #    flat_dimension.name = Dimension.flatten_dimension_name(flat_dimension.name)
-        #    flat_dimensions.append(flat_dimension)
+
         flat_hypergrid = SimpleHypergrid(
             name=subspace_name,
             dimensions=selected_dimensions
