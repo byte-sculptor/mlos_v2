@@ -1,14 +1,7 @@
 from multiprocessing.shared_memory import SharedMemory
-from multiprocessing.managers import SharedMemoryManager
-from concurrent.futures import ProcessPoolExecutor, as_completed
-from multiprocessing import current_process, cpu_count, Process
-from datetime import datetime
-import numpy as np
+from multiprocessing import Process
 import pandas as pd
-import tracemalloc
-import time
 import pickle
-import json
 
 
 from mlos.DataPlane.SharedMemoryDataSet import SharedMemoryDataSet
@@ -19,7 +12,6 @@ from mlos.DataPlane.SharedMemoryDataSetView import SharedMemoryDataSetView
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.Spaces.HypergridAdapters import CategoricalToDiscreteHypergridAdapter
-from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonDecoder
 
 def make_prediction(model_shared_memory_name, data_set_info: SharedMemoryDataSetInfo):
 
@@ -36,7 +28,6 @@ def make_prediction(model_shared_memory_name, data_set_info: SharedMemoryDataSet
     print(prediction.get_dataframe().describe())
 
     data_set_view.detach()
-
 
 
 if __name__ == "__main__":
@@ -63,15 +54,6 @@ if __name__ == "__main__":
     tree_shared_memory = SharedMemory(name='pickled_tree', size=len(pickled_model), create=True)
     tree_shared_memory.buf[:] = pickled_model
 
-    # Now let's put some parameters in shared memory.
-    #
-    #params_df = parameter_space_adapter.project_dataframe(objective_function.parameter_space.random_dataframe(1000000))
-    #np_records = params_df.to_records(index=True)
-    #params_shared_memory = SharedMemory(name='params_np_array', size=np_records.nbytes, create=True)
-    #shared_memory_np_array = np.recarray(shape=np_records.shape, dtype=np_records.dtype, buf=params_shared_memory.buf)
-    #np.copyto(dst=shared_memory_np_array, src=np_records)
-
-
     shared_memory_data_set = SharedMemoryDataSet(schema=objective_function.parameter_space, shared_memory_name="params2")
     shared_memory_data_set.set_dataframe(df=objective_function.parameter_space.random_dataframe(11))
 
@@ -83,5 +65,7 @@ if __name__ == "__main__":
     worker.join()
 
     tree_shared_memory.unlink()
+
+    shared_memory_data_set.validate()
     shared_memory_data_set.unlink()
 

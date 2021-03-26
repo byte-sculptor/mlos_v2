@@ -14,6 +14,7 @@ from mlos.Spaces import CategoricalDimension, Hypergrid
 from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonDecoder, HypergridJsonEncoder
 
 from mlos.DataPlane.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
+from mlos.DataPlane.SharedMemoryDataSetView import SharedMemoryDataSetView
 
 
 class SharedMemoryDataSet(DataSetInterface):
@@ -115,6 +116,14 @@ class SharedMemoryDataSet(DataSetInterface):
         self._shared_memory = SharedMemory(name=self._shared_memory_name, create=True, size=self._shared_memory_np_array_nbytes)
         shared_memory_np_array = np.recarray(shape=self._shared_memory_np_array_shape, dtype=self._shared_memory_np_array_dtype, buf=self._shared_memory.buf)
         np.copyto(dst=shared_memory_np_array, src=np_records_array)
+
+    def validate(self):
+        # Validates that the dataframe in the shared memory is an exact copy of the dataframe in cache.
+        # This is useful to ensure that none of the clients is accidentally modifying the df.
+        #
+        data_set_view = SharedMemoryDataSetView(data_set_info=self.get_data_set_info())
+        df = data_set_view.get_dataframe()
+        assert df.equals(self._df)
 
 
 
