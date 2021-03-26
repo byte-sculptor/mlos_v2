@@ -9,32 +9,24 @@ import tracemalloc
 import time
 import pickle
 
-from mlos.DataPlane.SharedMemoryDataSet import SharedMemoryDataSet
+from mlos.DataPlane.SharedMemoryDataSet import SharedMemoryDataSet, SharedMemoryDataSetInfo
 
 
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.Spaces.HypergridAdapters import CategoricalToDiscreteHypergridAdapter
 
-def make_prediction(model_shared_memory_name, params_shared_memory_name, params_shape, params_dtype):
+def make_prediction(model_shared_memory_name, data_set_info: SharedMemoryDataSetInfo):
 
     tracemalloc.start()
 
     shared_memory = SharedMemory(name=model_shared_memory_name, create=False)
     unpickled_model = pickle.loads(shared_memory.buf)
-    objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config=objective_function_config_store.default)
-    parameter_space_adapter = CategoricalToDiscreteHypergridAdapter(adaptee=objective_function.parameter_space)
-
-    params_shared_memory = SharedMemory(name=params_shared_memory_name, create=False)
 
     current, peak = tracemalloc.get_traced_memory()
     print(f"Before: {current}, {peak}")
-    shared_memory_np_array = np.recarray(shape=params_shape, dtype=params_dtype, buf=params_shared_memory.buf)
-    print(f"np array size: {shared_memory_np_array.nbytes}")
-
-    current, peak = tracemalloc.get_traced_memory()
-    print(f"After creating np array: {current}, {peak}")
-    params_df = pd.DataFrame.from_records(data=shared_memory_np_array, columns=parameter_space_adapter.dimension_names, index='index')
+    shared_memory_data_set = SharedMemoryDataSet.create_from_shared_memory_data_set_info(data_set_info=data_set_info)
+    params_df = shared_memory_data_set.get_dataframe()
 
     current, peak = tracemalloc.get_traced_memory()
     print(f"After creating dataframe: {current}, {peak}")
@@ -45,7 +37,6 @@ def make_prediction(model_shared_memory_name, params_shared_memory_name, params_
 
     current, peak = tracemalloc.get_traced_memory()
     print(f"After predictions: {current}, {peak}")
-
 
 if __name__ == "__main__":
 
@@ -73,19 +64,19 @@ if __name__ == "__main__":
 
     # Now let's put some parameters in shared memory.
     #
-    params_df = parameter_space_adapter.project_dataframe(objective_function.parameter_space.random_dataframe(1000000))
-    np_records = params_df.to_records(index=True)
+    #params_df = parameter_space_adapter.project_dataframe(objective_function.parameter_space.random_dataframe(1000000))
+    #np_records = params_df.to_records(index=True)
+    #params_shared_memory = SharedMemory(name='params_np_array', size=np_records.nbytes, create=True)
+    #shared_memory_np_array = np.recarray(shape=np_records.shape, dtype=np_records.dtype, buf=params_shared_memory.buf)
+    #np.copyto(dst=shared_memory_np_array, src=np_records)
 
-    params_shared_memory = SharedMemory(name='params_np_array', size=np_records.nbytes, create=True)
-    shared_memory_np_array = np.recarray(shape=np_records.shape, dtype=np_records.dtype, buf=params_shared_memory.buf)
-    np.copyto(dst=shared_memory_np_array, src=np_records)
 
+    shared_memory_data_set = SharedMemoryDataSet(schema=objective_function.parameter_space, shared_memory_name="params")
+    shared_memory_data_set.set_dataframe(df=objective_function.parameter_space.random_dataframe(11))
 
     worker = Process(target=make_prediction, kwargs={
         'model_shared_memory_name': 'pickled_tree',
-        'params_shared_memory_name': 'params_np_array',
-        'params_shape': np_records.shape,
-        'params_dtype': np_records.dtype
+        'data_set_info': shared_memory_data_set.get_data_set_info(),
     })
     worker.start()
     worker.join()
@@ -93,5 +84,3 @@ if __name__ == "__main__":
     tree_shared_memory.unlink()
     params_shared_memory.unlink()
 
-    shared_memory_data_set = SharedMemoryDataSet(schema=objective_function.parameter_space, shared_memory_name="params")
-    shared_memory_data_set.set_dataframe(df=objective_function.parameter_space.random_dataframe(11))

@@ -2,13 +2,34 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+import json
 from multiprocessing.shared_memory import SharedMemory
+from typing import Tuple
 
 import numpy as np
 import pandas as pd
 
 from mlos.DataPlane.DataSetInterface import DataSetInterface
 from mlos.Spaces import CategoricalDimension, Hypergrid
+from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonDecoder, HypergridJsonEncoder
+
+class SharedMemoryDataSetInfo:
+    """Maintains all information required to connect to this data set and read its data."""
+
+    def __init__(
+        self,
+        schema: Hypergrid,
+        shared_memory_name: str,
+        shared_memory_np_array_nbytes: int,
+        shared_memory_np_array_shape: Tuple[int, int],
+        shared_memory_np_array_dtype: np.dtype
+    ):
+        self.schema = schema
+        self.shared_memory_name = shared_memory_name
+        self.shared_memory_np_array_nbytes = shared_memory_np_array_nbytes
+        self.shared_memory_np_array_shape = shared_memory_np_array_shape
+        self.shared_memory_np_array_dtype = shared_memory_np_array_dtype
+
 
 
 class SharedMemoryDataSet(DataSetInterface):
@@ -16,7 +37,14 @@ class SharedMemoryDataSet(DataSetInterface):
 
     """
 
-    def __init__(self, schema: Hypergrid, shared_memory_name: str):
+    def __init__(
+        self,
+        schema: Hypergrid,
+        shared_memory_name: str,
+        shared_memory_np_array_nbytes: int = None,
+        shared_memory_np_array_shape: Tuple[int, int] = None,
+        shared_memory_np_array_dtype: np.dtype = None
+    ):
 
         # Let's make sure that all categorical dimensions are numeric.
         # TODO: make it part of the Dimension interface
@@ -27,15 +55,50 @@ class SharedMemoryDataSet(DataSetInterface):
         self.schema = schema
         self._shared_memory_name = shared_memory_name
         self._shared_memory = None
-        self._source_df: pd.DataFrame = None
+        self._df: pd.DataFrame = None
 
-        self._shared_memory_np_array_nbytes = None
-        self._shared_memory_np_array_shape = None
-        self._shared_memory_np_array_dtype = None
+        self._shared_memory_np_array_nbytes = shared_memory_np_array_nbytes
+        self._shared_memory_np_array_shape = shared_memory_np_array_shape
+        self._shared_memory_np_array_dtype = shared_memory_np_array_dtype
+
+    @classmethod
+    def create_from_shared_memory_data_set_info(cls, data_set_info: SharedMemoryDataSetInfo):
+        # TODO: move this to a DataSetView
+        #
+        shared_memory_data_set = SharedMemoryDataSet(
+            schema=json.loads(data_set_info.schema, cls=HypergridJsonDecoder),
+            shared_memory_name=data_set_info.shared_memory_name,
+            shared_memory_np_array_nbytes=data_set_info.shared_memory_np_array_nbytes,
+            shared_memory_np_array_shape=data_set_info.shared_memory_np_array_shape,
+            shared_memory_np_array_dtype=data_set_info.shared_memory_np_array_dtype
+        )
+        return shared_memory_data_set
+
+    def get_data_set_info(self):
+        return SharedMemoryDataSetInfo(
+            schema=json.dumps(self.schema, cls=HypergridJsonEncoder),
+            shared_memory_name=self._shared_memory_name,
+            shared_memory_np_array_nbytes=self._shared_memory_np_array_nbytes,
+            shared_memory_np_array_shape=self._shared_memory_np_array_shape,
+            shared_memory_np_array_dtype=self._shared_memory_np_array_dtype
+        )
+
+    def get_dataframe(self):
+        if self._shared_memory is None:
+            self._shared_memory = SharedMemory(name=self._shared_memory_name, create=False)
+
+        shared_memory_np_records_array = np.recarray(
+            shape=self._shared_memory_np_array_shape,
+            dtype=self._shared_memory_np_array_dtype,
+            buf=self._shared_memory.buf
+        )
+        df = pd.DataFrame.from_records(data=shared_memory_np_records_array, columns=self.schema.dimension_names, index='index')
+        return df
+
 
     def set_dataframe(self, df: pd.DataFrame):
         assert df in self.schema
-        self._source_df = df
+        self._df = df
 
         # Now let's put it in shared memory. We can attempt two ways:
         #   1. using the to_numpy call on the entire df - causes a few copies
