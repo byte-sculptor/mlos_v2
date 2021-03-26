@@ -1,34 +1,18 @@
+#
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+#
 from multiprocessing.shared_memory import SharedMemory
-from multiprocessing import Process
-import pandas as pd
+from multiprocessing import Event, Process, Queue
 import pickle
+import time
 
-
+from mlos.DataPlane.ModelHosting.SharedMemoryModelHost import start_shared_memory_model_host
+from mlos.DataPlane.ModelHosting.ModelHostMessages import PredictRequest
 from mlos.DataPlane.SharedMemoryDataSet import SharedMemoryDataSet
-from mlos.DataPlane.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
-from mlos.DataPlane.SharedMemoryDataSetView import SharedMemoryDataSetView
-
-
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.Spaces.HypergridAdapters import CategoricalToDiscreteHypergridAdapter
-
-def make_prediction(model_shared_memory_name, data_set_info: SharedMemoryDataSetInfo):
-
-    shared_memory = SharedMemory(name=model_shared_memory_name, create=False)
-    unpickled_model = pickle.loads(shared_memory.buf)
-
-    data_set_view = SharedMemoryDataSetView(data_set_info=data_set_info)
-    params_df = data_set_view.get_dataframe()
-
-    pd.set_option('max_columns', None)
-    print(params_df)
-
-    prediction = unpickled_model.predict(params_df)
-    print(prediction.get_dataframe().describe())
-
-    data_set_view.detach()
-
 
 if __name__ == "__main__":
 
@@ -57,15 +41,31 @@ if __name__ == "__main__":
     shared_memory_data_set = SharedMemoryDataSet(schema=objective_function.parameter_space, shared_memory_name="params2")
     shared_memory_data_set.set_dataframe(df=objective_function.parameter_space.random_dataframe(11))
 
-    worker = Process(target=make_prediction, kwargs={
-        'model_shared_memory_name': 'pickled_tree',
-        'data_set_info': shared_memory_data_set.get_data_set_info(),
-    })
-    worker.start()
-    worker.join()
+    request_queue = Queue()
+    response_queue = Queue()
+    shutdown_event = Event()
+    model_host_process = Process(
+        target=start_shared_memory_model_host,
+        kwargs=dict(
+            request_queue=request_queue,
+            response_queue=response_queue,
+            shutdown_event=shutdown_event
+        )
+    )
+    model_host_process.start()
 
-    tree_shared_memory.unlink()
+    # Let's make the host produce the prediction.
+    #
+    predict_request = PredictRequest(model_id='pickled_tree', data_set_info=shared_memory_data_set.get_data_set_info())
+    request_queue.put(predict_request)
+
+    time.sleep(2)
+    print("Setting the shutdown event")
+    shutdown_event.set()
+    print("Waiting for host to exit.")
+    model_host_process.join()
 
     shared_memory_data_set.validate()
     shared_memory_data_set.unlink()
+
 
