@@ -2,6 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+from contextlib import contextmanager
 import json
 from multiprocessing.shared_memory import SharedMemory
 
@@ -12,6 +13,12 @@ from mlos.DataPlane.DataSetViewInterface import DataSetViewInterface
 from mlos.DataPlane.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
 from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonDecoder
 
+@contextmanager
+def attached_data_set_view(data_set_info: SharedMemoryDataSetInfo):
+    """Context manager to help with resource cleanup."""
+    data_set_view = SharedMemoryDataSetView(data_set_info=data_set_info)
+    yield data_set_view
+    data_set_view.detach()
 
 class SharedMemoryDataSetView(DataSetViewInterface):
     """Allows to view a dataframe stored in shared memory.
