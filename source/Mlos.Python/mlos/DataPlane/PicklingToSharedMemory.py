@@ -8,35 +8,43 @@ import pandas as pd
 import tracemalloc
 import time
 import pickle
+import json
 
-from mlos.DataPlane.SharedMemoryDataSet import SharedMemoryDataSet, SharedMemoryDataSetInfo
+
+from mlos.DataPlane.SharedMemoryDataSet import SharedMemoryDataSet
+from mlos.DataPlane.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
+from mlos.DataPlane.SharedMemoryDataSetView import SharedMemoryDataSetView
 
 
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.Spaces.HypergridAdapters import CategoricalToDiscreteHypergridAdapter
+from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonDecoder
 
 def make_prediction(model_shared_memory_name, data_set_info: SharedMemoryDataSetInfo):
-
-    tracemalloc.start()
 
     shared_memory = SharedMemory(name=model_shared_memory_name, create=False)
     unpickled_model = pickle.loads(shared_memory.buf)
 
-    current, peak = tracemalloc.get_traced_memory()
-    print(f"Before: {current}, {peak}")
-    shared_memory_data_set = SharedMemoryDataSet.create_from_shared_memory_data_set_info(data_set_info=data_set_info)
-    params_df = shared_memory_data_set.get_dataframe()
+    schema = json.loads(data_set_info.schema_json_str, cls=HypergridJsonDecoder)
+    shared_memory = SharedMemory(name=data_set_info.shared_memory_name, create=False)
+    shared_memory_np_records_array = np.recarray(
+        shape=data_set_info.shared_memory_np_array_shape,
+        dtype=data_set_info.shared_memory_np_array_dtype,
+        buf=shared_memory.buf
+    )
+    df = pd.DataFrame.from_records(data=shared_memory_np_records_array, columns=schema.dimension_names, index='index')
+    shared_memory.close()
+    params_df = df
 
-    current, peak = tracemalloc.get_traced_memory()
-    print(f"After creating dataframe: {current}, {peak}")
+    #params_df = SharedMemoryDataSetView.get_dataframe(data_set_info=data_set_info)
+
+    pd.set_option('max_columns', None)
+    print(params_df)
 
     prediction = unpickled_model.predict(params_df)
-    pd.set_option('max_columns', None)
     print(prediction.get_dataframe().describe())
 
-    current, peak = tracemalloc.get_traced_memory()
-    print(f"After predictions: {current}, {peak}")
 
 if __name__ == "__main__":
 
@@ -71,7 +79,7 @@ if __name__ == "__main__":
     #np.copyto(dst=shared_memory_np_array, src=np_records)
 
 
-    shared_memory_data_set = SharedMemoryDataSet(schema=objective_function.parameter_space, shared_memory_name="params")
+    shared_memory_data_set = SharedMemoryDataSet(schema=objective_function.parameter_space, shared_memory_name="params2")
     shared_memory_data_set.set_dataframe(df=objective_function.parameter_space.random_dataframe(11))
 
     worker = Process(target=make_prediction, kwargs={
@@ -82,5 +90,5 @@ if __name__ == "__main__":
     worker.join()
 
     tree_shared_memory.unlink()
-    params_shared_memory.unlink()
+    shared_memory_data_set.unlink()
 

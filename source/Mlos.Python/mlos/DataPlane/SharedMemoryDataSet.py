@@ -13,23 +13,7 @@ from mlos.DataPlane.DataSetInterface import DataSetInterface
 from mlos.Spaces import CategoricalDimension, Hypergrid
 from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonDecoder, HypergridJsonEncoder
 
-class SharedMemoryDataSetInfo:
-    """Maintains all information required to connect to this data set and read its data."""
-
-    def __init__(
-        self,
-        schema: Hypergrid,
-        shared_memory_name: str,
-        shared_memory_np_array_nbytes: int,
-        shared_memory_np_array_shape: Tuple[int, int],
-        shared_memory_np_array_dtype: np.dtype
-    ):
-        self.schema = schema
-        self.shared_memory_name = shared_memory_name
-        self.shared_memory_np_array_nbytes = shared_memory_np_array_nbytes
-        self.shared_memory_np_array_shape = shared_memory_np_array_shape
-        self.shared_memory_np_array_dtype = shared_memory_np_array_dtype
-
+from mlos.DataPlane.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
 
 
 class SharedMemoryDataSet(DataSetInterface):
@@ -61,12 +45,16 @@ class SharedMemoryDataSet(DataSetInterface):
         self._shared_memory_np_array_shape = shared_memory_np_array_shape
         self._shared_memory_np_array_dtype = shared_memory_np_array_dtype
 
+    def unlink(self):
+        self._shared_memory.unlink()
+        self._shared_memory = None
+
     @classmethod
     def create_from_shared_memory_data_set_info(cls, data_set_info: SharedMemoryDataSetInfo):
         # TODO: move this to a DataSetView
         #
         shared_memory_data_set = SharedMemoryDataSet(
-            schema=json.loads(data_set_info.schema, cls=HypergridJsonDecoder),
+            schema=json.loads(data_set_info.schema_json_str, cls=HypergridJsonDecoder),
             shared_memory_name=data_set_info.shared_memory_name,
             shared_memory_np_array_nbytes=data_set_info.shared_memory_np_array_nbytes,
             shared_memory_np_array_shape=data_set_info.shared_memory_np_array_shape,
@@ -76,7 +64,7 @@ class SharedMemoryDataSet(DataSetInterface):
 
     def get_data_set_info(self):
         return SharedMemoryDataSetInfo(
-            schema=json.dumps(self.schema, cls=HypergridJsonEncoder),
+            schema_json_str=json.dumps(self.schema, cls=HypergridJsonEncoder),
             shared_memory_name=self._shared_memory_name,
             shared_memory_np_array_nbytes=self._shared_memory_np_array_nbytes,
             shared_memory_np_array_shape=self._shared_memory_np_array_shape,
@@ -117,7 +105,7 @@ class SharedMemoryDataSet(DataSetInterface):
             # TODO: put a lock around this just to be sure!
             #
             # For now let's unlink any previous version of this dataframe - this should return the memory to the allocator. Later: reuse!
-            self._shared_memory.unlink()
+            self.unlink()
 
         np_records_array = df.to_records(index=True)
 
