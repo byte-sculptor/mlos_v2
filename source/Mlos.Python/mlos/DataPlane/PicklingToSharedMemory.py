@@ -26,24 +26,17 @@ def make_prediction(model_shared_memory_name, data_set_info: SharedMemoryDataSet
     shared_memory = SharedMemory(name=model_shared_memory_name, create=False)
     unpickled_model = pickle.loads(shared_memory.buf)
 
-    schema = json.loads(data_set_info.schema_json_str, cls=HypergridJsonDecoder)
-    shared_memory = SharedMemory(name=data_set_info.shared_memory_name, create=False)
-    shared_memory_np_records_array = np.recarray(
-        shape=data_set_info.shared_memory_np_array_shape,
-        dtype=data_set_info.shared_memory_np_array_dtype,
-        buf=shared_memory.buf
-    )
-    df = pd.DataFrame.from_records(data=shared_memory_np_records_array, columns=schema.dimension_names, index='index')
-    shared_memory.close()
-    params_df = df
-
-    #params_df = SharedMemoryDataSetView.get_dataframe(data_set_info=data_set_info)
+    data_set_view = SharedMemoryDataSetView(data_set_info=data_set_info)
+    params_df = data_set_view.get_dataframe()
 
     pd.set_option('max_columns', None)
     print(params_df)
 
     prediction = unpickled_model.predict(params_df)
     print(prediction.get_dataframe().describe())
+
+    data_set_view.detach()
+
 
 
 if __name__ == "__main__":
