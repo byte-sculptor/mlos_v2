@@ -103,23 +103,30 @@ if __name__ == "__main__":
 
         # Let's make the host produced the prediction.
         #
-        num_predict_requests = 20000
-        for i in range(num_predict_requests):
-            predict_request = PredictRequest(model_id=last_train_response.trained_model_id, data_set_info=shared_memory_data_set.get_data_set_info())
-            request_queue.put(predict_request)
+        desired_number_requests = 200000
+        max_outstanding_requests = 1000
+        num_outstanding_requests = 0
+        num_complete_requests = 0
+
+        while num_complete_requests < desired_number_requests:
+            print(f"num_outstanding_requests: {num_outstanding_requests} / {max_outstanding_requests}, num_complete_requests: {num_complete_requests} / {desired_number_requests}")
+            while num_outstanding_requests < max_outstanding_requests and (num_complete_requests + num_outstanding_requests) < desired_number_requests:
+                predict_request = PredictRequest(model_id=last_train_response.trained_model_id, data_set_info=shared_memory_data_set.get_data_set_info())
+                request_queue.put(predict_request)
+                num_outstanding_requests += 1
 
 
-        num_predict_responses = 0
-        response_timeout_s = 1000
-        pd.set_option('max_columns', None)
-        while num_predict_responses < num_predict_requests:
-            predict_response: PredictResponse = response_queue.get(block=True, timeout=response_timeout_s)
-            num_predict_responses += 1
+            response_timeout_s = 30
 
-            if not predict_response.success:
-                raise predict_response.exception
+            if num_outstanding_requests > 0:
+                predict_response: PredictResponse = response_queue.get(block=True, timeout=response_timeout_s)
+                num_outstanding_requests -= 1
+                num_complete_requests += 1
 
-            print(predict_response.prediction.get_dataframe().describe())
+                if not predict_response.success:
+                    raise predict_response.exception
+
+                assert len(predict_response.prediction.get_dataframe().index) == 100000
 
     finally:
         print("Setting the shutdown event")
