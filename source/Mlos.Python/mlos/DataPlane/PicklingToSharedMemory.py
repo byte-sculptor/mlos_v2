@@ -58,8 +58,12 @@ if __name__ == "__main__":
 
         last_train_request_id = None
         num_requests = 10
+
+        params_data_sets = []
+        objectives_data_sets = []
+
         for i in range(num_requests):
-            num_samples = (i + 1) * 1000
+            num_samples = (i + 1) * 10000
             # Let's fit the model remotely.
             #
             params_df = objective_function.parameter_space.random_dataframe(num_samples)
@@ -67,11 +71,14 @@ if __name__ == "__main__":
             projected_params_df = parameter_space_adapter.project_dataframe(params_df, in_place=True)
 
 
-            params_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target, shared_memory_name='params')
+            params_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target, shared_memory_name=f'params{i}')
             params_data_set.set_dataframe(df=projected_params_df)
 
-            objective_data_set = SharedMemoryDataSet(schema=objective_function.output_space, shared_memory_name='objectives')
+            objective_data_set = SharedMemoryDataSet(schema=objective_function.output_space, shared_memory_name=f'objectives{i}')
             objective_data_set.set_dataframe(df=objectives_df)
+
+            params_data_sets.append(params_data_set)
+            objectives_data_sets.append(objective_data_set)
 
             train_request = TrainRequest(
                 untrained_model_id=untrained_model_name,
@@ -98,13 +105,14 @@ if __name__ == "__main__":
 
 
         shared_memory_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target, shared_memory_name="features_for_predict")
-        shared_memory_data_set.set_dataframe(df=parameter_space_adapter.random_dataframe(100000))
+        num_predictions = 1000000
+        shared_memory_data_set.set_dataframe(df=parameter_space_adapter.random_dataframe(num_predictions))
 
 
         # Let's make the host produced the prediction.
         #
         desired_number_requests = 200000
-        max_outstanding_requests = 1000
+        max_outstanding_requests = 100
         num_outstanding_requests = 0
         num_complete_requests = 0
 
@@ -126,7 +134,7 @@ if __name__ == "__main__":
                 if not predict_response.success:
                     raise predict_response.exception
 
-                assert len(predict_response.prediction.get_dataframe().index) == 100000
+                assert len(predict_response.prediction.get_dataframe().index) == num_predictions
 
     finally:
         print("Setting the shutdown event")
