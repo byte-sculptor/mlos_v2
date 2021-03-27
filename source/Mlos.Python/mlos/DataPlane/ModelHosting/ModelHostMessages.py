@@ -5,6 +5,7 @@
 from uuid import UUID, uuid4
 
 from mlos.DataPlane.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
+from mlos.DataPlane.ModelHosting import SharedMemoryBackedModelInfo
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 
 # TODO: convert all of this to gRPC so that models can be executed remotely and in any language.
@@ -30,9 +31,9 @@ class Response:
 class PredictRequest(Request):
     """Request for the host to produce predictions."""
 
-    def __init__(self, model_id: str, data_set_info: SharedMemoryDataSetInfo, request_id: UUID = None):
+    def __init__(self, model_info: SharedMemoryBackedModelInfo, data_set_info: SharedMemoryDataSetInfo, request_id: UUID = None):
         Request.__init__(self, request_id=request_id)
-        self.model_id = model_id
+        self.model_info: SharedMemoryBackedModelInfo = model_info
         self.data_set_info = data_set_info
 
 
@@ -55,14 +56,14 @@ class TrainRequest(Request):
     """
     def __init__(
         self,
-        untrained_model_id: str,
+        model_info: SharedMemoryBackedModelInfo,
         features_data_set_info: SharedMemoryDataSetInfo,
         objectives_data_set_info: SharedMemoryDataSetInfo,
         iteration_number: int,
         request_id: UUID = None
     ):
         Request.__init__(self, request_id=request_id)
-        self.untrained_model_id: str = untrained_model_id
+        self.model_info: SharedMemoryBackedModelInfo = model_info
         self.features_data_set_info: SharedMemoryDataSetInfo = features_data_set_info
         self.objectives_data_set_info: SharedMemoryDataSetInfo = objectives_data_set_info
         self.iteration_number = iteration_number
@@ -70,6 +71,6 @@ class TrainRequest(Request):
 
 class TrainResponse(Response):
 
-    def __init__(self, trained_model_id: str, request_id: UUID):
+    def __init__(self, model_info: SharedMemoryBackedModelInfo, request_id: UUID):
         Response.__init__(self, request_id=request_id)
-        self.trained_model_id: str = trained_model_id
+        self.model_info: SharedMemoryBackedModelInfo = model_info

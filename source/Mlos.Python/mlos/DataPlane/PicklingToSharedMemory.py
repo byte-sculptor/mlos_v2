@@ -2,15 +2,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-from multiprocessing.shared_memory import SharedMemory
 from multiprocessing import Event, Process, Queue
-import pickle
-import time
-
-import pandas as pd
 
 from mlos.DataPlane.ModelHosting.SharedMemoryModelHost import start_shared_memory_model_host
-from mlos.DataPlane.ModelHosting.ModelHostMessages import PredictRequest, PredictResponse, TrainRequest, TrainResponse
+from mlos.DataPlane.ModelHosting import PredictRequest, PredictResponse, TrainRequest, TrainResponse, SharedMemoryBackedModelWriter
 from mlos.DataPlane.SharedMemoryDataSet import SharedMemoryDataSet
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
@@ -25,7 +20,7 @@ if __name__ == "__main__":
     model_host_processes = []
 
     try:
-        for i in range(8):
+        for i in range(12):
             model_host_process = Process(
                 target=start_shared_memory_model_host,
                 kwargs=dict(
@@ -49,12 +44,9 @@ if __name__ == "__main__":
 
         # Let's put the tree in the shared memory.
         #
-        pickled_model = pickle.dumps(model)
-        print(f"pickled model size: {len(pickled_model)}")
         untrained_model_name = 'untrained_tree'
-        tree_shared_memory = SharedMemory(name=untrained_model_name, size=len(pickled_model), create=True)
-        tree_shared_memory.buf[:] = pickled_model
-
+        model_writer = SharedMemoryBackedModelWriter(model_id=untrained_model_name)
+        model_writer.set_model(model=model)
 
         last_train_request_id = None
         num_requests = 10
@@ -81,12 +73,11 @@ if __name__ == "__main__":
             objectives_data_sets.append(objective_data_set)
 
             train_request = TrainRequest(
-                untrained_model_id=untrained_model_name,
+                model_info=model_writer.get_model_info(),
                 features_data_set_info=params_data_set.get_data_set_info(),
                 objectives_data_set_info=objective_data_set.get_data_set_info(),
                 iteration_number=num_samples
             )
-
 
             last_train_request_id = train_request.request_id
             request_queue.put(train_request)
@@ -111,7 +102,7 @@ if __name__ == "__main__":
 
         # Let's make the host produced the prediction.
         #
-        desired_number_requests = 200000
+        desired_number_requests = 100
         max_outstanding_requests = 100
         num_outstanding_requests = 0
         num_complete_requests = 0
@@ -119,7 +110,7 @@ if __name__ == "__main__":
         while num_complete_requests < desired_number_requests:
             print(f"num_outstanding_requests: {num_outstanding_requests} / {max_outstanding_requests}, num_complete_requests: {num_complete_requests} / {desired_number_requests}")
             while num_outstanding_requests < max_outstanding_requests and (num_complete_requests + num_outstanding_requests) < desired_number_requests:
-                predict_request = PredictRequest(model_id=last_train_response.trained_model_id, data_set_info=shared_memory_data_set.get_data_set_info())
+                predict_request = PredictRequest(model_info=last_train_response.model_info, data_set_info=shared_memory_data_set.get_data_set_info())
                 request_queue.put(predict_request)
                 num_outstanding_requests += 1
 
@@ -146,5 +137,6 @@ if __name__ == "__main__":
 
         shared_memory_data_set.validate()
         shared_memory_data_set.unlink()
+        model_writer.unlink()
 
 

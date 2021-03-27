@@ -47,21 +47,9 @@ class SharedMemoryDataSet(DataSetInterface):
         self._shared_memory_np_array_dtype = shared_memory_np_array_dtype
 
     def unlink(self):
-        self._shared_memory.unlink()
-        self._shared_memory = None
-
-    @classmethod
-    def create_from_shared_memory_data_set_info(cls, data_set_info: SharedMemoryDataSetInfo):
-        # TODO: move this to a DataSetView
-        #
-        shared_memory_data_set = SharedMemoryDataSet(
-            schema=json.loads(data_set_info.schema_json_str, cls=HypergridJsonDecoder),
-            shared_memory_name=data_set_info.shared_memory_name,
-            shared_memory_np_array_nbytes=data_set_info.shared_memory_np_array_nbytes,
-            shared_memory_np_array_shape=data_set_info.shared_memory_np_array_shape,
-            shared_memory_np_array_dtype=data_set_info.shared_memory_np_array_dtype
-        )
-        return shared_memory_data_set
+        if self._shared_memory is not None:
+            self._shared_memory.unlink()
+            self._shared_memory = None
 
     def get_data_set_info(self):
         return SharedMemoryDataSetInfo(
@@ -84,7 +72,6 @@ class SharedMemoryDataSet(DataSetInterface):
         df = pd.DataFrame.from_records(data=shared_memory_np_records_array, columns=self.schema.dimension_names, index='index')
         return df
 
-
     def set_dataframe(self, df: pd.DataFrame):
         assert df in self.schema
         self._df = df
@@ -100,7 +87,6 @@ class SharedMemoryDataSet(DataSetInterface):
         #
         # So let's start with the first one to get it working and we will unlink and create new shared memory every time. We can
         # optimize all of this later.
-
 
         if self._shared_memory is not None:
             # TODO: put a lock around this just to be sure!
@@ -124,12 +110,3 @@ class SharedMemoryDataSet(DataSetInterface):
         data_set_view = SharedMemoryDataSetView(data_set_info=self.get_data_set_info())
         df = data_set_view.get_dataframe()
         assert df.equals(self._df)
-
-
-
-
-
-
-
-
-

@@ -9,9 +9,9 @@ import os
 import pickle
 from queue import Empty
 from typing import Dict
-import time
 
-from mlos.DataPlane.ModelHosting.ModelHostMessages import Response, PredictRequest, PredictResponse, TrainRequest, TrainResponse
+from mlos.DataPlane.ModelHosting import Response, PredictRequest, PredictResponse, TrainRequest, TrainResponse, \
+    SharedMemoryBackedModelReader, SharedMemoryBackedModelWriter
 from mlos.DataPlane.SharedMemoryDataSetView import attached_data_set_view
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel
@@ -87,7 +87,7 @@ class SharedMemoryModelHost:
 
         # We need to keep a reference to SharedMemory objects, or they will be garbage collected.
         #
-        self._shared_memory_cache: Dict[str, SharedMemory] = dict()
+        self._shared_memory_cache: Dict[str, SharedMemoryBackedModelWriter] = dict()
 
     def run(self):
         self.logger.info(f'{os.getpid()} running')
@@ -115,17 +115,16 @@ class SharedMemoryModelHost:
 
     @request_handler()
     def _process_predict_request(self, request: PredictRequest):
-        if request.model_id in self._model_cache:
-            self.logger.info(f"{os.getpid()} Model id: {request.model_id} found in cache.")
-            model = self._model_cache[request.model_id]
+        if request.model_info.model_id in self._model_cache:
+            self.logger.info(f"{os.getpid()} Model id: {request.model_info.model_id} found in cache.")
+            model = self._model_cache[request.model_info.model_id]
         else:
-            self.logger.info(f"{os.getpid()} Model id: {request.model_id} not found in cache. Deserializing from shared memory.")
-            model_shared_memory = SharedMemory(name=request.model_id, create=False)
-            model = pickle.loads(model_shared_memory.buf)
-            assert isinstance(model, RegressionModel)
-            self._model_cache[request.model_id] = model
-            model_shared_memory.close()
-            self.logger.info(f"{os.getpid()} Model id: {request.model_id} deserialized from shared memory and placed in the cache.")
+            self.logger.info(f"{os.getpid()} Model id: {request.model_info.model_id} not found in cache. Deserializing from shared memory.")
+            model_reader = SharedMemoryBackedModelReader(shared_memory_model_info=request.model_info)
+            model = model_reader.get_model()
+            self._model_cache[request.model_info.model_id] = model
+            model_reader.detach()
+            self.logger.info(f"{os.getpid()} Model id: {request.model_info.model_id} deserialized from shared memory and placed in the cache.")
 
 
         with attached_data_set_view(data_set_info=request.data_set_info) as features_data_set_view:
@@ -140,15 +139,14 @@ class SharedMemoryModelHost:
             self.logger.info(f"{os.getpid()} Produced a response with {len(prediction.get_dataframe().index)} predictions.")
             return response
 
-
     @request_handler()
     def _process_train_request(self, request: TrainRequest):
-        self.logger.info(f"Deserializing model: {request.untrained_model_id} from shared memory.")
-        untrained_model_shared_memory = SharedMemory(name=request.untrained_model_id, create=False)
-        model = pickle.loads(untrained_model_shared_memory.buf)
-        untrained_model_shared_memory.close()
-        assert isinstance(model, RegressionModel)
-        self.logger.info(f"Successlly deserialized model: {request.untrained_model_id} from shared memory.")
+        self.logger.info(f"Deserializing model: {request.model_info.model_id} from shared memory.")
+
+        untrained_model_reader = SharedMemoryBackedModelReader(shared_memory_model_info=request.model_info)
+        model = untrained_model_reader.get_model()
+        untrained_model_reader.detach()
+        self.logger.info(f"Successlly deserialized model: {request.model_info.model_id} from shared memory.")
 
         with attached_data_set_view(data_set_info=request.features_data_set_info) as features_data_set_view, \
             attached_data_set_view(data_set_info=request.objectives_data_set_info) as objectives_data_set_view:
@@ -162,20 +160,20 @@ class SharedMemoryModelHost:
                 iteration_number=request.iteration_number
             )
 
-            trained_model_id = f"{request.untrained_model_id}_{request.iteration_number}"
-            pickled_model = pickle.dumps(model)
-            self.logger.info(f"{os.getpid()} Successfully trained the model {trained_model_id}, size: {len(pickled_model)}. Placing it in local cache and in shared memory.")
-            trained_model_shared_memory = SharedMemory(name=trained_model_id, create=True, size=len(pickled_model))
-            trained_model_shared_memory.buf[:] = pickled_model
-
-            unpickled_model = pickle.loads(trained_model_shared_memory.buf)
-            assert isinstance(unpickled_model, type(model))
+            trained_model_id = f"{request.model_info.model_id}_{request.iteration_number}"
+            self.logger.info(
+                f"{os.getpid()} Successfully trained the model {trained_model_id}. Placing it in local cache and in shared memory.")
+            model_writer = SharedMemoryBackedModelWriter(model_id=trained_model_id)
+            model_writer.set_model(model=model)
 
             self._model_cache[trained_model_id] = model
-            self._shared_memory_cache[trained_model_id] = trained_model_shared_memory
+
+            # We must keep a reference to the shared memory. We need to implement a mechanism to clear this cache.
+            #
+            self._shared_memory_cache[trained_model_id] = model_writer
 
             response = TrainResponse(
-                trained_model_id=trained_model_id,
+                model_info=model_writer.get_model_info(),
                 request_id=request.request_id
             )
 
