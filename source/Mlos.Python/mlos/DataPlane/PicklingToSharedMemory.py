@@ -25,7 +25,7 @@ if __name__ == "__main__":
     model_host_processes = []
 
     try:
-        for i in range(10):
+        for i in range(8):
             model_host_process = Process(
                 target=start_shared_memory_model_host,
                 kwargs=dict(
@@ -35,7 +35,7 @@ if __name__ == "__main__":
                 )
             )
             model_host_process.start()
-        model_host_processes.append(model_host_process)
+            model_host_processes.append(model_host_process)
 
 
         objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config=objective_function_config_store.default)
@@ -43,7 +43,7 @@ if __name__ == "__main__":
         parameter_space_adapter = CategoricalToDiscreteHypergridAdapter(adaptee=objective_function.parameter_space)
         model = DecisionTreeRegressionModel(
             model_config=model_config,
-            input_space=parameter_space_adapter,
+            input_space=parameter_space_adapter.target,
             output_space=objective_function.output_space
         )
 
@@ -59,11 +59,13 @@ if __name__ == "__main__":
         last_train_request_id = None
         num_requests = 10
         for i in range(num_requests):
+            num_samples = (i + 1) * 1000
             # Let's fit the model remotely.
             #
-            params_df = objective_function.parameter_space.random_dataframe(1000)
+            params_df = objective_function.parameter_space.random_dataframe(num_samples)
+            objectives_df = objective_function.evaluate_dataframe(params_df)
             projected_params_df = parameter_space_adapter.project_dataframe(params_df, in_place=True)
-            objectives_df = objective_function.evaluate_dataframe(projected_params_df)
+
 
             params_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target, shared_memory_name='params')
             params_data_set.set_dataframe(df=projected_params_df)
@@ -75,7 +77,7 @@ if __name__ == "__main__":
                 untrained_model_id=untrained_model_name,
                 features_data_set_info=params_data_set.get_data_set_info(),
                 objectives_data_set_info=objective_data_set.get_data_set_info(),
-                iteration_number=(i + 1) * 1000
+                iteration_number=num_samples
             )
 
 
@@ -95,21 +97,29 @@ if __name__ == "__main__":
                 last_train_response = train_response
 
 
-        shared_memory_data_set = SharedMemoryDataSet(schema=objective_function.parameter_space, shared_memory_name="features_for_predict")
-        shared_memory_data_set.set_dataframe(df=objective_function.parameter_space.random_dataframe(11))
+        shared_memory_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target, shared_memory_name="features_for_predict")
+        shared_memory_data_set.set_dataframe(df=parameter_space_adapter.random_dataframe(100000))
+
+
         # Let's make the host produced the prediction.
         #
-        predict_request = PredictRequest(model_id=last_train_response.trained_model_id, data_set_info=shared_memory_data_set.get_data_set_info())
-        request_queue.put(predict_request)
+        num_predict_requests = 20000
+        for i in range(num_predict_requests):
+            predict_request = PredictRequest(model_id=last_train_response.trained_model_id, data_set_info=shared_memory_data_set.get_data_set_info())
+            request_queue.put(predict_request)
 
+
+        num_predict_responses = 0
         response_timeout_s = 1000
-        predict_response: PredictResponse = response_queue.get(block=True, timeout=response_timeout_s)
-
-        if not predict_response.success:
-            raise predict_response.exception
-
         pd.set_option('max_columns', None)
-        print(predict_response.prediction.get_dataframe())
+        while num_predict_responses < num_predict_requests:
+            predict_response: PredictResponse = response_queue.get(block=True, timeout=response_timeout_s)
+            num_predict_responses += 1
+
+            if not predict_response.success:
+                raise predict_response.exception
+
+            print(predict_response.prediction.get_dataframe().describe())
 
     finally:
         print("Setting the shutdown event")

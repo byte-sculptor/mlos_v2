@@ -163,9 +163,8 @@ class SharedMemoryModelHost:
             )
 
             trained_model_id = f"{request.untrained_model_id}_{request.iteration_number}"
-            self.logger.info(f"{os.getpid()} Successfully trained the model {trained_model_id}. Placing it in local cache and in shared memory.")
-
             pickled_model = pickle.dumps(model)
+            self.logger.info(f"{os.getpid()} Successfully trained the model {trained_model_id}, size: {len(pickled_model)}. Placing it in local cache and in shared memory.")
             trained_model_shared_memory = SharedMemory(name=trained_model_id, create=True, size=len(pickled_model))
             trained_model_shared_memory.buf[:] = pickled_model
 
