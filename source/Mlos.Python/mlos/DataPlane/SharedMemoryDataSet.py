@@ -4,7 +4,7 @@
 #
 import json
 from multiprocessing.shared_memory import SharedMemory
-from typing import Tuple
+from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
@@ -24,21 +24,28 @@ class SharedMemoryDataSet(DataSetInterface):
 
     def __init__(
         self,
-        schema: Hypergrid,
         shared_memory_name: str,
+        column_names: List[str] = None,
+        schema: Hypergrid = None,
         shared_memory_np_array_nbytes: int = None,
         shared_memory_np_array_shape: Tuple[int, int] = None,
         shared_memory_np_array_dtype: np.dtype = None
     ):
+        assert (column_names is not None) or (schema is not None), "Either column_names or schema must be provided."
 
-        # Let's make sure that all categorical dimensions are numeric.
-        # TODO: make it part of the Dimension interface
-        for dimension in schema.dimensions:
-            if isinstance(dimension, CategoricalDimension):
-                assert dimension.is_numeric
+        if column_names is None:
+            column_names = schema.dimension_names
+        self.column_names = column_names
 
         self.schema = schema
-        self._shared_memory_name = shared_memory_name
+        if self.schema is not None:
+            # Let's make sure that all categorical dimensions are numeric.
+            # TODO: make it part of the Dimension interface
+            for dimension in schema.dimensions:
+                if isinstance(dimension, CategoricalDimension):
+                    assert dimension.is_numeric
+
+        self.shared_memory_name = shared_memory_name
         self._shared_memory = None
         self._df: pd.DataFrame = None
 
@@ -53,8 +60,9 @@ class SharedMemoryDataSet(DataSetInterface):
 
     def get_data_set_info(self):
         return SharedMemoryDataSetInfo(
+            column_names=self.column_names,
             schema_json_str=json.dumps(self.schema, cls=HypergridJsonEncoder),
-            shared_memory_name=self._shared_memory_name,
+            shared_memory_name=self.shared_memory_name,
             shared_memory_np_array_nbytes=self._shared_memory_np_array_nbytes,
             shared_memory_np_array_shape=self._shared_memory_np_array_shape,
             shared_memory_np_array_dtype=self._shared_memory_np_array_dtype
@@ -62,7 +70,7 @@ class SharedMemoryDataSet(DataSetInterface):
 
     def get_dataframe(self):
         if self._shared_memory is None:
-            self._shared_memory = SharedMemory(name=self._shared_memory_name, create=False)
+            self._shared_memory = SharedMemory(name=self.shared_memory_name, create=False)
 
         shared_memory_np_records_array = np.recarray(
             shape=self._shared_memory_np_array_shape,
@@ -73,7 +81,8 @@ class SharedMemoryDataSet(DataSetInterface):
         return df
 
     def set_dataframe(self, df: pd.DataFrame):
-        assert df in self.schema
+        if self.schema is not None:
+            assert df in self.schema
         self._df = df
 
         # Now let's put it in shared memory. We can attempt two ways:
@@ -99,7 +108,7 @@ class SharedMemoryDataSet(DataSetInterface):
         self._shared_memory_np_array_nbytes = np_records_array.nbytes
         self._shared_memory_np_array_shape = np_records_array.shape
         self._shared_memory_np_array_dtype = np_records_array.dtype
-        self._shared_memory = SharedMemory(name=self._shared_memory_name, create=True, size=self._shared_memory_np_array_nbytes)
+        self._shared_memory = SharedMemory(name=self.shared_memory_name, create=True, size=self._shared_memory_np_array_nbytes)
         shared_memory_np_array = np.recarray(shape=self._shared_memory_np_array_shape, dtype=self._shared_memory_np_array_dtype, buf=self._shared_memory.buf)
         np.copyto(dst=shared_memory_np_array, src=np_records_array)
 

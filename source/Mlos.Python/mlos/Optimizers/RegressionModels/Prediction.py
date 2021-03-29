@@ -96,6 +96,9 @@ class Prediction:
         else:
             self._dataframe.loc[dataframe.index, self.expected_column_names] = dataframe[self.expected_column_names]
 
+    def clear_dataframe(self):
+        self._dataframe = pd.DataFrame(columns=self.expected_column_names)
+
     def validate_dataframe(self, dataframe: pd.DataFrame):
 
         if not self.allow_extra_columns:

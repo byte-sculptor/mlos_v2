@@ -6,12 +6,15 @@ from multiprocessing import Event, Process, Queue
 
 from mlos.DataPlane.ModelHosting.SharedMemoryModelHost import start_shared_memory_model_host
 from mlos.DataPlane.ModelHosting import PredictRequest, PredictResponse, TrainRequest, TrainResponse, SharedMemoryBackedModelWriter
+from mlos.DataPlane.SharedMemoryDataSetView import SharedMemoryDataSetView
 from mlos.DataPlane.SharedMemoryDataSet import SharedMemoryDataSet
+from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.Spaces.HypergridAdapters import CategoricalToDiscreteHypergridAdapter
 
 if __name__ == "__main__":
+    logger = create_logger(__name__)
 
     request_queue = Queue()
     response_queue = Queue()
@@ -20,7 +23,7 @@ if __name__ == "__main__":
     model_host_processes = []
 
     try:
-        for i in range(12):
+        for i in range(8):
             model_host_process = Process(
                 target=start_shared_memory_model_host,
                 kwargs=dict(
@@ -102,15 +105,18 @@ if __name__ == "__main__":
 
         # Let's make the host produced the prediction.
         #
-        desired_number_requests = 100
+        desired_number_requests = 10000
         max_outstanding_requests = 100
         num_outstanding_requests = 0
         num_complete_requests = 0
 
         while num_complete_requests < desired_number_requests:
-            print(f"num_outstanding_requests: {num_outstanding_requests} / {max_outstanding_requests}, num_complete_requests: {num_complete_requests} / {desired_number_requests}")
+            logger.info(f"num_outstanding_requests: {num_outstanding_requests} / {max_outstanding_requests}, num_complete_requests: {num_complete_requests} / {desired_number_requests}")
+
             while num_outstanding_requests < max_outstanding_requests and (num_complete_requests + num_outstanding_requests) < desired_number_requests:
                 predict_request = PredictRequest(model_info=last_train_response.model_info, data_set_info=shared_memory_data_set.get_data_set_info())
+
+
                 request_queue.put(predict_request)
                 num_outstanding_requests += 1
 
@@ -123,17 +129,29 @@ if __name__ == "__main__":
                 num_complete_requests += 1
 
                 if not predict_response.success:
+                    logger.info(f"Request {predict_response.request_id} failed.")
                     raise predict_response.exception
 
-                assert len(predict_response.prediction.get_dataframe().index) == num_predictions
+                prediction_data_set_view = SharedMemoryDataSetView(data_set_info=predict_response.prediction_data_set_info)
+                prediction = predict_response.prediction
+                prediction_df = prediction_data_set_view.get_dataframe()
+                logger.info(f"Response to request:{predict_response.request_id} received ")
+                prediction.set_dataframe(dataframe=prediction_df)
+                assert len(prediction.get_dataframe().index) == num_predictions
+
+
+    except Exception as e:
+        logger.info("Exception: ", exc_info=True)
 
     finally:
-        print("Setting the shutdown event")
+        logger.info("Setting the shutdown event")
         shutdown_event.set()
-        print("Waiting for host to exit.")
+        logger.info("Waiting for host to exit.")
 
         for model_host_process in model_host_processes:
+            logger.info(f"Joining process {model_host_process.pid}")
             model_host_process.join()
+            logger.info(f"Process {model_host_process.pid} exited with exit code: {model_host_process.exitcode}")
 
         shared_memory_data_set.validate()
         shared_memory_data_set.unlink()

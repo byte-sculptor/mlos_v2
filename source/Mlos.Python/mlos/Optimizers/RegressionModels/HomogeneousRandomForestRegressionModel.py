@@ -7,8 +7,8 @@ import random
 
 import pandas as pd
 
-from mlos.Spaces import Dimension, Hypergrid, Point, SimpleHypergrid
-from mlos.Spaces.HypergridAdapters import HierarchicalToFlatHypergridAdapter, CategoricalToDiscreteHypergridAdapter
+from mlos.Spaces import Hypergrid, Point, SimpleHypergrid
+from mlos.Spaces.HypergridAdapters import CategoricalToDiscreteHypergridAdapter
 from mlos.Tracer import trace
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
@@ -48,7 +48,7 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
             logger=None
     ):
         if logger is None:
-            logger = create_logger("HomogeneousRandomForestRegressionModel")
+            logger = create_logger(self.__class__.__name__)
         self.logger = logger
 
         assert model_config in homogeneous_random_forest_config_store.parameter_space
@@ -65,7 +65,7 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
         self._input_space_adapter = CategoricalToDiscreteHypergridAdapter(adaptee=self.input_space)
 
         self.target_dimension_names = [dimension.name for dimension in self.output_space.dimensions]
-        assert len(self.target_dimension_names) == 1, "Single target predictions for now."
+        assert len(self.target_dimension_names) == 1, "This is a single-objective model"
 
         self._decision_trees = []
         self._create_estimators()

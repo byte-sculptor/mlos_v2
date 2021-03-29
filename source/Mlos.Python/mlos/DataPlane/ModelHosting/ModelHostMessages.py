@@ -45,9 +45,10 @@ class PredictResponse(Response):
     For now the response contains the pickled prediction, which imposes an additional serialziation/deserialization overhead.
     TODO: put the prediction in shared memory
     """
-    def __init__(self, prediction: Prediction, request_id: UUID):
+    def __init__(self, prediction: Prediction, prediction_data_set_info: SharedMemoryDataSetInfo, request_id: UUID):
         Response.__init__(self, request_id=request_id)
         self.prediction = prediction
+        self.prediction_data_set_info = prediction_data_set_info
 
 
 class TrainRequest(Request):

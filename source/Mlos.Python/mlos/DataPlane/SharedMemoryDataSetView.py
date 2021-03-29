@@ -27,6 +27,7 @@ class SharedMemoryDataSetView(DataSetViewInterface):
     def __init__(self, data_set_info: SharedMemoryDataSetInfo):
         self.data_set_info = data_set_info
         self.schema = json.loads(data_set_info.schema_json_str, cls=HypergridJsonDecoder)
+        self.column_names = data_set_info.column_names
         self._shared_memory = None
 
     def detach(self):
@@ -42,5 +43,5 @@ class SharedMemoryDataSetView(DataSetViewInterface):
             dtype=self.data_set_info.shared_memory_np_array_dtype,
             buf=self._shared_memory.buf
         )
-        df = pd.DataFrame.from_records(data=shared_memory_np_records_array, columns=self.schema.dimension_names, index='index')
+        df = pd.DataFrame.from_records(data=shared_memory_np_records_array, columns=self.column_names, index='index')
         return df

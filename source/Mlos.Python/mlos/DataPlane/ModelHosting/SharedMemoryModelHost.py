@@ -9,9 +9,11 @@ import os
 import pickle
 from queue import Empty
 from typing import Dict
+import sys
 
 from mlos.DataPlane.ModelHosting import Response, PredictRequest, PredictResponse, TrainRequest, TrainResponse, \
     SharedMemoryBackedModelReader, SharedMemoryBackedModelWriter
+from mlos.DataPlane.SharedMemoryDataSet import SharedMemoryDataSet
 from mlos.DataPlane.SharedMemoryDataSetView import attached_data_set_view
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel
@@ -89,29 +91,48 @@ class SharedMemoryModelHost:
         #
         self._shared_memory_cache: Dict[str, SharedMemoryBackedModelWriter] = dict()
 
+        # We need to keep a reference to prediction DataSets too. TODO: remember to forget.
+        #
+        self._prediction_data_sets: Dict[str, SharedMemoryDataSet] = dict()
+
     def run(self):
         self.logger.info(f'{os.getpid()} running')
         timeout_s = 1
         while not self.shutdown_event.is_set():
             try:
                 request = self.request_queue.get(block=True, timeout=timeout_s)
-                self.logger.info(f"{os.getpid()} Got request of type: {type(request)}")
+                request_id = request.request_id
+                self.logger.info(f"{os.getpid()} Got request {request_id} of type: {type(request)}")
             except Empty:
                 continue
 
-            if isinstance(request, PredictRequest):
-                response = self._process_predict_request(request=request)
-            elif isinstance(request, TrainRequest):
-                response = self._process_train_request(request=request)
-            else:
-                response = Response(
-                    request_id=request.request_id,
-                    success=False,
-                    exception=RuntimeError(f"Unknown request type: {type(request)}")
-                )
-            self.response_queue.put(response)
+            try:
+                if isinstance(request, PredictRequest):
+                    response = self._process_predict_request(request=request)
+                elif isinstance(request, TrainRequest):
+                    response = self._process_train_request(request=request)
+                else:
+                    response = Response(
+                        request_id=request.request_id,
+                        success=False,
+                        exception=RuntimeError(f"Unknown request type: {type(request)}")
+                    )
+                self.response_queue.put(response)
+
+            except:
+                self.logger.error(f"Failed to process request {request_id}")
+
+
+        self.logger.info(f"{os.getpid()} freeing up predictions memory")
+        for name, data_set in self._prediction_data_sets.items():
+            data_set.unlink()
+
+        self.logger.info(f"{os.getpid()} freeing up models memory")
+        for name, model in self._shared_memory_cache.items():
+            model.unlink()
 
         self.logger.info(f"{os.getpid()} shutting down")
+        sys.exit(0)
 
     @request_handler()
     def _process_predict_request(self, request: PredictRequest):
@@ -126,18 +147,28 @@ class SharedMemoryModelHost:
             model_reader.detach()
             self.logger.info(f"{os.getpid()} Model id: {request.model_info.model_id} deserialized from shared memory and placed in the cache.")
 
-
         with attached_data_set_view(data_set_info=request.data_set_info) as features_data_set_view:
             features_df = features_data_set_view.get_dataframe()
             prediction = model.predict(feature_values_pandas_frame=features_df, include_only_valid_rows=True)
 
-            # TODO: put predictions in shared memory and send the response.
-            response = PredictResponse(
-                request_id=request.request_id,
-                prediction=prediction
-            )
-            self.logger.info(f"{os.getpid()} Produced a response with {len(prediction.get_dataframe().index)} predictions.")
-            return response
+        prediction_data_set = SharedMemoryDataSet(
+            shared_memory_name=f"{request.request_id}.predictions",
+            column_names=prediction.expected_column_names
+        )
+        prediction_df = prediction.get_dataframe()
+        prediction_data_set.set_dataframe(df=prediction_df)
+        self._prediction_data_sets[prediction_data_set.shared_memory_name] = prediction_data_set
+
+        prediction.clear_dataframe()
+
+        # TODO: put predictions in shared memory and send the response.
+        response = PredictResponse(
+            request_id=request.request_id,
+            prediction=prediction,
+            prediction_data_set_info=prediction_data_set.get_data_set_info()
+        )
+        self.logger.info(f"{os.getpid()} Produced a response with {len(prediction_df.index)} predictions.")
+        return response
 
     @request_handler()
     def _process_train_request(self, request: TrainRequest):
