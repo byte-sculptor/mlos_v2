@@ -52,13 +52,17 @@ class SharedMemoryDataSet(DataSet):
         self._shared_memory = None
         self._df: pd.DataFrame = None
 
-        self._shared_memory_np_array_nbytes = shared_memory_np_array_nbytes
-        self._shared_memory_np_array_shape = shared_memory_np_array_shape
-        self._shared_memory_np_array_dtype = shared_memory_np_array_dtype
+        self.shared_memory_np_array_nbytes = shared_memory_np_array_nbytes
+        self.shared_memory_np_array_shape = shared_memory_np_array_shape
+        self.shared_memory_np_array_dtype = shared_memory_np_array_dtype
 
     @property
     def schema(self) -> Hypergrid:
         return self._schema
+
+    @property
+    def attached(self) -> bool:
+        return self._shared_memory is not None
 
     def unlink(self):
         if self._shared_memory is not None:
@@ -78,9 +82,9 @@ class SharedMemoryDataSet(DataSet):
         return SharedMemoryDataSetInfo(
             column_names=self.column_names,
             schema=self.schema,
-            shared_memory_np_array_nbytes=self._shared_memory_np_array_nbytes,
-            shared_memory_np_array_shape=self._shared_memory_np_array_shape,
-            shared_memory_np_array_dtype=self._shared_memory_np_array_dtype,
+            shared_memory_np_array_nbytes=self.shared_memory_np_array_nbytes,
+            shared_memory_np_array_shape=self.shared_memory_np_array_shape,
+            shared_memory_np_array_dtype=self.shared_memory_np_array_dtype,
             data_set_id=self.data_set_id
         )
 
@@ -89,11 +93,11 @@ class SharedMemoryDataSet(DataSet):
             self._shared_memory = SharedMemory(name=str(self.data_set_id), create=False)
 
         shared_memory_np_records_array = np.recarray(
-            shape=self._shared_memory_np_array_shape,
-            dtype=self._shared_memory_np_array_dtype,
+            shape=self.shared_memory_np_array_shape,
+            dtype=self.shared_memory_np_array_dtype,
             buf=self._shared_memory.buf
         )
-        df = pd.DataFrame.from_records(data=shared_memory_np_records_array, columns=self.schema.dimension_names, index='index')
+        df = pd.DataFrame.from_records(data=shared_memory_np_records_array, columns=self.column_names, index='index')
         return df
 
     def set_dataframe(self, df: pd.DataFrame) -> None:
@@ -121,11 +125,11 @@ class SharedMemoryDataSet(DataSet):
 
         np_records_array = df.to_records(index=True)
 
-        self._shared_memory_np_array_nbytes = np_records_array.nbytes
-        self._shared_memory_np_array_shape = np_records_array.shape
-        self._shared_memory_np_array_dtype = np_records_array.dtype
-        self._shared_memory = SharedMemory(name=str(self.data_set_id), create=True, size=self._shared_memory_np_array_nbytes)
-        shared_memory_np_array = np.recarray(shape=self._shared_memory_np_array_shape, dtype=self._shared_memory_np_array_dtype, buf=self._shared_memory.buf)
+        self.shared_memory_np_array_nbytes = np_records_array.nbytes
+        self.shared_memory_np_array_shape = np_records_array.shape
+        self.shared_memory_np_array_dtype = np_records_array.dtype
+        self._shared_memory = SharedMemory(name=str(self.data_set_id), create=True, size=self.shared_memory_np_array_nbytes)
+        shared_memory_np_array = np.recarray(shape=self.shared_memory_np_array_shape, dtype=self.shared_memory_np_array_dtype, buf=self._shared_memory.buf)
         np.copyto(dst=shared_memory_np_array, src=np_records_array)
 
     def validate(self) -> None:

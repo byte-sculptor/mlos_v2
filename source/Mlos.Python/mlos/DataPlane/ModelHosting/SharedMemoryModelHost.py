@@ -12,7 +12,7 @@ from uuid import UUID
 
 from mlos.DataPlane.ModelHosting import Response, PredictRequest, PredictResponse, TrainRequest, TrainResponse, \
     SharedMemoryBackedModelReader, SharedMemoryBackedModelWriter
-from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetStoreProxy, attached_data_set_view
+from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetInfo, SharedMemoryDataSetStoreProxy, attached_data_set_view
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel
 
@@ -79,12 +79,15 @@ class SharedMemoryModelHost:
         logger = None
     ):
         if logger is None:
-            logger = create_logger(self.__class__.__name__)
+            logger = create_logger(f"{self.__class__.__name__}_{os.getpid()}")
         self.logger = logger
         self.request_queue: Queue = request_queue
         self.response_queue: Queue = response_queue
         self.shutdown_event: Event = shutdown_event
-        self._data_set_store_proxy: SharedMemoryDataSetStoreProxy = SharedMemoryDataSetStoreProxy(service_connection=data_set_store_service_connection)
+        self._data_set_store_proxy: SharedMemoryDataSetStoreProxy = SharedMemoryDataSetStoreProxy(
+            service_connection=data_set_store_service_connection,
+            logger=logger
+        )
         self._model_cache: Dict[str, RegressionModel] = dict()
 
         # We need to keep a reference to SharedMemory objects, or they will be garbage collected.
@@ -151,12 +154,20 @@ class SharedMemoryModelHost:
             features_df = features_data_set_view.get_dataframe()
             prediction = model.predict(feature_values_pandas_frame=features_df, include_only_valid_rows=True)
 
-        prediction_data_set = SharedMemoryDataSet(
-            column_names=prediction.expected_column_names
-        )
+
         prediction_df = prediction.get_dataframe()
-        prediction_data_set.set_dataframe(df=prediction_df)
-        self._prediction_data_sets[prediction_data_set.data_set_id] = prediction_data_set
+
+
+        prediction_data_set = self._data_set_store_proxy.create_data_set(
+            data_set_info=SharedMemoryDataSetInfo(
+                schema=None,
+                column_names=prediction.expected_column_names
+            ),
+            df=prediction_df
+        )
+        prediction_data_set_info = prediction_data_set.get_data_set_info()
+        self._data_set_store_proxy.detach_data_set(data_set_info=prediction_data_set_info)
+
 
         prediction.clear_dataframe()
 
@@ -164,8 +175,9 @@ class SharedMemoryModelHost:
         response = PredictResponse(
             request_id=request.request_id,
             prediction=prediction,
-            prediction_data_set_info=prediction_data_set.get_data_set_info()
+            prediction_data_set_info=prediction_data_set_info
         )
+
         self.logger.info(f"{os.getpid()} Produced a response with {len(prediction_df.index)} predictions.")
         return response
 

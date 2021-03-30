@@ -24,6 +24,7 @@ class SharedMemoryDataSetInfo(DataSetInfo):
         shared_memory_np_array_dtype: np.dtype = None,
         data_set_id: UUID = None
     ):
+        assert (schema is not None) or (column_names is not None)
         self._schema = schema
         self.column_names = column_names
         self.schema_json_str = json.dumps(schema, cls=HypergridJsonEncoder)

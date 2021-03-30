@@ -10,12 +10,16 @@ import pandas as pd
 from mlos.DataPlane.Interfaces import DataSet, DataSetStore, DataSetInfo
 from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetStore, SharedMemoryDataSetView
 from mlos.DataPlane.SharedMemoryDataSets.Messages import Request, TakeDataSetOwnershipRequest, UnlinkDataSetRequest
+from mlos.Logger import create_logger
 
 class SharedMemoryDataSetStoreProxy(DataSetStore):
     """SharedMemoryDataSetStore clients use this proxy to access and manipulate the DataSets.
 
     """
-    def __init__(self, service_connection: connection):
+    def __init__(self, service_connection: connection, logger=None):
+        if logger is None:
+            logger = create_logger(self.__class__.__name__)
+        self.logger = logger
 
         # A connection to communicate with the authoritative DataSetStore.
         #
@@ -50,8 +54,11 @@ class SharedMemoryDataSetStoreProxy(DataSetStore):
 
         # Let's request that the service maps this dataset into its own memory.
         #
+        self.logger.info(f"Requesting that server takes ownership of data set {data_set_info.data_set_id}")
         request = TakeDataSetOwnershipRequest(data_set_info=shared_memory_data_set_info)
-        _ = self._send_request_and_get_response(request=request)
+        response = self._send_request_and_get_response(request=request)
+        assert response.success
+        self.logger.info(f"Server successfully took ownership of data set: {data_set_info.data_set_id}")
 
         # By the time we get the response we know that the service now holds a copy to the
         # data set in shared memory.

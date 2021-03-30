@@ -2,6 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+from contextlib import contextmanager
 from functools import wraps
 from multiprocessing import connection, Event, Pipe, RLock
 from threading import Thread
@@ -43,12 +44,18 @@ class SharedMemoryDataSetService:
             logger = create_logger(self.__class__.__name__)
         self.logger = logger
         self._proxy_connections_lock = RLock()
+        self._data_store_lock = RLock()
         self._data_set_store: SharedMemoryDataSetStore = SharedMemoryDataSetStore()
         self._proxy_connections: List[connection] = []
         # TODO: maybe have several threads here as these requests are often blocking on syscalls
         #
         self._service_thread: Thread = None
         self._shutdown_event: Event = Event()
+
+    @contextmanager
+    def exclusive_data_set_store(self):
+        with self._data_store_lock:
+            yield self._data_set_store
 
     def get_new_proxy_connection(self):
         client_connection, service_connection = Pipe()
@@ -86,7 +93,6 @@ class SharedMemoryDataSetService:
                 # We reached timeout. Let's check the shutdown_event and wait again. It's now that some other connections
                 # could be added, though I'm not sure why we would ever do that.
                 #
-                self.logger.info("Reached timeout.")
                 continue
 
             # OK, we have some messages let's see if we can process them.
@@ -123,15 +129,16 @@ class SharedMemoryDataSetService:
 
     @request_handler()
     def _process_request(self, request: Request):
-        if isinstance(request, TakeDataSetOwnershipRequest):
-            return self._process_take_data_set_ownership_request(request=request)
-        elif isinstance(request, UnlinkDataSetRequest):
-            return self._process_unlink_data_set_request(request=request)
-        else:
-            raise TypeError(f"Unknown request type: {str(type(request))}")
+        with self._data_store_lock:
+            if isinstance(request, TakeDataSetOwnershipRequest):
+                return self._process_take_data_set_ownership_request(request=request)
+            elif isinstance(request, UnlinkDataSetRequest):
+                return self._process_unlink_data_set_request(request=request)
+            else:
+                raise TypeError(f"Unknown request type: {str(type(request))}")
 
     def _process_take_data_set_ownership_request(self, request: TakeDataSetOwnershipRequest) -> Response:
-        self.logger.info(f"Processing request {request.request_id}.")
+        self.logger.info(f"Processing request {request.request_id}. Taking ownership of data set {request.data_set_info.data_set_id}")
         self._data_set_store.connect_to_data_set(data_set_info=request.data_set_info)
         return Response(success=True, request_id=request.request_id)
 
