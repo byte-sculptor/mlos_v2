@@ -4,11 +4,12 @@
 #
 from multiprocessing import cpu_count, Event, Process, Queue
 import os
+from typing import Dict
+from uuid import UUID
 
 from mlos.DataPlane.ModelHosting.SharedMemoryModelHost import start_shared_memory_model_host
 from mlos.DataPlane.ModelHosting import PredictRequest, PredictResponse, TrainRequest, TrainResponse, SharedMemoryBackedModelWriter
-from mlos.DataPlane.Interfaces import DataSetInfo
-from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetInfo, SharedMemoryDataSetStore, SharedMemoryDataSetView, SharedMemoryDataSetService
+from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetInfo, SharedMemoryDataSetService
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
@@ -23,8 +24,6 @@ if __name__ == "__main__":
     data_set_service = SharedMemoryDataSetService(logger=logger)
     data_set_service.launch()
     shared_memory_data_set_store = data_set_service.data_set_store
-
-
 
     model_host_processes = []
 
@@ -117,7 +116,7 @@ if __name__ == "__main__":
         for data_set in data_sets_to_clean_up:
             shared_memory_data_set_store.unlink_data_set(data_set_info=data_set.get_data_set_info())
 
-        num_predictions = 10000
+        num_predictions = 100000
         parameters_for_predictions = shared_memory_data_set_store.create_data_set(
             data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
             df=parameter_space_adapter.random_dataframe(num_predictions)
@@ -135,8 +134,6 @@ if __name__ == "__main__":
 
             while num_outstanding_requests < max_outstanding_requests and (num_complete_requests + num_outstanding_requests) < desired_number_requests:
                 predict_request = PredictRequest(model_info=latest_model_info, data_set_info=parameters_for_predictions.get_data_set_info())
-
-
                 request_queue.put(predict_request)
                 num_outstanding_requests += 1
 
@@ -186,9 +183,6 @@ if __name__ == "__main__":
             logger.info(f"Joining process {model_host_process.pid}")
             model_host_process.join()
             logger.info(f"Process {model_host_process.pid} exited with exit code: {model_host_process.exitcode}")
-
-
-
 
 
         model_writer.unlink()
