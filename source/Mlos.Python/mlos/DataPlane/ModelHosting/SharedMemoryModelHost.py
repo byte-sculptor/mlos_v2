@@ -26,6 +26,11 @@ def request_handler():
                 request_id = request.request_id
 
                 return wrapped_function(*args, **kwargs)
+            except MemoryError as e:
+                # Apparently memory error is unpicklable
+                self = args[0]
+                self.logger.error(f"Failed to process request:  {request_id}", exc_info=True)
+                return Response(request_id=request_id, success=False, exception=Exception(f"MemoryError: {str(e)}"))
             except Exception as e:
                 self = args[0]
                 self.logger.error(f"Failed to process request:  {request_id}", exc_info=True)

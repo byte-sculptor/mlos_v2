@@ -28,7 +28,7 @@ if __name__ == "__main__":
     model_host_processes = []
 
     try:
-        for i in range(cpu_count()):
+        for i in range(cpu_count() - 2):
             proxy_connection = data_set_service.get_new_proxy_connection()
             model_host_process = Process(
                 target=start_shared_memory_model_host,
@@ -107,7 +107,6 @@ if __name__ == "__main__":
             if train_response.request_id == last_train_request_id:
                 last_train_response = train_response
 
-
         latest_model_info = last_train_response.model_info
 
         # Now that we've trained the models, we can clean up the params_data_sets and objectives_data_sets.
@@ -116,7 +115,7 @@ if __name__ == "__main__":
         for data_set in data_sets_to_clean_up:
             shared_memory_data_set_store.unlink_data_set(data_set_info=data_set.get_data_set_info())
 
-        num_predictions = 100000
+        num_predictions = 1000000
         parameters_for_predictions = shared_memory_data_set_store.create_data_set(
             data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
             df=parameter_space_adapter.random_dataframe(num_predictions)
