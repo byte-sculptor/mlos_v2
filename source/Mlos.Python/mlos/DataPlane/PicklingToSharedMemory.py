@@ -6,8 +6,8 @@ from multiprocessing import Event, Process, Queue
 
 from mlos.DataPlane.ModelHosting.SharedMemoryModelHost import start_shared_memory_model_host
 from mlos.DataPlane.ModelHosting import PredictRequest, PredictResponse, TrainRequest, TrainResponse, SharedMemoryBackedModelWriter
-from mlos.DataPlane.SharedMemoryDataSetView import SharedMemoryDataSetView
-from mlos.DataPlane.SharedMemoryDataSet import SharedMemoryDataSet
+from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSetView import SharedMemoryDataSetView
+from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSet import SharedMemoryDataSet
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store

@@ -13,8 +13,8 @@ from mlos.DataPlane.Interfaces.DataSet import DataSet
 from mlos.Spaces import CategoricalDimension, Hypergrid
 from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonEncoder
 
-from mlos.DataPlane.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
-from mlos.DataPlane.SharedMemoryDataSetView import SharedMemoryDataSetView
+from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
+from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSetView import SharedMemoryDataSetView
 
 
 class SharedMemoryDataSet(DataSet):
@@ -37,8 +37,8 @@ class SharedMemoryDataSet(DataSet):
             column_names = schema.dimension_names
         self.column_names = column_names
 
-        self.schema = schema
-        if self.schema is not None:
+        self._schema = schema
+        if schema is not None:
             # Let's make sure that all categorical dimensions are numeric.
             # TODO: make it part of the Dimension interface
             for dimension in schema.dimensions:
@@ -53,12 +53,16 @@ class SharedMemoryDataSet(DataSet):
         self._shared_memory_np_array_shape = shared_memory_np_array_shape
         self._shared_memory_np_array_dtype = shared_memory_np_array_dtype
 
+    @property
+    def schema(self) -> Hypergrid:
+        return self._schema
+
     def unlink(self):
         if self._shared_memory is not None:
             self._shared_memory.unlink()
             self._shared_memory = None
 
-    def get_data_set_info(self):
+    def get_data_set_info(self) -> SharedMemoryDataSetInfo:
         return SharedMemoryDataSetInfo(
             column_names=self.column_names,
             schema_json_str=json.dumps(self.schema, cls=HypergridJsonEncoder),
@@ -68,7 +72,7 @@ class SharedMemoryDataSet(DataSet):
             shared_memory_np_array_dtype=self._shared_memory_np_array_dtype
         )
 
-    def get_dataframe(self):
+    def get_dataframe(self) -> pd.DataFrame:
         if self._shared_memory is None:
             self._shared_memory = SharedMemory(name=self.shared_memory_name, create=False)
 
@@ -80,7 +84,7 @@ class SharedMemoryDataSet(DataSet):
         df = pd.DataFrame.from_records(data=shared_memory_np_records_array, columns=self.schema.dimension_names, index='index')
         return df
 
-    def set_dataframe(self, df: pd.DataFrame):
+    def set_dataframe(self, df: pd.DataFrame) -> None:
         if self.schema is not None:
             assert df in self.schema
         self._df = df
@@ -112,7 +116,7 @@ class SharedMemoryDataSet(DataSet):
         shared_memory_np_array = np.recarray(shape=self._shared_memory_np_array_shape, dtype=self._shared_memory_np_array_dtype, buf=self._shared_memory.buf)
         np.copyto(dst=shared_memory_np_array, src=np_records_array)
 
-    def validate(self):
+    def validate(self) -> None:
         # Validates that the dataframe in the shared memory is an exact copy of the dataframe in cache.
         # This is useful to ensure that none of the clients is accidentally modifying the df.
         #

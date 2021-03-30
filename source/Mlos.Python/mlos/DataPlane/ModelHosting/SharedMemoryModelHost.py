@@ -4,17 +4,15 @@
 #
 from functools import wraps
 from multiprocessing import Queue, Event
-from multiprocessing.shared_memory import SharedMemory
 import os
-import pickle
 from queue import Empty
 from typing import Dict
 import sys
 
 from mlos.DataPlane.ModelHosting import Response, PredictRequest, PredictResponse, TrainRequest, TrainResponse, \
     SharedMemoryBackedModelReader, SharedMemoryBackedModelWriter
-from mlos.DataPlane.SharedMemoryDataSet import SharedMemoryDataSet
-from mlos.DataPlane.SharedMemoryDataSetView import attached_data_set_view
+from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSet import SharedMemoryDataSet
+from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSetView import attached_data_set_view
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel
 

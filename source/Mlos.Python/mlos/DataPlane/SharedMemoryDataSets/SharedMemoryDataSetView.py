@@ -9,9 +9,11 @@ from multiprocessing.shared_memory import SharedMemory
 import numpy as np
 import pandas as pd
 
-from mlos.DataPlane.Interfaces.DataSetView import DataSetView
-from mlos.DataPlane.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
+from mlos.DataPlane.Interfaces import DataSetInfo, DataSetView
+from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
+from mlos.Spaces import Hypergrid
 from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonDecoder
+
 
 @contextmanager
 def attached_data_set_view(data_set_info: SharedMemoryDataSetInfo):
@@ -25,10 +27,17 @@ class SharedMemoryDataSetView(DataSetView):
 
     """
     def __init__(self, data_set_info: SharedMemoryDataSetInfo):
-        self.data_set_info = data_set_info
-        self.schema = json.loads(data_set_info.schema_json_str, cls=HypergridJsonDecoder)
+        self.data_set_info: SharedMemoryDataSetInfo = data_set_info
+        self._schema = json.loads(data_set_info.schema_json_str, cls=HypergridJsonDecoder)
         self.column_names = data_set_info.column_names
         self._shared_memory = None
+
+    @property
+    def schema(self) -> Hypergrid:
+        return self._schema
+
+    def get_data_set_info(self) -> SharedMemoryDataSetInfo:
+        return self.data_set_info
 
     def detach(self):
         if self._shared_memory is not None:

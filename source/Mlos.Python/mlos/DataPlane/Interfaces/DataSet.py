@@ -15,7 +15,3 @@ class DataSet(DataSetView):
     @abstractmethod
     def set_dataframe(self, df: pd.DataFrame) -> None:
         raise NotImplementedError
-
-    @abstractmethod
-    def append_dataframe(self, df: pd.DataFrame) -> None:
-        raise NotImplementedError

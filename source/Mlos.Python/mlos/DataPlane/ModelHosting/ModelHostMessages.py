@@ -4,7 +4,7 @@
 #
 from uuid import UUID, uuid4
 
-from mlos.DataPlane.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
+from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
 from mlos.DataPlane.ModelHosting import SharedMemoryBackedModelInfo
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 
