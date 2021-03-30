@@ -66,6 +66,7 @@ class SharedMemoryDataSet(DataSet):
 
     def unlink(self):
         if self._shared_memory is not None:
+            self._shared_memory.close()
             self._shared_memory.unlink()
             self._shared_memory = None
 

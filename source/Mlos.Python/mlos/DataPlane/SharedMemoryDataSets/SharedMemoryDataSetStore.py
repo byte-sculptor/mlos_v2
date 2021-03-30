@@ -98,8 +98,11 @@ class SharedMemoryDataSetStore(DataSetStore):
         """Removes the reference to the data set."""
         with self._lock:
             if data_set_info.data_set_id in self._data_sets_by_id:
+                self.logger.info(f"Detaching data set {data_set_info.data_set_id}.")
                 data_set = self._data_sets_by_id.pop(data_set_info.data_set_id)
                 data_set.detach()
+            else:
+                self.logger.info(f"Data set {data_set_info.data_set_id} not known.")
 
     def unlink_data_set(self, data_set_info: DataSetInfo) -> None:
         """Removes the reference to the data_set and deallocates its memory.
@@ -108,7 +111,10 @@ class SharedMemoryDataSetStore(DataSetStore):
         """
         with self._lock:
             if data_set_info.data_set_id in self._data_sets_by_id:
+                self.logger.info(f"Unlinking data set: {data_set_info.data_set_id}")
                 data_set = self._data_sets_by_id.pop(data_set_info.data_set_id)
                 data_set.unlink()
+            else:
+                self.logger.info(f"Data set: {data_set_info.data_set_id} not known.")
 
 

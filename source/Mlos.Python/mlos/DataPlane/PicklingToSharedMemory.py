@@ -9,11 +9,13 @@ from uuid import UUID
 
 from mlos.DataPlane.ModelHosting.SharedMemoryModelHost import start_shared_memory_model_host
 from mlos.DataPlane.ModelHosting import PredictRequest, PredictResponse, TrainRequest, TrainResponse, SharedMemoryBackedModelWriter
+from mlos.DataPlane.ModelHosting.ModelHostProcessPool import ModelHostProcessPool
 from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetInfo, SharedMemoryDataSetService
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.Spaces.HypergridAdapters import CategoricalToDiscreteHypergridAdapter
+
 
 if __name__ == "__main__":
     logger = create_logger(f"main_{os.getpid()}")
