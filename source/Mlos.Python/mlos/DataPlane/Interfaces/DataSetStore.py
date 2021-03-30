@@ -31,5 +31,5 @@ class DataSetStore(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def remove_data_set(self, data_set_info: DataSetInfo) -> None:
+    def detach_data_set(self, data_set_info: DataSetInfo) -> None:
         raise NotImplementedError

@@ -7,7 +7,7 @@ from multiprocessing import Event, Process, Queue
 from mlos.DataPlane.ModelHosting.SharedMemoryModelHost import start_shared_memory_model_host
 from mlos.DataPlane.ModelHosting import PredictRequest, PredictResponse, TrainRequest, TrainResponse, SharedMemoryBackedModelWriter
 from mlos.DataPlane.Interfaces import DataSetInfo
-from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetInfo, SharedMemoryDataSetStore, SharedMemoryDataSetView
+from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetInfo, SharedMemoryDataSetStore, SharedMemoryDataSetView, SharedMemoryDataSetService
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
@@ -20,17 +20,21 @@ if __name__ == "__main__":
     response_queue = Queue()
     shutdown_event = Event()
     shared_memory_data_set_store = SharedMemoryDataSetStore()
+    service = SharedMemoryDataSetService()
+
 
     model_host_processes = []
 
     try:
-        for i in range(8):
+        for i in range(12):
+            proxy_connection = service.get_new_proxy_connection()
             model_host_process = Process(
                 target=start_shared_memory_model_host,
                 kwargs=dict(
                     request_queue=request_queue,
                     response_queue=response_queue,
-                    shutdown_event=shutdown_event
+                    shutdown_event=shutdown_event,
+                    data_set_store_proxy=proxy_connection
                 )
             )
             model_host_process.start()
@@ -59,7 +63,7 @@ if __name__ == "__main__":
         objectives_data_sets = []
 
         for i in range(num_requests):
-            num_samples = (i + 1) * 10000
+            num_samples = (i + 1) * 100000
             # Let's fit the model remotely.
             #
             params_df = objective_function.parameter_space.random_dataframe(num_samples)
@@ -107,7 +111,7 @@ if __name__ == "__main__":
         # Now that we've trained the models, we can clean up the params_data_sets.
         #
         for params_data_set in params_data_sets:
-            shared_memory_data_set_store.remove_data_set(data_set_info=params_data_set.get_data_set_info())
+            shared_memory_data_set_store.detach_data_set(data_set_info=params_data_set.get_data_set_info())
 
         shared_memory_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target)
         num_predictions = 1000000
@@ -116,7 +120,7 @@ if __name__ == "__main__":
 
         # Let's make the host produce the prediction.
         #
-        desired_number_requests = 100
+        desired_number_requests = 10000
         max_outstanding_requests = 100
         num_outstanding_requests = 0
         num_complete_requests = 0

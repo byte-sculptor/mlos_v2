@@ -7,7 +7,7 @@ from multiprocessing import connection
 import pandas as pd
 
 from mlos.DataPlane.Interfaces import DataSet, DataSetStore, DataSetInfo
-from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSetStore, SharedMemoryDataSetView
+from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetStore, SharedMemoryDataSetView
 from mlos.DataPlane.SharedMemoryDataSets.Messages import Request, TakeDataSetOwnershipRequest
 
 class SharedMemoryDataSetStoreProxy(DataSetStore):
@@ -56,14 +56,14 @@ class SharedMemoryDataSetStoreProxy(DataSetStore):
         # data set in shared memory.
         return data_set
 
-    def add_data_set(self, data_set: DataSet) -> None:
-        raise NotImplementedError
+    def add_data_set(self, data_set: SharedMemoryDataSet) -> None:
+        self._data_set_store.add_data_set(data_set=data_set)
 
     def get_data_set(self, data_set_info: DataSetInfo) -> DataSet:
-        raise NotImplementedError
+        return self._data_set_store.get_data_set(data_set_info=data_set_info)
 
     def get_data_set_view(self, data_set_info: DataSetInfo) -> SharedMemoryDataSetView:
-        raise NotImplementedError
+        return self._data_set_store.get_data_set_view(data_set_info=data_set_info)
 
-    def remove_data_set(self, data_set_info: DataSetInfo) -> None:
+    def detach_data_set(self, data_set_info: DataSetInfo) -> None:
         raise NotImplementedError

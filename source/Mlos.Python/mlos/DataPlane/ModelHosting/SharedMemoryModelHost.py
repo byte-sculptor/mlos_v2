@@ -12,8 +12,7 @@ from uuid import UUID
 
 from mlos.DataPlane.ModelHosting import Response, PredictRequest, PredictResponse, TrainRequest, TrainResponse, \
     SharedMemoryBackedModelReader, SharedMemoryBackedModelWriter
-from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSet import SharedMemoryDataSet
-from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSetView import attached_data_set_view
+from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetStoreProxy, attached_data_set_view
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel
 
@@ -76,6 +75,7 @@ class SharedMemoryModelHost:
         request_queue: Queue,
         response_queue: Queue,
         shutdown_event: Event,
+        data_set_store_proxy: SharedMemoryDataSetStoreProxy,
         logger = None
     ):
         if logger is None:
@@ -84,6 +84,7 @@ class SharedMemoryModelHost:
         self.request_queue: Queue = request_queue
         self.response_queue: Queue = response_queue
         self.shutdown_event: Event = shutdown_event
+        self._data_set_store_proxy = data_set_store_proxy
         self._model_cache: Dict[str, RegressionModel] = dict()
 
         # We need to keep a reference to SharedMemory objects, or they will be garbage collected.
@@ -210,6 +211,16 @@ class SharedMemoryModelHost:
             return response
 
 
-def start_shared_memory_model_host(request_queue: Queue, response_queue: Queue, shutdown_event: Event):
-    model_host = SharedMemoryModelHost(request_queue=request_queue, response_queue=response_queue, shutdown_event=shutdown_event)
+def start_shared_memory_model_host(
+    request_queue: Queue,
+    response_queue: Queue,
+    shutdown_event: Event,
+    data_set_store_proxy: SharedMemoryDataSetStoreProxy
+):
+    model_host = SharedMemoryModelHost(
+        request_queue=request_queue,
+        response_queue=response_queue,
+        shutdown_event=shutdown_event,
+        data_set_store_proxy=data_set_store_proxy
+    )
     model_host.run()

@@ -28,7 +28,7 @@ class SharedMemoryDataSetView(DataSetView):
     """
     def __init__(self, data_set_info: SharedMemoryDataSetInfo):
         self.data_set_info: SharedMemoryDataSetInfo = data_set_info
-        self._schema = json.loads(data_set_info.schema_json_str, cls=HypergridJsonDecoder)
+        self._schema = data_set_info.schema
         self.column_names = data_set_info.column_names
         self._shared_memory = None
 
