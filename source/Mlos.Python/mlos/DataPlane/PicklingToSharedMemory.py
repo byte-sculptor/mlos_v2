@@ -6,8 +6,8 @@ from multiprocessing import Event, Process, Queue
 
 from mlos.DataPlane.ModelHosting.SharedMemoryModelHost import start_shared_memory_model_host
 from mlos.DataPlane.ModelHosting import PredictRequest, PredictResponse, TrainRequest, TrainResponse, SharedMemoryBackedModelWriter
-from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSetView import SharedMemoryDataSetView
-from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSet import SharedMemoryDataSet
+from mlos.DataPlane.Interfaces import DataSetInfo
+from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetInfo, SharedMemoryDataSetStore, SharedMemoryDataSetView
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
@@ -19,6 +19,7 @@ if __name__ == "__main__":
     request_queue = Queue()
     response_queue = Queue()
     shutdown_event = Event()
+    shared_memory_data_set_store = SharedMemoryDataSetStore()
 
     model_host_processes = []
 
@@ -52,7 +53,7 @@ if __name__ == "__main__":
         model_writer.set_model(model=model)
 
         last_train_request_id = None
-        num_requests = 10
+        num_requests = 2
 
         params_data_sets = []
         objectives_data_sets = []
@@ -65,11 +66,14 @@ if __name__ == "__main__":
             objectives_df = objective_function.evaluate_dataframe(params_df)
             projected_params_df = parameter_space_adapter.project_dataframe(params_df, in_place=True)
 
+            params_data_set = shared_memory_data_set_store.create_data_set(
+                data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
+                df=projected_params_df
+            )
+            #params_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target, shared_memory_name=f'params{i}')
+            #params_data_set.set_dataframe(df=projected_params_df)
 
-            params_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target, shared_memory_name=f'params{i}')
-            params_data_set.set_dataframe(df=projected_params_df)
-
-            objective_data_set = SharedMemoryDataSet(schema=objective_function.output_space, shared_memory_name=f'objectives{i}')
+            objective_data_set = SharedMemoryDataSet(schema=objective_function.output_space)
             objective_data_set.set_dataframe(df=objectives_df)
 
             params_data_sets.append(params_data_set)
@@ -98,15 +102,22 @@ if __name__ == "__main__":
                 last_train_response = train_response
 
 
-        shared_memory_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target, shared_memory_name="features_for_predict")
+        latest_model_info = last_train_response.model_info
+
+        # Now that we've trained the models, we can clean up the params_data_sets.
+        #
+        for params_data_set in params_data_sets:
+            shared_memory_data_set_store.remove_data_set(data_set_info=params_data_set.get_data_set_info())
+
+        shared_memory_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target)
         num_predictions = 1000000
         shared_memory_data_set.set_dataframe(df=parameter_space_adapter.random_dataframe(num_predictions))
 
 
-        # Let's make the host produced the prediction.
+        # Let's make the host produce the prediction.
         #
-        desired_number_requests = 100
-        max_outstanding_requests = 100
+        desired_number_requests = 10
+        max_outstanding_requests = 10
         num_outstanding_requests = 0
         num_complete_requests = 0
 
@@ -114,7 +125,7 @@ if __name__ == "__main__":
             logger.info(f"num_outstanding_requests: {num_outstanding_requests} / {max_outstanding_requests}, num_complete_requests: {num_complete_requests} / {desired_number_requests}")
 
             while num_outstanding_requests < max_outstanding_requests and (num_complete_requests + num_outstanding_requests) < desired_number_requests:
-                predict_request = PredictRequest(model_info=last_train_response.model_info, data_set_info=shared_memory_data_set.get_data_set_info())
+                predict_request = PredictRequest(model_info=latest_model_info, data_set_info=shared_memory_data_set.get_data_set_info())
 
 
                 request_queue.put(predict_request)
@@ -152,6 +163,8 @@ if __name__ == "__main__":
             logger.info(f"Joining process {model_host_process.pid}")
             model_host_process.join()
             logger.info(f"Process {model_host_process.pid} exited with exit code: {model_host_process.exitcode}")
+
+
 
         shared_memory_data_set.validate()
         shared_memory_data_set.unlink()

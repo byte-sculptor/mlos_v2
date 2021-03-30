@@ -5,6 +5,7 @@
 import json
 from multiprocessing.shared_memory import SharedMemory
 from typing import List, Tuple
+from uuid import UUID, uuid4
 
 import numpy as np
 import pandas as pd
@@ -24,7 +25,7 @@ class SharedMemoryDataSet(DataSet):
 
     def __init__(
         self,
-        shared_memory_name: str,
+        data_set_id: UUID = None,
         column_names: List[str] = None,
         schema: Hypergrid = None,
         shared_memory_np_array_nbytes: int = None,
@@ -45,7 +46,9 @@ class SharedMemoryDataSet(DataSet):
                 if isinstance(dimension, CategoricalDimension):
                     assert dimension.is_numeric
 
-        self.shared_memory_name = shared_memory_name
+        if data_set_id is None:
+            data_set_id = uuid4()
+        self.data_set_id = data_set_id
         self._shared_memory = None
         self._df: pd.DataFrame = None
 
@@ -65,16 +68,16 @@ class SharedMemoryDataSet(DataSet):
     def get_data_set_info(self) -> SharedMemoryDataSetInfo:
         return SharedMemoryDataSetInfo(
             column_names=self.column_names,
-            schema_json_str=json.dumps(self.schema, cls=HypergridJsonEncoder),
-            shared_memory_name=self.shared_memory_name,
+            schema=self.schema,
             shared_memory_np_array_nbytes=self._shared_memory_np_array_nbytes,
             shared_memory_np_array_shape=self._shared_memory_np_array_shape,
-            shared_memory_np_array_dtype=self._shared_memory_np_array_dtype
+            shared_memory_np_array_dtype=self._shared_memory_np_array_dtype,
+            data_set_id=self.data_set_id
         )
 
     def get_dataframe(self) -> pd.DataFrame:
         if self._shared_memory is None:
-            self._shared_memory = SharedMemory(name=self.shared_memory_name, create=False)
+            self._shared_memory = SharedMemory(name=str(self.data_set_id), create=False)
 
         shared_memory_np_records_array = np.recarray(
             shape=self._shared_memory_np_array_shape,
@@ -112,7 +115,7 @@ class SharedMemoryDataSet(DataSet):
         self._shared_memory_np_array_nbytes = np_records_array.nbytes
         self._shared_memory_np_array_shape = np_records_array.shape
         self._shared_memory_np_array_dtype = np_records_array.dtype
-        self._shared_memory = SharedMemory(name=self.shared_memory_name, create=True, size=self._shared_memory_np_array_nbytes)
+        self._shared_memory = SharedMemory(name=str(self.data_set_id), create=True, size=self._shared_memory_np_array_nbytes)
         shared_memory_np_array = np.recarray(shape=self._shared_memory_np_array_shape, dtype=self._shared_memory_np_array_dtype, buf=self._shared_memory.buf)
         np.copyto(dst=shared_memory_np_array, src=np_records_array)
 

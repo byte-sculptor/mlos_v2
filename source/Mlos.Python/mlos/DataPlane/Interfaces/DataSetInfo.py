@@ -17,10 +17,5 @@ class DataSetInfo(ABC):
 
     @property
     @abstractmethod
-    def name(self) -> str:
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
     def schema(self) -> Hypergrid:
         raise NotImplementedError

@@ -3,6 +3,9 @@
 # Licensed under the MIT License.
 #
 from abc import ABC, abstractmethod
+
+import pandas as pd
+
 from mlos.DataPlane.Interfaces.DataSetInfo import DataSetInfo
 from mlos.DataPlane.Interfaces.DataSet import DataSet
 from mlos.DataPlane.Interfaces.DataSetView import DataSetView
@@ -12,7 +15,7 @@ class DataSetStore(ABC):
 
     """
     @abstractmethod
-    def create_data_set(self, data_set_info: DataSetInfo) -> DataSet:
+    def create_data_set(self, data_set_info: DataSetInfo, df: pd.DataFrame) -> DataSet:
         raise NotImplementedError
 
     @abstractmethod

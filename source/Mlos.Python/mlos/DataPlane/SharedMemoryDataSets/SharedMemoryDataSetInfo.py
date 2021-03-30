@@ -2,6 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+import json
 from typing import List, Tuple
 from uuid import UUID, uuid4
 
@@ -9,23 +10,23 @@ import numpy as np
 
 from mlos.DataPlane.Interfaces import DataSetInfo
 from mlos.Spaces import Hypergrid
+from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonEncoder
 
 class SharedMemoryDataSetInfo(DataSetInfo):
     """Maintains all information required to connect to this data set and read its data."""
 
     def __init__(
         self,
-        column_names: List[str],
-        schema_json_str: str,
-        shared_memory_name: str,
-        shared_memory_np_array_nbytes: int,
-        shared_memory_np_array_shape: Tuple[int, int],
-        shared_memory_np_array_dtype: np.dtype,
+        schema: Hypergrid,
+        column_names: List[str] = None,
+        shared_memory_np_array_nbytes: int = None,
+        shared_memory_np_array_shape: Tuple[int, int] = None,
+        shared_memory_np_array_dtype: np.dtype = None,
         data_set_id: UUID = None
     ):
+        self._schema = schema
         self.column_names = column_names
-        self.schema_json_str = schema_json_str
-        self.shared_memory_name = shared_memory_name
+        self.schema_json_str = json.dumps(schema, cls=HypergridJsonEncoder)
         self.shared_memory_np_array_nbytes = shared_memory_np_array_nbytes
         self.shared_memory_np_array_shape = shared_memory_np_array_shape
         self.shared_memory_np_array_dtype = shared_memory_np_array_dtype
@@ -39,10 +40,5 @@ class SharedMemoryDataSetInfo(DataSetInfo):
         return self._data_set_id
 
     @property
-    def name(self) -> str:
-        return self.shared_memory_name
-
-    @property
     def schema(self) -> Hypergrid:
-        # TOOD: decide if we need this...
-        return None
+        return self._schema

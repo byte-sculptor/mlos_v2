@@ -46,7 +46,7 @@ class SharedMemoryDataSetView(DataSetView):
 
     def get_dataframe(self):
         self.detach()
-        self._shared_memory = SharedMemory(name=self.data_set_info.shared_memory_name, create=False)
+        self._shared_memory = SharedMemory(name=str(self.data_set_info.data_set_id), create=False)
         shared_memory_np_records_array = np.recarray(
             shape=self.data_set_info.shared_memory_np_array_shape,
             dtype=self.data_set_info.shared_memory_np_array_dtype,

@@ -8,6 +8,7 @@ import os
 from queue import Empty
 from typing import Dict
 import sys
+from uuid import UUID
 
 from mlos.DataPlane.ModelHosting import Response, PredictRequest, PredictResponse, TrainRequest, TrainResponse, \
     SharedMemoryBackedModelReader, SharedMemoryBackedModelWriter
@@ -91,7 +92,7 @@ class SharedMemoryModelHost:
 
         # We need to keep a reference to prediction DataSets too. TODO: remember to forget.
         #
-        self._prediction_data_sets: Dict[str, SharedMemoryDataSet] = dict()
+        self._prediction_data_sets: Dict[UUID, SharedMemoryDataSet] = dict()
 
     def run(self):
         self.logger.info(f'{os.getpid()} running')
@@ -122,7 +123,7 @@ class SharedMemoryModelHost:
 
 
         self.logger.info(f"{os.getpid()} freeing up predictions memory")
-        for name, data_set in self._prediction_data_sets.items():
+        for _, data_set in self._prediction_data_sets.items():
             data_set.unlink()
 
         self.logger.info(f"{os.getpid()} freeing up models memory")
@@ -150,12 +151,11 @@ class SharedMemoryModelHost:
             prediction = model.predict(feature_values_pandas_frame=features_df, include_only_valid_rows=True)
 
         prediction_data_set = SharedMemoryDataSet(
-            shared_memory_name=f"{request.request_id}.predictions",
             column_names=prediction.expected_column_names
         )
         prediction_df = prediction.get_dataframe()
         prediction_data_set.set_dataframe(df=prediction_df)
-        self._prediction_data_sets[prediction_data_set.shared_memory_name] = prediction_data_set
+        self._prediction_data_sets[prediction_data_set.data_set_id] = prediction_data_set
 
         prediction.clear_dataframe()
 
