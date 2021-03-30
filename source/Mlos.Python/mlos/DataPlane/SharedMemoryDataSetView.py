@@ -9,7 +9,7 @@ from multiprocessing.shared_memory import SharedMemory
 import numpy as np
 import pandas as pd
 
-from mlos.DataPlane.DataSetViewInterface import DataSetViewInterface
+from mlos.DataPlane.Interfaces.DataSetView import DataSetView
 from mlos.DataPlane.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
 from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonDecoder
 
@@ -20,7 +20,7 @@ def attached_data_set_view(data_set_info: SharedMemoryDataSetInfo):
     yield data_set_view
     data_set_view.detach()
 
-class SharedMemoryDataSetView(DataSetViewInterface):
+class SharedMemoryDataSetView(DataSetView):
     """Allows to view a dataframe stored in shared memory.
 
     """

@@ -9,15 +9,15 @@ from typing import List, Tuple
 import numpy as np
 import pandas as pd
 
-from mlos.DataPlane.DataSetInterface import DataSetInterface
+from mlos.DataPlane.Interfaces.DataSet import DataSet
 from mlos.Spaces import CategoricalDimension, Hypergrid
-from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonDecoder, HypergridJsonEncoder
+from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonEncoder
 
 from mlos.DataPlane.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
 from mlos.DataPlane.SharedMemoryDataSetView import SharedMemoryDataSetView
 
 
-class SharedMemoryDataSet(DataSetInterface):
+class SharedMemoryDataSet(DataSet):
     """Maintains a dataframe and its associated metadata in shared memory.
 
     """

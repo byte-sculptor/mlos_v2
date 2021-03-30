@@ -4,11 +4,11 @@
 #
 import pandas as pd
 
-from mlos.DataPlane.DataSetInterface import DataSetInterface
+from mlos.DataPlane.Interfaces.DataSet import DataSet
 from mlos.Spaces import Hypergrid
 
 
-class SimpleDataSet(DataSetInterface):
+class SimpleDataSet(DataSet):
     """Maintains a dataframe and a corresponding Hypergrid in memory.
 
     """

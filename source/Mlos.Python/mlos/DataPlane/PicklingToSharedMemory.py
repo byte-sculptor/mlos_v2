@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
         # Let's make the host produced the prediction.
         #
-        desired_number_requests = 10000
+        desired_number_requests = 100
         max_outstanding_requests = 100
         num_outstanding_requests = 0
         num_complete_requests = 0

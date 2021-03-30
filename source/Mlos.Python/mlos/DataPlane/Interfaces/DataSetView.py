@@ -4,7 +4,7 @@
 #
 from abc import ABC
 
-class DataSetViewInterface(ABC):
+class DataSetView(ABC):
     """Defines an interface to immutable views of the data set.
 
     """
