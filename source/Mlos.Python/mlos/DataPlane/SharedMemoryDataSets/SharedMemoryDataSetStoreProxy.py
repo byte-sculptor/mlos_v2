@@ -2,6 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+from contextlib import contextmanager
 from multiprocessing import connection
 
 import pandas as pd
@@ -72,3 +73,9 @@ class SharedMemoryDataSetStoreProxy(DataSetStore):
         request = UnlinkDataSetRequest(data_set_info=data_set_info)
         _ = self._send_request_and_get_response(request=request)
         return
+
+    @contextmanager
+    def attached_data_set_view(self, data_set_info: DataSetInfo):
+        data_set_view = self.get_data_set_view(data_set_info=data_set_info)
+        yield data_set_view
+        data_set_view.detach()

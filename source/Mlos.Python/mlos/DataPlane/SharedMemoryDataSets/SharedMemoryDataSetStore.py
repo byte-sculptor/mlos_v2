@@ -9,7 +9,9 @@ from uuid import UUID
 import pandas as pd
 
 from mlos.DataPlane.Interfaces import DataSetInfo, DataSetStore
-from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSetInfo, SharedMemoryDataSet, SharedMemoryDataSetView
+from .SharedMemoryDataSet import SharedMemoryDataSet
+from .SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
+from .SharedMemoryDataSetView import SharedMemoryDataSetView
 
 class SharedMemoryDataSetStore(DataSetStore):
     """Provides functionality to create, view and delte DataSet instances in shared memory.

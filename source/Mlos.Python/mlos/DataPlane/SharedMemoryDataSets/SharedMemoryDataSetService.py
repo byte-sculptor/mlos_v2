@@ -98,8 +98,9 @@ class SharedMemoryDataSetService:
                     response = self._process_request(request=request)
                     conn.send(response)
                 except EOFError:
-                    # Connection was closed. TODO: see what happens
-                    self.logger.error("Connection was closed.", exc_info=True)
+                    # Connection was closed. TODO: remove that connection from the list
+                    self.logger.info("Connection was closed.")
+                    self._remove_closed_proxy_connection(connection_id=id(conn))
 
         # We are shutting down. Nothing to do here, other than maybe closing all the connections.
         #
@@ -108,6 +109,17 @@ class SharedMemoryDataSetService:
             for conn in self._proxy_connections:
                 conn.close()
             self._proxy_connections = []
+
+    def _remove_closed_proxy_connection(self, connection_id):
+        with self._proxy_connections_lock:
+            connection_idx = None
+            for i, conn in enumerate(self._proxy_connections):
+                if id(conn) == connection_id:
+                    connection_idx = i
+                    break
+            if connection_idx is not None:
+                self.logger.info(f"Removing connection {connection_id}.")
+                self._proxy_connections.pop(connection_idx)
 
     @request_handler()
     def _process_request(self, request: Request):

@@ -2,7 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-from multiprocessing import Event, Process, Queue
+from multiprocessing import cpu_count, Event, Process, Queue
 
 from mlos.DataPlane.ModelHosting.SharedMemoryModelHost import start_shared_memory_model_host
 from mlos.DataPlane.ModelHosting import PredictRequest, PredictResponse, TrainRequest, TrainResponse, SharedMemoryBackedModelWriter
@@ -29,7 +29,7 @@ if __name__ == "__main__":
     model_host_processes = []
 
     try:
-        for i in range(2):
+        for i in range(cpu_count()):
             proxy_connection = service.get_new_proxy_connection()
             model_host_process = Process(
                 target=start_shared_memory_model_host,
@@ -78,11 +78,11 @@ if __name__ == "__main__":
                 data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
                 df=projected_params_df
             )
-            #params_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target, shared_memory_name=f'params{i}')
-            #params_data_set.set_dataframe(df=projected_params_df)
 
-            objective_data_set = SharedMemoryDataSet(schema=objective_function.output_space)
-            objective_data_set.set_dataframe(df=objectives_df)
+            objective_data_set = shared_memory_data_set_store.create_data_set(
+                data_set_info=SharedMemoryDataSetInfo(schema=objective_function.output_space),
+                df=objectives_df
+            )
 
             params_data_sets.append(params_data_set)
             objectives_data_sets.append(objective_data_set)
@@ -112,15 +112,17 @@ if __name__ == "__main__":
 
         latest_model_info = last_train_response.model_info
 
-        # Now that we've trained the models, we can clean up the params_data_sets.
+        # Now that we've trained the models, we can clean up the params_data_sets and objectives_data_sets.
         #
-        for params_data_set in params_data_sets:
-            shared_memory_data_set_store.unlink_data_set(data_set_info=params_data_set.get_data_set_info())
+        data_sets_to_clean_up = params_data_sets + objectives_data_sets
+        for data_set in data_sets_to_clean_up:
+            shared_memory_data_set_store.unlink_data_set(data_set_info=data_set.get_data_set_info())
 
-        shared_memory_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target)
         num_predictions = 1000000
-        shared_memory_data_set.set_dataframe(df=parameter_space_adapter.random_dataframe(num_predictions))
-
+        parameters_for_predictions = shared_memory_data_set_store.create_data_set(
+            data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
+            df=parameter_space_adapter.random_dataframe(num_predictions)
+        )
 
         # Let's make the host produce the prediction.
         #
@@ -133,7 +135,7 @@ if __name__ == "__main__":
             logger.info(f"num_outstanding_requests: {num_outstanding_requests} / {max_outstanding_requests}, num_complete_requests: {num_complete_requests} / {desired_number_requests}")
 
             while num_outstanding_requests < max_outstanding_requests and (num_complete_requests + num_outstanding_requests) < desired_number_requests:
-                predict_request = PredictRequest(model_info=latest_model_info, data_set_info=shared_memory_data_set.get_data_set_info())
+                predict_request = PredictRequest(model_info=latest_model_info, data_set_info=parameters_for_predictions.get_data_set_info())
 
 
                 request_queue.put(predict_request)
@@ -151,18 +153,22 @@ if __name__ == "__main__":
                     logger.info(f"Request {predict_response.request_id} failed.")
                     raise predict_response.exception
 
-                prediction_data_set_view = SharedMemoryDataSetView(data_set_info=predict_response.prediction_data_set_info)
-                prediction = predict_response.prediction
-                prediction_df = prediction_data_set_view.get_dataframe()
-                logger.info(f"Response to request:{predict_response.request_id} received ")
-                prediction.set_dataframe(dataframe=prediction_df)
-                assert len(prediction.get_dataframe().index) == num_predictions
+                with shared_memory_data_set_store.attached_data_set_view(data_set_info=predict_response.prediction_data_set_info) as prediction_data_set_view:
+                    #prediction_data_set_view = SharedMemoryDataSetView(data_set_info=predict_response.prediction_data_set_info)
+                    prediction = predict_response.prediction
+                    prediction_df = prediction_data_set_view.get_dataframe()
+                    logger.info(f"Response to request:{predict_response.request_id} received ")
+                    prediction.set_dataframe(dataframe=prediction_df)
+                    assert len(prediction.get_dataframe().index) == num_predictions
 
+        parameters_for_predictions.validate()
+        shared_memory_data_set_store.unlink_data_set(data_set_info=parameters_for_predictions.get_data_set_info())
 
     except Exception as e:
         logger.info("Exception: ", exc_info=True)
 
     finally:
+
         logger.info("Shutting down DataSetStoreService")
         service.stop()
 
@@ -177,8 +183,8 @@ if __name__ == "__main__":
 
 
 
-        shared_memory_data_set.validate()
-        shared_memory_data_set.unlink()
+
+
         model_writer.unlink()
 
 
