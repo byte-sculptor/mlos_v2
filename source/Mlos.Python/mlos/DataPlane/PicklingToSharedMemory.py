@@ -22,8 +22,7 @@ if __name__ == "__main__":
     shutdown_event = Event()
     data_set_service = SharedMemoryDataSetService(logger=logger)
     data_set_service.launch()
-    # It might be easiest to talk to the service via a proxy even from the same process.
-    #
+    shared_memory_data_set_store = data_set_service.data_set_store
 
 
 
@@ -74,17 +73,15 @@ if __name__ == "__main__":
             objectives_df = objective_function.evaluate_dataframe(params_df)
             projected_params_df = parameter_space_adapter.project_dataframe(params_df, in_place=True)
 
-            with data_set_service.exclusive_data_set_store() as shared_memory_data_set_store:
-                params_data_set = shared_memory_data_set_store.create_data_set(
-                    data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
-                    df=projected_params_df
-                )
+            params_data_set = shared_memory_data_set_store.create_data_set(
+                data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
+                df=projected_params_df
+            )
 
-            with data_set_service.exclusive_data_set_store() as shared_memory_data_set_store:
-                objective_data_set = shared_memory_data_set_store.create_data_set(
-                    data_set_info=SharedMemoryDataSetInfo(schema=objective_function.output_space),
-                    df=objectives_df
-                )
+            objective_data_set = shared_memory_data_set_store.create_data_set(
+                data_set_info=SharedMemoryDataSetInfo(schema=objective_function.output_space),
+                df=objectives_df
+            )
 
             params_data_sets.append(params_data_set)
             objectives_data_sets.append(objective_data_set)
@@ -118,15 +115,13 @@ if __name__ == "__main__":
         #
         data_sets_to_clean_up = params_data_sets + objectives_data_sets
         for data_set in data_sets_to_clean_up:
-            with data_set_service.exclusive_data_set_store() as shared_memory_data_set_store:
-                shared_memory_data_set_store.unlink_data_set(data_set_info=data_set.get_data_set_info())
+            shared_memory_data_set_store.unlink_data_set(data_set_info=data_set.get_data_set_info())
 
         num_predictions = 10000
-        with data_set_service.exclusive_data_set_store() as shared_memory_data_set_store:
-            parameters_for_predictions = shared_memory_data_set_store.create_data_set(
-                data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
-                df=parameter_space_adapter.random_dataframe(num_predictions)
-            )
+        parameters_for_predictions = shared_memory_data_set_store.create_data_set(
+            data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
+            df=parameter_space_adapter.random_dataframe(num_predictions)
+        )
 
         # Let's make the host produce the prediction.
         #
@@ -157,33 +152,28 @@ if __name__ == "__main__":
                     logger.info(f"Request {predict_response.request_id} failed.")
                     raise predict_response.exception
 
-                with data_set_service.exclusive_data_set_store() as shared_memory_data_set_store:
-                    prediction_data_set = shared_memory_data_set_store.get_data_set(data_set_info=predict_response.prediction_data_set_info)
+                prediction_data_set = shared_memory_data_set_store.get_data_set(data_set_info=predict_response.prediction_data_set_info)
                 prediction = predict_response.prediction
                 prediction_df = prediction_data_set.get_dataframe()
                 logger.info(f"Response to request:{predict_response.request_id} received ")
                 prediction.set_dataframe(dataframe=prediction_df)
                 assert len(prediction.get_dataframe().index) == num_predictions
-                with data_set_service.exclusive_data_set_store() as shared_memory_data_set_store:
-                    shared_memory_data_set_store.unlink_data_set(data_set_info=predict_response.prediction_data_set_info)
+                shared_memory_data_set_store.unlink_data_set(data_set_info=predict_response.prediction_data_set_info)
 
             if num_complete_requests % 10 == 0:
                 parameters_for_predictions.validate()
-                with data_set_service.exclusive_data_set_store() as shared_memory_data_set_store:
-                    stats_df = shared_memory_data_set_store.get_stats()
-                    logger.info(stats_df)
+                stats_df = shared_memory_data_set_store.get_stats()
+                logger.info(stats_df)
 
         parameters_for_predictions.validate()
-        with data_set_service.exclusive_data_set_store() as shared_memory_data_set_store:
-            shared_memory_data_set_store.unlink_data_set(data_set_info=parameters_for_predictions.get_data_set_info())
+        shared_memory_data_set_store.unlink_data_set(data_set_info=parameters_for_predictions.get_data_set_info())
 
     except Exception as e:
         logger.info("Exception: ", exc_info=True)
 
     finally:
-        with data_set_service.exclusive_data_set_store() as shared_memory_data_set_store:
-            stats_df = shared_memory_data_set_store.get_stats()
-            logger.info(stats_df)
+        stats_df = shared_memory_data_set_store.get_stats()
+        logger.info(stats_df)
 
         logger.info("Shutting down DataSetStoreService")
         data_set_service.stop()
