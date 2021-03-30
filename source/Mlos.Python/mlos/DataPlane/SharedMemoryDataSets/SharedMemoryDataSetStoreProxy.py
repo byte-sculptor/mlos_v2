@@ -8,7 +8,7 @@ import pandas as pd
 
 from mlos.DataPlane.Interfaces import DataSet, DataSetStore, DataSetInfo
 from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetStore, SharedMemoryDataSetView
-from mlos.DataPlane.SharedMemoryDataSets.Messages import Request, TakeDataSetOwnershipRequest
+from mlos.DataPlane.SharedMemoryDataSets.Messages import Request, TakeDataSetOwnershipRequest, UnlinkDataSetRequest
 
 class SharedMemoryDataSetStoreProxy(DataSetStore):
     """SharedMemoryDataSetStore clients use this proxy to access and manipulate the DataSets.
@@ -66,4 +66,9 @@ class SharedMemoryDataSetStoreProxy(DataSetStore):
         return self._data_set_store.get_data_set_view(data_set_info=data_set_info)
 
     def detach_data_set(self, data_set_info: DataSetInfo) -> None:
-        raise NotImplementedError
+        self._data_set_store.detach_data_set(data_set_info)
+
+    def unlink_data_set(self, data_set_info: DataSetInfo):
+        request = UnlinkDataSetRequest(data_set_info=data_set_info)
+        _ = self._send_request_and_get_response(request=request)
+        return

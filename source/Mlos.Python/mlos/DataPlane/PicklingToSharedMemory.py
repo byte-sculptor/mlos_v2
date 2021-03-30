@@ -19,14 +19,17 @@ if __name__ == "__main__":
     request_queue = Queue()
     response_queue = Queue()
     shutdown_event = Event()
-    shared_memory_data_set_store = SharedMemoryDataSetStore()
     service = SharedMemoryDataSetService()
+    service.launch()
+    # It might be easiest to talk to the service via a proxy even from the same process.
+    #
+    shared_memory_data_set_store = service.get_new_proxy() #SharedMemoryDataSetStore()
 
 
     model_host_processes = []
 
     try:
-        for i in range(12):
+        for i in range(2):
             proxy_connection = service.get_new_proxy_connection()
             model_host_process = Process(
                 target=start_shared_memory_model_host,
@@ -34,7 +37,7 @@ if __name__ == "__main__":
                     request_queue=request_queue,
                     response_queue=response_queue,
                     shutdown_event=shutdown_event,
-                    data_set_store_proxy=proxy_connection
+                    data_set_store_service_connection=proxy_connection
                 )
             )
             model_host_process.start()
@@ -69,6 +72,7 @@ if __name__ == "__main__":
             params_df = objective_function.parameter_space.random_dataframe(num_samples)
             objectives_df = objective_function.evaluate_dataframe(params_df)
             projected_params_df = parameter_space_adapter.project_dataframe(params_df, in_place=True)
+
 
             params_data_set = shared_memory_data_set_store.create_data_set(
                 data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
@@ -111,7 +115,7 @@ if __name__ == "__main__":
         # Now that we've trained the models, we can clean up the params_data_sets.
         #
         for params_data_set in params_data_sets:
-            shared_memory_data_set_store.detach_data_set(data_set_info=params_data_set.get_data_set_info())
+            shared_memory_data_set_store.unlink_data_set(data_set_info=params_data_set.get_data_set_info())
 
         shared_memory_data_set = SharedMemoryDataSet(schema=parameter_space_adapter.target)
         num_predictions = 1000000
@@ -120,7 +124,7 @@ if __name__ == "__main__":
 
         # Let's make the host produce the prediction.
         #
-        desired_number_requests = 10000
+        desired_number_requests = 10
         max_outstanding_requests = 100
         num_outstanding_requests = 0
         num_complete_requests = 0
@@ -159,9 +163,12 @@ if __name__ == "__main__":
         logger.info("Exception: ", exc_info=True)
 
     finally:
+        logger.info("Shutting down DataSetStoreService")
+        service.stop()
+
         logger.info("Setting the shutdown event")
         shutdown_event.set()
-        logger.info("Waiting for host to exit.")
+        logger.info("Waiting for hosts to exit.")
 
         for model_host_process in model_host_processes:
             logger.info(f"Joining process {model_host_process.pid}")

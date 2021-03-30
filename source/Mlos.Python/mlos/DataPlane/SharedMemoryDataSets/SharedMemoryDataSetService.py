@@ -7,9 +7,12 @@ from multiprocessing import connection, Event, Pipe, RLock
 from threading import Thread
 from typing import List
 
-from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSetStore
-from mlos.DataPlane.SharedMemoryDataSets.Messages import Response, Request, TakeDataSetOwnershipRequest
 from mlos.Logger import create_logger
+
+from .SharedMemoryDataSetStore import SharedMemoryDataSetStore
+from .SharedMemoryDataSetStoreProxy import SharedMemoryDataSetStoreProxy
+from .Messages import Response, Request, TakeDataSetOwnershipRequest, UnlinkDataSetRequest
+
 
 def request_handler():
     def request_handler_decorator(wrapped_function):
@@ -51,6 +54,11 @@ class SharedMemoryDataSetService:
         client_connection, service_connection = Pipe()
         self._proxy_connections.append(client_connection)
         return service_connection
+
+    def get_new_proxy(self):
+        proxy_connection = self.get_new_proxy_connection()
+        proxy = SharedMemoryDataSetStoreProxy(service_connection=proxy_connection)
+        return proxy
 
     def launch(self):
         self._service_thread = Thread(target=self._serve, args=())
@@ -105,12 +113,19 @@ class SharedMemoryDataSetService:
     def _process_request(self, request: Request):
         if isinstance(request, TakeDataSetOwnershipRequest):
             return self._process_take_data_set_ownership_request(request=request)
+        elif isinstance(request, UnlinkDataSetRequest):
+            return self._process_unlink_data_set_request(request=request)
         else:
             raise TypeError(f"Unknown request type: {str(type(request))}")
 
     def _process_take_data_set_ownership_request(self, request: TakeDataSetOwnershipRequest) -> Response:
         self.logger.info(f"Processing request {request.request_id}.")
         self._data_set_store.connect_to_data_set(data_set_info=request.data_set_info)
+        return Response(success=True, request_id=request.request_id)
+
+    def _process_unlink_data_set_request(self, request: UnlinkDataSetRequest) -> Response:
+        self.logger.info(f"Processing {request.__class__.__name__} {request.request_id}")
+        self._data_set_store.unlink_data_set(data_set_info=request.data_set_info)
         return Response(success=True, request_id=request.request_id)
 
 

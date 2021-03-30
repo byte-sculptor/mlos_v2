@@ -25,3 +25,8 @@ class TakeDataSetOwnershipRequest(Request):
     def __init__(self, data_set_info: SharedMemoryDataSetInfo):
         Request.__init__(self)
         self.data_set_info = data_set_info
+
+class UnlinkDataSetRequest(Request):
+    def __init__(self, data_set_info: SharedMemoryDataSetInfo):
+        Request.__init__(self)
+        self.data_set_info = data_set_info

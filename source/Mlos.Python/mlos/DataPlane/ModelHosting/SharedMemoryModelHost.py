@@ -3,7 +3,7 @@
 # Licensed under the MIT License.
 #
 from functools import wraps
-from multiprocessing import Queue, Event
+from multiprocessing import connection, Event, Queue
 import os
 from queue import Empty
 from typing import Dict
@@ -75,7 +75,7 @@ class SharedMemoryModelHost:
         request_queue: Queue,
         response_queue: Queue,
         shutdown_event: Event,
-        data_set_store_proxy: SharedMemoryDataSetStoreProxy,
+        data_set_store_service_connection: connection,
         logger = None
     ):
         if logger is None:
@@ -84,7 +84,7 @@ class SharedMemoryModelHost:
         self.request_queue: Queue = request_queue
         self.response_queue: Queue = response_queue
         self.shutdown_event: Event = shutdown_event
-        self._data_set_store_proxy = data_set_store_proxy
+        self._data_set_store_proxy: SharedMemoryDataSetStoreProxy = SharedMemoryDataSetStoreProxy(service_connection=data_set_store_service_connection)
         self._model_cache: Dict[str, RegressionModel] = dict()
 
         # We need to keep a reference to SharedMemory objects, or they will be garbage collected.
@@ -215,12 +215,12 @@ def start_shared_memory_model_host(
     request_queue: Queue,
     response_queue: Queue,
     shutdown_event: Event,
-    data_set_store_proxy: SharedMemoryDataSetStoreProxy
+    data_set_store_service_connection: connection
 ):
     model_host = SharedMemoryModelHost(
         request_queue=request_queue,
         response_queue=response_queue,
         shutdown_event=shutdown_event,
-        data_set_store_proxy=data_set_store_proxy
+        data_set_store_service_connection=data_set_store_service_connection
     )
     model_host.run()
