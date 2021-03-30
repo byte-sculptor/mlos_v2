@@ -21,8 +21,8 @@ def request_handler():
     def request_handler_decorator(wrapped_function):
         @wraps(wrapped_function)
         def wrapper(*args, **kwargs):
+            request_id = None
             try:
-                request_id = None
                 request = kwargs['request']
                 request_id = request.request_id
 

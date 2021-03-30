@@ -65,6 +65,10 @@ class SharedMemoryDataSet(DataSet):
             self._shared_memory.unlink()
             self._shared_memory = None
 
+    def map(self):
+        if self._shared_memory is not None:
+            self._shared_memory = SharedMemory(name=str(self.data_set_id), create=False)
+
     def get_data_set_info(self) -> SharedMemoryDataSetInfo:
         return SharedMemoryDataSetInfo(
             column_names=self.column_names,
