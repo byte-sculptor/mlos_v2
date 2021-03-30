@@ -53,7 +53,9 @@ class ModelHostProcessPool:
         self._daemon_thread.start()
 
     def stop(self):
+        self.logger.info("Setting the shutdown event.")
         self.shutdown_event.set()
+        self.logger.info("Waiting for daemon thread to exit.")
         self._daemon_thread.join()
 
     def _launch_and_monitor_host_processes(self):
@@ -84,7 +86,7 @@ class ModelHostProcessPool:
                     self.logger.info(f'Process {process.pid} exited with exit code: {process.exitcode}')
                     dead_process_ids.append(i)
 
-            for process_index in dead_process_ids.reverse():
+            for process_index in reversed(dead_process_ids):
                 model_host_processes.pop(process_index)
 
         for process in model_host_processes:

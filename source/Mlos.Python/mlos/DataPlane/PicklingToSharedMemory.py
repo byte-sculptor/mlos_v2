@@ -22,27 +22,21 @@ if __name__ == "__main__":
 
     request_queue = Queue()
     response_queue = Queue()
-    shutdown_event = Event()
     data_set_service = SharedMemoryDataSetService(logger=logger)
     data_set_service.launch()
     shared_memory_data_set_store = data_set_service.data_set_store
 
-    model_host_processes = []
+    host_process_pool = ModelHostProcessPool(
+        shared_memory_data_set_service=data_set_service,
+        request_queue=request_queue,
+        response_queue=response_queue,
+        max_num_processes=cpu_count()-2,
+        logger=logger
+    )
+
 
     try:
-        for i in range(cpu_count() - 2):
-            proxy_connection = data_set_service.get_new_proxy_connection()
-            model_host_process = Process(
-                target=start_shared_memory_model_host,
-                kwargs=dict(
-                    request_queue=request_queue,
-                    response_queue=response_queue,
-                    shutdown_event=shutdown_event,
-                    data_set_store_service_connection=proxy_connection
-                )
-            )
-            model_host_process.start()
-            model_host_processes.append(model_host_process)
+        host_process_pool.start()
 
 
         objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config=objective_function_config_store.default)
@@ -176,14 +170,7 @@ if __name__ == "__main__":
         logger.info("Shutting down DataSetStoreService")
         data_set_service.stop()
 
-        logger.info("Setting the shutdown event")
-        shutdown_event.set()
-        logger.info("Waiting for hosts to exit.")
-
-        for model_host_process in model_host_processes:
-            logger.info(f"Joining process {model_host_process.pid}")
-            model_host_process.join()
-            logger.info(f"Process {model_host_process.pid} exited with exit code: {model_host_process.exitcode}")
+        host_process_pool.stop()
 
 
         model_writer.unlink()
