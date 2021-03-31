@@ -64,6 +64,13 @@ class SharedMemoryDataSet(DataSet):
     def attached(self) -> bool:
         return self._shared_memory is not None
 
+    def create(self):
+        assert self._shared_memory is None
+        assert self.shared_memory_np_array_nbytes is not None and self.shared_memory_np_array_nbytes >= 0
+        assert self.shared_memory_np_array_shape is not None
+        assert self.shared_memory_np_array_dtype is not None
+        self._shared_memory = SharedMemory(name=str(self.data_set_id), create=True, size=self.shared_memory_np_array_nbytes)
+
     def unlink(self):
         if self._shared_memory is not None:
             self._shared_memory.close()
@@ -101,10 +108,13 @@ class SharedMemoryDataSet(DataSet):
         df = pd.DataFrame.from_records(data=shared_memory_np_records_array, columns=self.column_names, index='index')
         return df
 
-    def set_dataframe(self, df: pd.DataFrame) -> None:
-        if self.schema is not None:
+    def set_dataframe(self, df: pd.DataFrame = None, np_records_array: np.recarray = None) -> None:
+        assert (df is not None) or (np_records_array is not None)
+        if self.schema is not None and df is not None:
             assert df in self.schema
-        self._df = df
+
+        if df is not None:
+            self._df = df
 
         # Now let's put it in shared memory. We can attempt two ways:
         #   1. using the to_numpy call on the entire df - causes a few copies
@@ -118,18 +128,19 @@ class SharedMemoryDataSet(DataSet):
         # So let's start with the first one to get it working and we will unlink and create new shared memory every time. We can
         # optimize all of this later.
 
-        if self._shared_memory is not None:
-            # TODO: put a lock around this just to be sure!
-            #
-            # For now let's unlink any previous version of this dataframe - this should return the memory to the allocator. Later: reuse!
-            self.unlink()
+        if np_records_array is None:
+            np_records_array = df.to_records(index=True)
 
-        np_records_array = df.to_records(index=True)
+        if self._shared_memory is None:
+            self.shared_memory_np_array_nbytes = np_records_array.nbytes
+            self.shared_memory_np_array_shape = np_records_array.shape
+            self.shared_memory_np_array_dtype = np_records_array.dtype
+            self.create()
+        else:
+            assert self.shared_memory_np_array_nbytes == np_records_array.nbytes
+            assert self.shared_memory_np_array_shape == np_records_array.shape
+            assert self.shared_memory_np_array_dtype == np_records_array.dtype
 
-        self.shared_memory_np_array_nbytes = np_records_array.nbytes
-        self.shared_memory_np_array_shape = np_records_array.shape
-        self.shared_memory_np_array_dtype = np_records_array.dtype
-        self._shared_memory = SharedMemory(name=str(self.data_set_id), create=True, size=self.shared_memory_np_array_nbytes)
         shared_memory_np_array = np.recarray(shape=self.shared_memory_np_array_shape, dtype=self.shared_memory_np_array_dtype, buf=self._shared_memory.buf)
         np.copyto(dst=shared_memory_np_array, src=np_records_array)
 
@@ -137,6 +148,7 @@ class SharedMemoryDataSet(DataSet):
         # Validates that the dataframe in the shared memory is an exact copy of the dataframe in cache.
         # This is useful to ensure that none of the clients is accidentally modifying the df.
         #
-        data_set_view = SharedMemoryDataSetView(data_set_info=self.get_data_set_info())
-        df = data_set_view.get_dataframe()
-        assert df.equals(self._df)
+        if self._df is not None:
+            data_set_view = SharedMemoryDataSetView(data_set_info=self.get_data_set_info())
+            df = data_set_view.get_dataframe()
+            assert df.equals(self._df)

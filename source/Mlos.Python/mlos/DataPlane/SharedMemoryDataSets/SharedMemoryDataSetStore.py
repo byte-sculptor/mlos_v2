@@ -39,13 +39,19 @@ class SharedMemoryDataSetStore(DataSetStore):
             records.append(record)
         return pd.DataFrame(records, columns=['data_set_id', 'n_bytes', 'schema_name'])
 
-    def create_data_set(self, data_set_info: SharedMemoryDataSetInfo, df: pd.DataFrame) -> SharedMemoryDataSet:
+    def create_data_set(self, data_set_info: SharedMemoryDataSetInfo, df: pd.DataFrame = None) -> SharedMemoryDataSet:
         data_set = SharedMemoryDataSet(
             schema=data_set_info.schema,
             data_set_id=data_set_info.data_set_id,
-            column_names=data_set_info.column_names
+            column_names=data_set_info.column_names,
+            shared_memory_np_array_nbytes=data_set_info.shared_memory_np_array_nbytes,
+            shared_memory_np_array_shape=data_set_info.shared_memory_np_array_shape,
+            shared_memory_np_array_dtype=data_set_info.shared_memory_np_array_dtype
         )
-        data_set.set_dataframe(df=df)
+        if df is None:
+            data_set.create()
+        else:
+            data_set.set_dataframe(df=df)
         with self._lock:
             self._data_sets_by_id[data_set_info.data_set_id] = data_set
         return data_set
@@ -57,7 +63,7 @@ class SharedMemoryDataSetStore(DataSetStore):
                 return
             self._data_sets_by_id[data_set.data_set_id] = data_set
 
-    def connect_to_data_set(self, data_set_info: SharedMemoryDataSetInfo) -> None:
+    def connect_to_data_set(self, data_set_info: SharedMemoryDataSetInfo) -> SharedMemoryDataSet:
         with self._lock:
             if data_set_info.data_set_id in self._data_sets_by_id:
                 self.logger.info(f"Data set {data_set_info.data_set_id} already known.")
@@ -76,6 +82,7 @@ class SharedMemoryDataSetStore(DataSetStore):
             assert data_set.attached
             self._data_sets_by_id[data_set_info.data_set_id] = data_set
             self.logger.info(f"Connected to data set {data_set_info.data_set_id}")
+        return data_set
 
     def get_data_set(self, data_set_info: DataSetInfo) -> SharedMemoryDataSet:
         with self._lock:

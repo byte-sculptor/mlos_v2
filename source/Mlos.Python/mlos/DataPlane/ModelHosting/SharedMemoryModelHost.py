@@ -155,7 +155,7 @@ class SharedMemoryModelHost:
 
         prediction_df = prediction.get_dataframe()
 
-
+        self.logger.info(f"column_names: {prediction.expected_column_names}")
         prediction_data_set = self._data_set_store_proxy.create_data_set(
             data_set_info=SharedMemoryDataSetInfo(
                 schema=None,

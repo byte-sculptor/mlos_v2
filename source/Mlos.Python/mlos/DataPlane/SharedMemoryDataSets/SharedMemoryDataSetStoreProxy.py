@@ -8,8 +8,8 @@ from multiprocessing import connection
 import pandas as pd
 
 from mlos.DataPlane.Interfaces import DataSet, DataSetStore, DataSetInfo
-from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetStore, SharedMemoryDataSetView
-from mlos.DataPlane.SharedMemoryDataSets.Messages import Request, TakeDataSetOwnershipRequest, UnlinkDataSetRequest
+from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetInfo, SharedMemoryDataSetStore, SharedMemoryDataSetView
+from mlos.DataPlane.SharedMemoryDataSets.Messages import Request, UnlinkDataSetRequest, CreateDataSetRequest, CreateDataSetResponse
 from mlos.Logger import create_logger
 
 class SharedMemoryDataSetStoreProxy(DataSetStore):
@@ -47,21 +47,44 @@ class SharedMemoryDataSetStoreProxy(DataSetStore):
 
         return response
 
-    def create_data_set(self, data_set_info: DataSetInfo, df: pd.DataFrame) -> DataSet:
-        """Creates a DataSet and ensures that the DataStoreService takes ownership of it."""
-        data_set = self._data_set_store.create_data_set(data_set_info=data_set_info, df=df)
-        shared_memory_data_set_info = data_set.get_data_set_info()
+    def create_data_set(self, data_set_info: SharedMemoryDataSetInfo, df: pd.DataFrame) -> DataSet:
+        """Requests that the Data Set Service allocates shared memory for us to use.
 
-        # Let's request that the service maps this dataset into its own memory.
-        #
-        self.logger.info(f"Requesting that server takes ownership of data set {data_set_info.data_set_id}")
-        request = TakeDataSetOwnershipRequest(data_set_info=shared_memory_data_set_info)
+        The catch is that python has a bug:
+            https://bugs.python.org/issue40882
+
+        And an unmerged fix:
+            https://github.com/python/cpython/pull/20684/files
+
+        The bug is that when you call SharedMemory.open(..., create=False) Python leaks a handle to the memory mapping and
+        consequently will never release that memory. This leads to out of memory errors.
+
+            One of the workarounds (admittedly rather ugly) is to only call that leaky API only from worker processes and killing the
+        worker processes either after every request or after n requests. When a worker process is killed, the ref-count on the
+        handle will be decremented and Windows can free that memory.
+
+            Consequently, we need the Service process to allocate the SharedMemory and a worker process to connect to it.
+            To do that, we need the worker process to compute the size of the memory buffer required.
+        """
+
+        np_records_array = df.to_records(index=True)
+
+
+        shared_memory_data_set_info = SharedMemoryDataSetInfo(
+            schema=data_set_info.schema,
+            column_names=data_set_info.column_names,
+            data_set_id=data_set_info.data_set_id,
+            shared_memory_np_array_nbytes=np_records_array.nbytes,
+            shared_memory_np_array_shape=np_records_array.shape,
+            shared_memory_np_array_dtype=np_records_array.dtype
+        )
+
+        request = CreateDataSetRequest(data_set_info=shared_memory_data_set_info)
         response = self._send_request_and_get_response(request=request)
         assert response.success
-        self.logger.info(f"Server successfully took ownership of data set: {data_set_info.data_set_id}")
-
-        # By the time we get the response we know that the service now holds a copy to the
-        # data set in shared memory.
+        assert response.data_set_info.data_set_id == shared_memory_data_set_info.data_set_id
+        data_set = self._data_set_store.connect_to_data_set(data_set_info=response.data_set_info)
+        data_set.set_dataframe(np_records_array=np_records_array)
         return data_set
 
     def add_data_set(self, data_set: SharedMemoryDataSet) -> None:

@@ -21,10 +21,23 @@ class Response:
         self.success = success
         self.exception = exception
 
+
+class CreateDataSetRequest(Request):
+    def __init__(self, data_set_info: SharedMemoryDataSetInfo):
+        Request.__init__(self)
+        self.data_set_info = data_set_info
+
+class CreateDataSetResponse(Response):
+    def __init__(self, request_id: UUID, data_set_info: SharedMemoryDataSetInfo):
+        Response.__init__(self, request_id=request_id, success=True, exception=None)
+        self.data_set_info = data_set_info
+
+
 class TakeDataSetOwnershipRequest(Request):
     def __init__(self, data_set_info: SharedMemoryDataSetInfo):
         Request.__init__(self)
         self.data_set_info = data_set_info
+
 
 class UnlinkDataSetRequest(Request):
     def __init__(self, data_set_info: SharedMemoryDataSetInfo):

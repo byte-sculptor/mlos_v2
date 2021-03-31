@@ -12,7 +12,7 @@ from mlos.Logger import create_logger
 
 from .SharedMemoryDataSetStore import SharedMemoryDataSetStore
 from .SharedMemoryDataSetStoreProxy import SharedMemoryDataSetStoreProxy
-from .Messages import Response, Request, TakeDataSetOwnershipRequest, UnlinkDataSetRequest
+from .Messages import Response, Request, TakeDataSetOwnershipRequest, UnlinkDataSetRequest, CreateDataSetRequest, CreateDataSetResponse
 
 
 def request_handler():
@@ -127,6 +127,8 @@ class SharedMemoryDataSetService:
             return self._process_take_data_set_ownership_request(request=request)
         elif isinstance(request, UnlinkDataSetRequest):
             return self._process_unlink_data_set_request(request=request)
+        elif isinstance(request, CreateDataSetRequest):
+            return self._process_create_data_set_request(request)
         else:
             raise TypeError(f"Unknown request type: {str(type(request))}")
 
@@ -140,6 +142,10 @@ class SharedMemoryDataSetService:
         self.data_set_store.unlink_data_set(data_set_info=request.data_set_info)
         return Response(success=True, request_id=request.request_id)
 
+    def _process_create_data_set_request(self, request: CreateDataSetRequest):
+        self.logger.info(f"Processing {request.__class__.__name__}. Creating data set {request.data_set_info.data_set_id}")
+        data_set = self.data_set_store.create_data_set(data_set_info=request.data_set_info)
+        return CreateDataSetResponse(request_id=request.request_id, data_set_info=data_set.get_data_set_info())
 
 
 
