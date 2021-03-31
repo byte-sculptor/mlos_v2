@@ -119,13 +119,14 @@ if __name__ == "__main__":
 
         # Let's make the host produce the prediction.
         #
-        desired_number_requests = 10000
+        desired_number_requests = 100000
         max_outstanding_requests = 100
         num_outstanding_requests = 0
         num_complete_requests = 0
+        num_failed_requests = 0
 
         while num_complete_requests < desired_number_requests:
-            logger.info(f"num_outstanding_requests: {num_outstanding_requests} / {max_outstanding_requests}, num_complete_requests: {num_complete_requests} / {desired_number_requests}")
+            logger.info(f"num_outstanding_requests: {num_outstanding_requests} / {max_outstanding_requests}, num_complete_requests: {num_complete_requests} / {desired_number_requests}, num_failed_requests: {num_failed_requests} / {num_complete_requests}")
 
             while num_outstanding_requests < max_outstanding_requests and (num_complete_requests + num_outstanding_requests) < desired_number_requests:
                 predict_request = PredictRequest(model_info=latest_model_info, data_set_info=parameters_for_predictions.get_data_set_info())
@@ -141,16 +142,17 @@ if __name__ == "__main__":
                 num_complete_requests += 1
 
                 if not predict_response.success:
-                    logger.info(f"Request {predict_response.request_id} failed.")
-                    raise predict_response.exception
+                    logger.info(f"Request {predict_response.request_id} failed with exception: {predict_response.exception}")
+                    num_failed_requests += 1
 
-                prediction_data_set = shared_memory_data_set_store.get_data_set(data_set_info=predict_response.prediction_data_set_info)
-                prediction = predict_response.prediction
-                prediction_df = prediction_data_set.get_dataframe()
-                logger.info(f"Response to request:{predict_response.request_id} received ")
-                prediction.set_dataframe(dataframe=prediction_df)
-                assert len(prediction.get_dataframe().index) == num_predictions
-                shared_memory_data_set_store.unlink_data_set(data_set_info=predict_response.prediction_data_set_info)
+                else:
+                    prediction_data_set = shared_memory_data_set_store.get_data_set(data_set_info=predict_response.prediction_data_set_info)
+                    prediction = predict_response.prediction
+                    prediction_df = prediction_data_set.get_dataframe()
+                    logger.info(f"Response to request:{predict_response.request_id} received ")
+                    prediction.set_dataframe(dataframe=prediction_df)
+                    assert len(prediction.get_dataframe().index) == num_predictions
+                    shared_memory_data_set_store.unlink_data_set(data_set_info=predict_response.prediction_data_set_info)
 
             if num_complete_requests % 10 == 0:
                 parameters_for_predictions.validate()

@@ -99,10 +99,6 @@ class SharedMemoryModelHost:
         #
         self._shared_memory_cache: Dict[str, SharedMemoryBackedModelWriter] = dict()
 
-        # We need to keep a reference to prediction DataSets too. TODO: remember to forget.
-        #
-        self._prediction_data_sets: Dict[UUID, SharedMemoryDataSet] = dict()
-
     def run(self):
         self.logger.info(f'{os.getpid()} running')
         timeout_s = 1
@@ -130,16 +126,12 @@ class SharedMemoryModelHost:
             except:
                 self.logger.error(f"Failed to process request {request_id}")
 
-
-        self.logger.info(f"{os.getpid()} freeing up predictions memory")
-        for _, data_set in self._prediction_data_sets.items():
-            data_set.unlink()
-
         self.logger.info(f"{os.getpid()} freeing up models memory")
         for name, model in self._shared_memory_cache.items():
             model.unlink()
 
         self.logger.info(f"{os.getpid()} shutting down")
+        os._exit(0)
         sys.exit(0)
 
     @request_handler()
