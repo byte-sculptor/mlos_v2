@@ -136,6 +136,7 @@ class SharedMemoryModelHost:
 
     @request_handler()
     def _process_predict_request(self, request: PredictRequest):
+        print(self._data_set_store_proxy._data_set_store.get_stats())
         if request.model_info.model_id in self._model_cache:
             self.logger.info(f"{os.getpid()} Model id: {request.model_info.model_id} found in cache.")
             model = self._model_cache[request.model_info.model_id]
@@ -175,7 +176,7 @@ class SharedMemoryModelHost:
             prediction_data_set_info=prediction_data_set_info
         )
 
-        self.logger.info(f"{os.getpid()} Produced a response with {len(prediction_df.index)} predictions.")
+        self.logger.info(f"{os.getpid()} Produced a response with {len(prediction_df.index)} predictions of size: {prediction_data_set_info.shared_memory_np_array_nbytes / 2**20} MB")
         return response
 
     @request_handler()

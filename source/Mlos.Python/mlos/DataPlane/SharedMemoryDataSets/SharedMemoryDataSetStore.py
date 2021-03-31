@@ -83,6 +83,8 @@ class SharedMemoryDataSetStore(DataSetStore):
 
     def get_data_set_view(self, data_set_info: DataSetInfo) -> SharedMemoryDataSetView:
         # TODO: check if its in this store...
+        with self._lock:
+            assert data_set_info.data_set_id in self._data_sets_by_id
         data_set_view = SharedMemoryDataSetView(data_set_info=data_set_info)
         return data_set_view
 
@@ -90,6 +92,8 @@ class SharedMemoryDataSetStore(DataSetStore):
     def attached_data_set_view(self, data_set_info: DataSetInfo):
         """Can be used as a context manager to automatically detach the dataset view when done."""
         # TODO: check if its in this store...
+        with self._lock:
+            assert data_set_info.data_set_id in self._data_sets_by_id
         data_set_view = SharedMemoryDataSetView(data_set_info=data_set_info)
         yield data_set_view
         data_set_view.detach()
@@ -97,6 +101,7 @@ class SharedMemoryDataSetStore(DataSetStore):
     def detach_data_set(self, data_set_info: DataSetInfo) -> None:
         """Removes the reference to the data set."""
         with self._lock:
+            assert data_set_info.data_set_id in self._data_sets_by_id
             if data_set_info.data_set_id in self._data_sets_by_id:
                 self.logger.info(f"Detaching data set {data_set_info.data_set_id}.")
                 data_set = self._data_sets_by_id.pop(data_set_info.data_set_id)
@@ -110,6 +115,7 @@ class SharedMemoryDataSetStore(DataSetStore):
         TODO: Add a semaphore here to be sure.
         """
         with self._lock:
+            assert data_set_info.data_set_id in self._data_sets_by_id
             if data_set_info.data_set_id in self._data_sets_by_id:
                 self.logger.info(f"Unlinking data set: {data_set_info.data_set_id}")
                 data_set = self._data_sets_by_id.pop(data_set_info.data_set_id)

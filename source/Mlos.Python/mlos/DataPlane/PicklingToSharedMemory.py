@@ -6,6 +6,9 @@ from multiprocessing import cpu_count, Event, Process, Queue
 import os
 from typing import Dict
 from uuid import UUID
+import psutil
+from tqdm import tqdm
+import traceback
 
 from mlos.DataPlane.ModelHosting.SharedMemoryModelHost import start_shared_memory_model_host
 from mlos.DataPlane.ModelHosting import PredictRequest, PredictResponse, TrainRequest, TrainResponse, SharedMemoryBackedModelWriter
@@ -30,7 +33,7 @@ if __name__ == "__main__":
         shared_memory_data_set_service=data_set_service,
         request_queue=request_queue,
         response_queue=response_queue,
-        max_num_processes=cpu_count()-2,
+        max_num_processes=psutil.cpu_count(logical=False),
         logger=logger
     )
 
@@ -88,10 +91,8 @@ if __name__ == "__main__":
                 iteration_number=num_samples
             )
 
-            last_train_request_id = train_request.request_id
             request_queue.put(train_request)
 
-        last_train_response = None
         num_responses = 0
         timeout_s = 10
         while num_responses < num_requests:
@@ -103,7 +104,18 @@ if __name__ == "__main__":
             if train_response.request_id == last_train_request_id:
                 last_train_response = train_response
 
-        latest_model_info = last_train_response.model_info
+        # The code above demonstrates that we can in principle use the remote model host to train models, but it's not yet
+        # hardened. Let's train a model in this process, put it in shared memory and retain ownership of it.
+        #
+        params_df = objective_function.parameter_space.random_dataframe(10000)
+        objectives_df = objective_function.evaluate_dataframe(params_df)
+        projected_params_df = parameter_space_adapter.project_dataframe(params_df, in_place=True)
+        model.fit(projected_params_df, objectives_df, iteration_number=10000)
+        model_name = 'trained_tree'
+        model_writer = SharedMemoryBackedModelWriter(model_id=model_name)
+        model_writer.set_model(model=model)
+        model_info = model_writer.get_model_info()
+
 
         # Now that we've trained the models, we can clean up the params_data_sets and objectives_data_sets.
         #
@@ -111,7 +123,7 @@ if __name__ == "__main__":
         for data_set in data_sets_to_clean_up:
             shared_memory_data_set_store.unlink_data_set(data_set_info=data_set.get_data_set_info())
 
-        num_predictions = 1000000
+        num_predictions = 5000000
         parameters_for_predictions = shared_memory_data_set_store.create_data_set(
             data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
             df=parameter_space_adapter.random_dataframe(num_predictions)
@@ -125,39 +137,54 @@ if __name__ == "__main__":
         num_complete_requests = 0
         num_failed_requests = 0
 
-        while num_complete_requests < desired_number_requests:
-            logger.info(f"num_outstanding_requests: {num_outstanding_requests} / {max_outstanding_requests}, num_complete_requests: {num_complete_requests} / {desired_number_requests}, num_failed_requests: {num_failed_requests} / {num_complete_requests}")
+        with tqdm(total=desired_number_requests, desc="requests") as request_bar:
 
-            while num_outstanding_requests < max_outstanding_requests and (num_complete_requests + num_outstanding_requests) < desired_number_requests:
-                predict_request = PredictRequest(model_info=latest_model_info, data_set_info=parameters_for_predictions.get_data_set_info())
-                request_queue.put(predict_request)
-                num_outstanding_requests += 1
+            while num_complete_requests < desired_number_requests:
+                request_bar.update(num_complete_requests)
+
+                logger.info(f"num_outstanding_requests: {num_outstanding_requests} / {max_outstanding_requests}, num_complete_requests: {num_complete_requests} / {desired_number_requests}, num_failed_requests: {num_failed_requests} / {num_complete_requests}")
+
+                while num_outstanding_requests < max_outstanding_requests and (num_complete_requests + num_outstanding_requests) < desired_number_requests:
+                    predict_request = PredictRequest(model_info=model_info, data_set_info=parameters_for_predictions.get_data_set_info())
+                    request_queue.put(predict_request)
+                    num_outstanding_requests += 1
 
 
-            response_timeout_s = 10
+                response_timeout_s = 1000
 
-            if num_outstanding_requests > 0:
-                predict_response: PredictResponse = response_queue.get(block=True, timeout=response_timeout_s)
-                num_outstanding_requests -= 1
-                num_complete_requests += 1
+                if num_outstanding_requests > 0:
+                    predict_response: PredictResponse = response_queue.get(block=True, timeout=response_timeout_s)
+                    num_outstanding_requests -= 1
+                    num_complete_requests += 1
 
-                if not predict_response.success:
-                    logger.info(f"Request {predict_response.request_id} failed with exception: {predict_response.exception}")
-                    num_failed_requests += 1
+                    request_bar.update(num_complete_requests)
 
-                else:
-                    prediction_data_set = shared_memory_data_set_store.get_data_set(data_set_info=predict_response.prediction_data_set_info)
-                    prediction = predict_response.prediction
-                    prediction_df = prediction_data_set.get_dataframe()
-                    logger.info(f"Response to request:{predict_response.request_id} received ")
-                    prediction.set_dataframe(dataframe=prediction_df)
-                    assert len(prediction.get_dataframe().index) == num_predictions
-                    shared_memory_data_set_store.unlink_data_set(data_set_info=predict_response.prediction_data_set_info)
+                    if not predict_response.success:
+                        logger.info(f"Request {predict_response.request_id} failed with exception: {predict_response.exception}")
+                        num_failed_requests += 1
 
-            if num_complete_requests % 10 == 0:
-                parameters_for_predictions.validate()
-                stats_df = shared_memory_data_set_store.get_stats()
-                logger.info(stats_df)
+                    else:
+                        try:
+                            prediction_data_set = shared_memory_data_set_store.get_data_set(data_set_info=predict_response.prediction_data_set_info)
+                            prediction = predict_response.prediction
+                            prediction_df = prediction_data_set.get_dataframe()
+                            logger.info(f"Response to request:{predict_response.request_id} received ")
+                            prediction.set_dataframe(dataframe=prediction_df)
+                            assert len(prediction.get_dataframe().index) == num_predictions
+
+                            if num_complete_requests % 1 == 0:
+                                parameters_for_predictions.validate()
+                                stats_df = shared_memory_data_set_store.get_stats()
+                                print(stats_df)
+                        except:
+                            logger.error("Failed to process the response.", exc_info=True)
+                            num_failed_requests += 1
+                        finally:
+                            shared_memory_data_set_store.unlink_data_set(data_set_info=predict_response.prediction_data_set_info)
+
+
+
+
 
         parameters_for_predictions.validate()
         shared_memory_data_set_store.unlink_data_set(data_set_info=parameters_for_predictions.get_data_set_info())
