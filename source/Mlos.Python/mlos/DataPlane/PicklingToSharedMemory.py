@@ -119,7 +119,7 @@ if __name__ == "__main__":
         for data_set in data_sets_to_clean_up:
             shared_memory_data_set_store.unlink_data_set(data_set_info=data_set.get_data_set_info())
 
-        num_predictions = 1000000
+        num_predictions = 100000
         parameters_for_predictions = shared_memory_data_set_store.create_data_set(
             data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
             df=parameter_space_adapter.random_dataframe(num_predictions)
@@ -127,7 +127,7 @@ if __name__ == "__main__":
 
         # Let's make the host produce the prediction.
         #
-        desired_number_requests = 10000
+        desired_number_requests = 100000
         max_outstanding_requests = 100
         num_outstanding_requests = 0
         num_complete_requests = 0

@@ -103,6 +103,11 @@ class SharedMemoryModelHost:
         self.logger.info(f'{os.getpid()} running')
         timeout_s = 1
         while not self.shutdown_event.is_set():
+
+            if self._data_set_store_proxy.total_leaked_bytes > 10**9:
+                self.logger.info(f"Reached a memory-leak threshold. This process has leaked {self._data_set_store_proxy.total_leaked_bytes / (10**6)} MB. Exiting.")
+                os._exit(-1)
+
             try:
                 request = self.request_queue.get(block=True, timeout=timeout_s)
                 request_id = request.request_id
@@ -131,7 +136,6 @@ class SharedMemoryModelHost:
             model.unlink()
 
         self.logger.info(f"{os.getpid()} shutting down")
-        os._exit(0)
         sys.exit(0)
 
     @request_handler()

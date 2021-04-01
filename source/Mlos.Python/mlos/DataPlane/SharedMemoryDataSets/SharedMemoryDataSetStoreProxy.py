@@ -29,6 +29,18 @@ class SharedMemoryDataSetStoreProxy(DataSetStore):
         #
         self._data_set_store = SharedMemoryDataSetStore()
 
+        # Since we are leaking the data sets anyway thanks to bug https://bugs.python.org/issue40882 in Python,
+        # we might as well keep track of their info so that we know what they are and how much memory we have leaked so far.
+        # We can use this information to exit this process once the memory leaked goes over some threshold.
+        #
+        # TODO: remove this entire mechanism once that bug is fixed and on non-Windows platforms.
+        self._leaked_data_sets_info = []
+        self._total_leaked_bytes = 0
+
+    @property
+    def total_leaked_bytes(self):
+        return self._total_leaked_bytes
+
     def _send_request_and_get_response(self, request: Request):
         """Sends a message to the service and waits for the response.
 
@@ -96,12 +108,16 @@ class SharedMemoryDataSetStoreProxy(DataSetStore):
     def get_data_set_view(self, data_set_info: DataSetInfo) -> SharedMemoryDataSetView:
         return self._data_set_store.get_data_set_view(data_set_info=data_set_info)
 
-    def detach_data_set(self, data_set_info: DataSetInfo) -> None:
+    def detach_data_set(self, data_set_info: SharedMemoryDataSetInfo) -> None:
         self._data_set_store.detach_data_set(data_set_info)
+        self._leaked_data_sets_info.append(data_set_info)
+        self._total_leaked_bytes += data_set_info.shared_memory_np_array_nbytes
 
-    def unlink_data_set(self, data_set_info: DataSetInfo):
+    def unlink_data_set(self, data_set_info: SharedMemoryDataSetInfo):
         request = UnlinkDataSetRequest(data_set_info=data_set_info)
         _ = self._send_request_and_get_response(request=request)
+        self._leaked_data_sets_info.append(data_set_info)
+        self._total_leaked_bytes += data_set_info.shared_memory_np_array_nbytes
         return
 
     @contextmanager
