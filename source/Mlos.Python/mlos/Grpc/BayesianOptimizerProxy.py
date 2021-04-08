@@ -8,7 +8,7 @@ from typing import Tuple
 import pandas as pd
 
 from mlos.global_values import deserialize_from_bytes_string
-from mlos.Grpc import OptimizerService_pb2, OptimizerService_pb2_grpc
+from mlos.Grpc import OptimizerService_pb2, OptimizerService_pb2_grpc, OptimizerMonitoringService_pb2, OptimizerMonitoringService_pb2_grpc
 from mlos.Logger import create_logger
 from mlos.Optimizers.OptimizerBase import OptimizerBase
 from mlos.Optimizers.RegressionModels.MultiObjectiveGoodnessOfFitMetrics import MultiObjectiveGoodnessOfFitMetrics
@@ -56,6 +56,7 @@ class BayesianOptimizerProxy(OptimizerBase):
 
         self._grpc_channel = grpc_channel
         self._optimizer_stub = OptimizerService_pb2_grpc.OptimizerServiceStub(self._grpc_channel)
+        self._optimizer_monitoring_stub = OptimizerMonitoringService_pb2_grpc.OptimizerMonitoringServiceStub(channel=self._grpc_channel)
         self.optimizer_config = optimizer_config
         self.id = id
 

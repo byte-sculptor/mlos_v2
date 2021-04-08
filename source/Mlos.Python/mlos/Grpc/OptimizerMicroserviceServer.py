@@ -8,13 +8,13 @@ from concurrent.futures import ThreadPoolExecutor
 import grpc
 
 from mlos.Grpc import OptimizerService_pb2_grpc
-from mlos.Grpc.OptimizerMicroservice import OptimizerMicroservice
+from mlos.Grpc.OptimizerService import OptimizerService
 from mlos.Logger import create_logger
 
 
 
 class OptimizerMicroserviceServer:
-    """ Hosts the OptimizerMicroservice.
+    """Hosts the OptimizerMicroservice.
 
     The functionality to stand up the gRPC server is needed in unit tests (in process)
     as well as in the 'start_optimizer_microservice.py' launcher script. Both of them
@@ -35,7 +35,7 @@ class OptimizerMicroserviceServer:
         assert self._server is None, "Server already started"
         self._server = grpc.server(ThreadPoolExecutor(max_workers=self.num_threads))
         OptimizerService_pb2_grpc.add_OptimizerServiceServicer_to_server(
-            OptimizerMicroservice(),
+            OptimizerService(),
             self._server
         )
         self._server.add_insecure_port(f'[::]:{self.port}')
