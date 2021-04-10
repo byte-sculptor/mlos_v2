@@ -7,12 +7,11 @@ from multiprocessing import connection
 
 import pandas as pd
 
-from mlos.DataPlane.Interfaces import DataSet, DataSetStore, DataSetInfo
-from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetInfo, SharedMemoryDataSetStore, SharedMemoryDataSetView
+from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetInfo, SharedMemoryDataSetStore
 from mlos.DataPlane.SharedMemoryDataSets.Messages import Request, UnlinkDataSetRequest, CreateDataSetRequest, CreateDataSetResponse
 from mlos.Logger import create_logger
 
-class SharedMemoryDataSetStoreProxy(DataSetStore):
+class SharedMemoryDataSetStoreProxy:
     """SharedMemoryDataSetStore clients use this proxy to access and manipulate the DataSets.
 
     """
@@ -59,7 +58,7 @@ class SharedMemoryDataSetStoreProxy(DataSetStore):
 
         return response
 
-    def create_data_set(self, data_set_info: SharedMemoryDataSetInfo, df: pd.DataFrame) -> DataSet:
+    def create_data_set(self, data_set_info: SharedMemoryDataSetInfo, df: pd.DataFrame) -> SharedMemoryDataSet:
         """Requests that the Data Set Service allocates shared memory for us to use.
 
         The catch is that python has a bug:
@@ -99,14 +98,15 @@ class SharedMemoryDataSetStoreProxy(DataSetStore):
         data_set.set_dataframe(np_records_array=np_records_array)
         return data_set
 
+    def attach_data_set(self, data_set_info: SharedMemoryDataSetInfo) -> SharedMemoryDataSet:
+        data_set = self._data_set_store.connect_to_data_set(data_set_info=data_set_info)
+        return data_set
+
     def add_data_set(self, data_set: SharedMemoryDataSet) -> None:
         self._data_set_store.add_data_set(data_set=data_set)
 
-    def get_data_set(self, data_set_info: DataSetInfo) -> DataSet:
+    def get_data_set(self, data_set_info: SharedMemoryDataSetInfo) -> SharedMemoryDataSet:
         return self._data_set_store.get_data_set(data_set_info=data_set_info)
-
-    def get_data_set_view(self, data_set_info: DataSetInfo) -> SharedMemoryDataSetView:
-        return self._data_set_store.get_data_set_view(data_set_info=data_set_info)
 
     def detach_data_set(self, data_set_info: SharedMemoryDataSetInfo) -> None:
         self._data_set_store.detach_data_set(data_set_info)
@@ -121,7 +121,7 @@ class SharedMemoryDataSetStoreProxy(DataSetStore):
         return
 
     @contextmanager
-    def attached_data_set_view(self, data_set_info: DataSetInfo):
-        data_set_view = self.get_data_set_view(data_set_info=data_set_info)
-        yield data_set_view
-        data_set_view.detach()
+    def attached_data_set(self, data_set_info: SharedMemoryDataSetInfo):
+        data_set = self.attach_data_set(data_set_info=data_set_info)
+        yield data_set
+        data_set.detach()

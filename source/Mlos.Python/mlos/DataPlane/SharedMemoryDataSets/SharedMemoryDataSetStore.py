@@ -9,13 +9,11 @@ from uuid import UUID
 
 import pandas as pd
 
-from mlos.DataPlane.Interfaces import DataSetInfo, DataSetStore
 from mlos.Logger import create_logger
 from .SharedMemoryDataSet import SharedMemoryDataSet
 from .SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
-from .SharedMemoryDataSetView import SharedMemoryDataSetView
 
-class SharedMemoryDataSetStore(DataSetStore):
+class SharedMemoryDataSetStore:
     """Provides functionality to create, view and delte DataSet instances in shared memory.
 
     """
@@ -84,28 +82,19 @@ class SharedMemoryDataSetStore(DataSetStore):
             self.logger.info(f"Connected to data set {data_set_info.data_set_id}")
         return data_set
 
-    def get_data_set(self, data_set_info: DataSetInfo) -> SharedMemoryDataSet:
+    def get_data_set(self, data_set_info: SharedMemoryDataSetInfo) -> SharedMemoryDataSet:
         with self._lock:
             return self._data_sets_by_id[data_set_info.data_set_id]
 
-    def get_data_set_view(self, data_set_info: DataSetInfo) -> SharedMemoryDataSetView:
-        # TODO: check if its in this store...
-        with self._lock:
-            assert data_set_info.data_set_id in self._data_sets_by_id
-        data_set_view = SharedMemoryDataSetView(data_set_info=data_set_info)
-        return data_set_view
-
     @contextmanager
-    def attached_data_set_view(self, data_set_info: DataSetInfo):
+    def attached_data_set(self, data_set_info: SharedMemoryDataSetInfo):
         """Can be used as a context manager to automatically detach the dataset view when done."""
         # TODO: check if its in this store...
-        with self._lock:
-            assert data_set_info.data_set_id in self._data_sets_by_id
-        data_set_view = SharedMemoryDataSetView(data_set_info=data_set_info)
-        yield data_set_view
-        data_set_view.detach()
+        data_set = self.connect_to_data_set(data_set_info=data_set_info)
+        yield data_set
+        self.detach_data_set(data_set_info=data_set_info)
 
-    def detach_data_set(self, data_set_info: DataSetInfo) -> None:
+    def detach_data_set(self, data_set_info: SharedMemoryDataSetInfo) -> None:
         """Removes the reference to the data set."""
         with self._lock:
             assert data_set_info.data_set_id in self._data_sets_by_id
@@ -116,7 +105,7 @@ class SharedMemoryDataSetStore(DataSetStore):
             else:
                 self.logger.info(f"Data set {data_set_info.data_set_id} not known.")
 
-    def unlink_data_set(self, data_set_info: DataSetInfo) -> None:
+    def unlink_data_set(self, data_set_info: SharedMemoryDataSetInfo) -> None:
         """Removes the reference to the data_set and deallocates its memory.
 
         TODO: Add a semaphore here to be sure.
@@ -129,5 +118,3 @@ class SharedMemoryDataSetStore(DataSetStore):
                 data_set.unlink()
             else:
                 self.logger.info(f"Data set: {data_set_info.data_set_id} not known.")
-
-

@@ -5,6 +5,7 @@
 from multiprocessing import cpu_count, Queue
 import os
 from queue import Empty
+import random
 
 from mlos.DataPlane.ModelHosting.SharedMemoryModelHost import start_shared_memory_model_host
 from mlos.DataPlane.ModelHosting import PredictRequest, PredictResponse, TrainRequest, TrainResponse, SharedMemoryBackedModelWriter
@@ -29,7 +30,7 @@ if __name__ == "__main__":
         shared_memory_data_set_service=data_set_service,
         request_queue=request_queue,
         response_queue=response_queue,
-        max_num_processes=cpu_count(),
+        max_num_processes=1, #cpu_count(),
         logger=logger
     )
 
@@ -119,7 +120,7 @@ if __name__ == "__main__":
         for data_set in data_sets_to_clean_up:
             shared_memory_data_set_store.unlink_data_set(data_set_info=data_set.get_data_set_info())
 
-        num_predictions = 100000
+        num_predictions = 10**6
         parameters_for_predictions = shared_memory_data_set_store.create_data_set(
             data_set_info=SharedMemoryDataSetInfo(schema=parameter_space_adapter.target),
             df=parameter_space_adapter.random_dataframe(num_predictions)
@@ -127,29 +128,34 @@ if __name__ == "__main__":
 
         # Let's make the host produce the prediction.
         #
-        desired_number_requests = 100000
+        desired_number_requests = 100
         max_outstanding_requests = 100
-        num_outstanding_requests = 0
+
+        # These include both requests in the queue and actively processed the workers.
+        #
+        num_pending_requests = 0
+
         num_complete_requests = 0
         num_failed_requests = 0
 
 
-        while num_complete_requests < desired_number_requests:
+        while num_pending_requests > 0 or num_complete_requests < desired_number_requests:
+            num_pending_requests = request_queue.qsize()
 
-            logger.info(f"num_outstanding_requests: {num_outstanding_requests} / {max_outstanding_requests}, num_complete_requests: {num_complete_requests} / {desired_number_requests}, num_failed_requests: {num_failed_requests} / {num_complete_requests}")
 
-            while num_outstanding_requests < max_outstanding_requests and (num_complete_requests + num_outstanding_requests) < desired_number_requests:
+            logger.info(f"num_outstanding_requests: {num_pending_requests} / {max_outstanding_requests}, num_complete_requests: {num_complete_requests} / {desired_number_requests}, num_failed_requests: {num_failed_requests} / {num_complete_requests}")
+
+            while num_pending_requests < max_outstanding_requests and (num_complete_requests + num_pending_requests) < desired_number_requests:
                 predict_request = PredictRequest(model_info=model_info, data_set_info=parameters_for_predictions.get_data_set_info())
                 request_queue.put(predict_request)
-                num_outstanding_requests += 1
+                num_pending_requests = request_queue.qsize()
 
 
-            response_timeout_s = 10
+            response_timeout_s = 1000
 
-            if num_outstanding_requests > 0:
+            if num_pending_requests > 0:
                 try:
                     predict_response: PredictResponse = response_queue.get(block=True, timeout=response_timeout_s)
-                    num_outstanding_requests -= 1
                     num_complete_requests += 1
                 except Empty:
                     continue
@@ -160,14 +166,13 @@ if __name__ == "__main__":
 
                 else:
                     try:
-                        prediction_data_set = shared_memory_data_set_store.get_data_set(data_set_info=predict_response.prediction_data_set_info)
-                        prediction = predict_response.prediction
-                        prediction_df = prediction_data_set.get_dataframe()
-                        logger.info(f"Response to request:{predict_response.request_id} received ")
-                        prediction.set_dataframe(dataframe=prediction_df)
-                        assert len(prediction.get_dataframe().index) == num_predictions
-
-                        if num_complete_requests % 1 == 0:
+                        if num_complete_requests % 10 == 0:
+                            prediction_data_set = shared_memory_data_set_store.get_data_set(data_set_info=predict_response.prediction_data_set_info)
+                            prediction = predict_response.prediction
+                            prediction_df = prediction_data_set.get_dataframe()
+                            logger.info(f"Response to request:{predict_response.request_id} received ")
+                            prediction.set_dataframe(dataframe=prediction_df)
+                            assert len(prediction.get_dataframe().index) == num_predictions
                             parameters_for_predictions.validate()
                             stats_df = shared_memory_data_set_store.get_stats()
                             print(stats_df)

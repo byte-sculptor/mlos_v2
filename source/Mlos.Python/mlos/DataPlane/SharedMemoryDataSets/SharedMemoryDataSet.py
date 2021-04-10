@@ -10,15 +10,12 @@ from uuid import UUID, uuid4
 import numpy as np
 import pandas as pd
 
-from mlos.DataPlane.Interfaces.DataSet import DataSet
 from mlos.Spaces import CategoricalDimension, Hypergrid
-from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonEncoder
 
 from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSetInfo import SharedMemoryDataSetInfo
-from mlos.DataPlane.SharedMemoryDataSets.SharedMemoryDataSetView import SharedMemoryDataSetView
 
 
-class SharedMemoryDataSet(DataSet):
+class SharedMemoryDataSet:
     """Maintains a dataframe and its associated metadata in shared memory.
 
     """
@@ -149,6 +146,5 @@ class SharedMemoryDataSet(DataSet):
         # This is useful to ensure that none of the clients is accidentally modifying the df.
         #
         if self._df is not None:
-            data_set_view = SharedMemoryDataSetView(data_set_info=self.get_data_set_info())
-            df = data_set_view.get_dataframe()
+            df = self.get_dataframe()
             assert df.equals(self._df)

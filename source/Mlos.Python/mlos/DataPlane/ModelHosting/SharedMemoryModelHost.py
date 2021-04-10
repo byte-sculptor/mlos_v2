@@ -12,7 +12,7 @@ from uuid import UUID
 
 from mlos.DataPlane.ModelHosting import Response, PredictRequest, PredictResponse, TrainRequest, TrainResponse, \
     SharedMemoryBackedModelReader, SharedMemoryBackedModelWriter
-from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetInfo, SharedMemoryDataSetStoreProxy, attached_data_set_view
+from mlos.DataPlane.SharedMemoryDataSets import SharedMemoryDataSet, SharedMemoryDataSetInfo, SharedMemoryDataSetStoreProxy
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel
 
@@ -152,8 +152,8 @@ class SharedMemoryModelHost:
             model_reader.detach()
             self.logger.info(f"{os.getpid()} Model id: {request.model_info.model_id} deserialized from shared memory and placed in the cache.")
 
-        with attached_data_set_view(data_set_info=request.data_set_info) as features_data_set_view:
-            features_df = features_data_set_view.get_dataframe()
+        with self._data_set_store_proxy.attached_data_set(data_set_info=request.data_set_info) as features_data_set:
+            features_df = features_data_set.get_dataframe()
             prediction = model.predict(feature_values_pandas_frame=features_df, include_only_valid_rows=True)
 
 
@@ -192,11 +192,11 @@ class SharedMemoryModelHost:
         untrained_model_reader.detach()
         self.logger.info(f"Successlly deserialized model: {request.model_info.model_id} from shared memory.")
 
-        with attached_data_set_view(data_set_info=request.features_data_set_info) as features_data_set_view, \
-            attached_data_set_view(data_set_info=request.objectives_data_set_info) as objectives_data_set_view:
+        with self._data_set_store_proxy.attached_data_set(data_set_info=request.features_data_set_info) as features_data_set, \
+            self._data_set_store_proxy.attached_data_set(data_set_info=request.objectives_data_set_info) as objectives_data_set:
 
-            features_df = features_data_set_view.get_dataframe()
-            objectives_df = objectives_data_set_view.get_dataframe()
+            features_df = features_data_set.get_dataframe()
+            objectives_df = objectives_data_set.get_dataframe()
 
             model.fit(
                 feature_values_pandas_frame=features_df,
