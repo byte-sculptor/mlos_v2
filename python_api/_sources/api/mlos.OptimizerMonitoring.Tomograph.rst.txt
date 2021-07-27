@@ -11,5 +11,9 @@ mlos.OptimizerMonitoring.Tomograph
 .. toctree::
    :maxdepth: 1
 
+   mlos.OptimizerMonitoring.Tomograph.GridPlot
    mlos.OptimizerMonitoring.Tomograph.Heatmap
    mlos.OptimizerMonitoring.Tomograph.ModelTomograph
+   mlos.OptimizerMonitoring.Tomograph.ModelTomograph2
+   mlos.OptimizerMonitoring.Tomograph.ObjectivesGridPlot
+   mlos.OptimizerMonitoring.Tomograph.ObservationsDataSource

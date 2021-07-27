@@ -18,4 +18,5 @@ mlos.MlosOptimizationServices
 .. toctree::
    :maxdepth: 1
 
+   mlos.MlosOptimizationServices.BayesianOptimizerStore
    mlos.MlosOptimizationServices.ModelsDatabase

@@ -1,0 +1,7 @@
+mlos.OptimizerMonitoring.Tomograph.GridPlot
+===========================================
+
+.. automodule:: mlos.OptimizerMonitoring.Tomograph.GridPlot
+   :members:
+   :undoc-members:
+   :show-inheritance:

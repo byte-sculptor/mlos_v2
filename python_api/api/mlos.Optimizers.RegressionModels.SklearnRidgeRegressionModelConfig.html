@@ -3,9 +3,9 @@
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
   <title>mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig &mdash; mlos  documentation</title>
   
@@ -13,11 +13,17 @@
   
   <link rel="stylesheet" href="../_static/css/mlos.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/css/mlos.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/plot_directive.css" type="text/css" />
   <link rel="stylesheet" href="../_static/basic.css" type="text/css" />
 
   
   
+
   
+  
+
   
 
   
@@ -27,10 +33,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
         <script src="../_static/jquery.js"></script>
         <script src="../_static/underscore.js"></script>
         <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
         <script src="../_static/js/copybutton.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
@@ -53,7 +59,7 @@
           
 
           
-            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> mlos
+            <a href="../index.html" class="icon icon-home"> mlos
           
 
           
@@ -111,11 +117,21 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.Grpc.html">mlos.Grpc</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.BayesianOptimizerProxy.html">mlos.Grpc.BayesianOptimizerProxy</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerMicroservice.html">mlos.Grpc.OptimizerMicroservice</a></li>
-<li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerMicroserviceServer.html">mlos.Grpc.OptimizerMicroserviceServer</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerMonitor.html">mlos.Grpc.OptimizerMonitor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerMonitoringService.html">mlos.Grpc.OptimizerMonitoringService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerMonitoringServiceEncoderDecoder.html">mlos.Grpc.OptimizerMonitoringServiceEncoderDecoder</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerMonitoringService_pb2.html">mlos.Grpc.OptimizerMonitoringService_pb2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerMonitoringService_pb2_grpc.html">mlos.Grpc.OptimizerMonitoringService_pb2_grpc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerService.html">mlos.Grpc.OptimizerService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerServiceEncoderDecoder.html">mlos.Grpc.OptimizerServiceEncoderDecoder</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerService_pb2.html">mlos.Grpc.OptimizerService_pb2</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerService_pb2_grpc.html">mlos.Grpc.OptimizerService_pb2_grpc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.OptimizerServicesServer.html">mlos.Grpc.OptimizerServicesServer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Grpc.unit_tests.html">mlos.Grpc.unit_tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Grpc.unit_tests.TestOptimizerMonitoringServiceEncoderDecoder.html">mlos.Grpc.unit_tests.TestOptimizerMonitoringServiceEncoderDecoder</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Grpc.unit_tests.TestOptimizerServiceEncoderDecoder.html">mlos.Grpc.unit_tests.TestOptimizerServiceEncoderDecoder</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.Mlos.html">mlos.Mlos</a><ul>
@@ -155,6 +171,11 @@
 <li class="toctree-l3"><a class="reference internal" href="mlos.MlosOptimizationServices.Distributable.html">mlos.MlosOptimizationServices.Distributable</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.MlosOptimizationServices.MlosOptimizationRuntime.html">mlos.MlosOptimizationServices.MlosOptimizationRuntime</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.MlosOptimizationServices.MlosOptimizationServicesProxy.html">mlos.MlosOptimizationServices.MlosOptimizationServicesProxy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.MlosOptimizationServices.BayesianOptimizerStore.html">mlos.MlosOptimizationServices.BayesianOptimizerStore</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.MlosOptimizationServices.BayesianOptimizerStore.BayesianOptimizerInMemoryStore.html">mlos.MlosOptimizationServices.BayesianOptimizerStore.BayesianOptimizerInMemoryStore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.MlosOptimizationServices.BayesianOptimizerStore.BayesianOptimizerStoreBase.html">mlos.MlosOptimizationServices.BayesianOptimizerStore.BayesianOptimizerStoreBase</a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.MlosOptimizationServices.ModelsDatabase.html">mlos.MlosOptimizationServices.ModelsDatabase</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlos.MlosOptimizationServices.ModelsDatabase.ConnectionString.html">mlos.MlosOptimizationServices.ModelsDatabase.ConnectionString</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.MlosOptimizationServices.ModelsDatabase.DatabaseConnector.html">mlos.MlosOptimizationServices.ModelsDatabase.DatabaseConnector</a></li>
@@ -168,8 +189,17 @@
 <li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.ObjectiveFunctionBase.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionBase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory.html">mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.OptimizerEvaluationReport.html">mlos.OptimizerEvaluationTools.OptimizerEvaluationReport</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.OptimizerEvaluator.html">mlos.OptimizerEvaluationTools.OptimizerEvaluator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.OptimizerEvaluatorConfigStore.html">mlos.OptimizerEvaluationTools.OptimizerEvaluatorConfigStore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.OptimumOverTime.html">mlos.OptimizerEvaluationTools.OptimumOverTime</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.html">mlos.OptimizerEvaluationTools.SyntheticFunctions</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.EnvelopedWaves.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.EnvelopedWaves</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.Hypersphere.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.Hypersphere</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.HypersphereConfigStore.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.HypersphereConfigStore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.MultiObjectiveEnvelopedWaves.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.MultiObjectiveEnvelopedWaves</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.MultiObjectiveNestedPolynomialObjective.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.MultiObjectiveNestedPolynomialObjective</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.NestedPolynomialObjective.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.NestedPolynomialObjective</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper</a></li>
@@ -177,13 +207,24 @@
 <li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions.html">mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerEvaluationTools.unit_tests.html">mlos.OptimizerEvaluationTools.unit_tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.unit_tests.TestEnvelopedWaves.html">mlos.OptimizerEvaluationTools.unit_tests.TestEnvelopedWaves</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.unit_tests.TestObjectiveFunctionFactory.html">mlos.OptimizerEvaluationTools.unit_tests.TestObjectiveFunctionFactory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.unit_tests.TestOptimizerEvaluator.html">mlos.OptimizerEvaluationTools.unit_tests.TestOptimizerEvaluator</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerEvaluationTools.unit_tests.TestPolynomialObjective.html">mlos.OptimizerEvaluationTools.unit_tests.TestPolynomialObjective</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="mlos.OptimizerMonitoring.html">mlos.OptimizerMonitoring</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerMonitoring.GoodnessOfFitTensorboardWriter.html">mlos.OptimizerMonitoring.GoodnessOfFitTensorboardWriter</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.html">mlos.OptimizerMonitoring.Tomograph</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.GridPlot.html">mlos.OptimizerMonitoring.Tomograph.GridPlot</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.Heatmap.html">mlos.OptimizerMonitoring.Tomograph.Heatmap</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.ModelTomograph.html">mlos.OptimizerMonitoring.Tomograph.ModelTomograph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.ModelTomograph2.html">mlos.OptimizerMonitoring.Tomograph.ModelTomograph2</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.ObjectivesGridPlot.html">mlos.OptimizerMonitoring.Tomograph.ObjectivesGridPlot</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.OptimizerMonitoring.Tomograph.ObservationsDataSource.html">mlos.OptimizerMonitoring.Tomograph.ObservationsDataSource</a></li>
 </ul>
 </li>
 </ul>
@@ -196,6 +237,7 @@
 <li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.OptimizationProblem.html">mlos.Optimizers.OptimizationProblem</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.OptimizerBase.html">mlos.Optimizers.OptimizerBase</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.OptimumDefinition.html">mlos.Optimizers.OptimumDefinition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.ParetoFrontier.html">mlos.Optimizers.ParetoFrontier</a></li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.html">mlos.Optimizers.ExperimentDesigner</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.ExperimentDesigner.html">mlos.Optimizers.ExperimentDesigner.ExperimentDesigner</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.html">mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers</a></li>
@@ -209,6 +251,13 @@
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore.html">mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState.html">mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel.html">mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.LassoCrossValidatedConfigStore.html">mlos.Optimizers.RegressionModels.LassoCrossValidatedConfigStore</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.LassoCrossValidatedRegressionModel.html">mlos.Optimizers.RegressionModels.LassoCrossValidatedRegressionModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.MultiObjectiveGoodnessOfFitMetrics.html">mlos.Optimizers.RegressionModels.MultiObjectiveGoodnessOfFitMetrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.MultiObjectiveHomogeneousRandomForest.html">mlos.Optimizers.RegressionModels.MultiObjectiveHomogeneousRandomForest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.MultiObjectivePrediction.html">mlos.Optimizers.RegressionModels.MultiObjectivePrediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.MultiObjectiveRegressionModel.html">mlos.Optimizers.RegressionModels.MultiObjectiveRegressionModel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.MultiObjectiveRegressionModelFitState.html">mlos.Optimizers.RegressionModels.MultiObjectiveRegressionModelFitState</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.Prediction.html">mlos.Optimizers.RegressionModels.Prediction</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.RegressionEnhancedRandomForestModel.html">mlos.Optimizers.RegressionModels.RegressionEnhancedRandomForestModel</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.RegressionModels.RegressionModel.html">mlos.Optimizers.RegressionModels.RegressionModel</a></li>
@@ -225,6 +274,8 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="mlos.Optimizers.unit_tests.html">mlos.Optimizers.unit_tests</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.unit_tests.TestBayesianOptimizer.html">mlos.Optimizers.unit_tests.TestBayesianOptimizer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.unit_tests.TestOptimizationProblem.html">mlos.Optimizers.unit_tests.TestOptimizationProblem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Optimizers.unit_tests.TestParetoFrontier.html">mlos.Optimizers.unit_tests.TestParetoFrontier</a></li>
 </ul>
 </li>
 </ul>
@@ -257,6 +308,7 @@
 <li class="toctree-l3"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.html">mlos.Spaces.HypergridAdapters</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.CategoricalToDiscreteHypergridAdapter.html">mlos.Spaces.HypergridAdapters.CategoricalToDiscreteHypergridAdapter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.CategoricalToOneHotEncodedHypergridAdapter.html">mlos.Spaces.HypergridAdapters.CategoricalToOneHotEncodedHypergridAdapter</a></li>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.ContinuousToPolynomialBasisHypergridAdapter.html">mlos.Spaces.HypergridAdapters.ContinuousToPolynomialBasisHypergridAdapter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.DiscreteToUnitContinuousHypergridAdapter.html">mlos.Spaces.HypergridAdapters.DiscreteToUnitContinuousHypergridAdapter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter.html">mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.HypergridAdapters.HypergridAdapter.html">mlos.Spaces.HypergridAdapters.HypergridAdapter</a></li>
@@ -279,6 +331,14 @@
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestIntervalTree.html">mlos.Spaces.unit_tests.TestIntervalTree</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestSimpleHypergrid.html">mlos.Spaces.unit_tests.TestSimpleHypergrid</a></li>
 <li class="toctree-l4"><a class="reference internal" href="mlos.Spaces.unit_tests.TestSortedBinaryTree.html">mlos.Spaces.unit_tests.TestSortedBinaryTree</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="mlos.Utils.html">mlos.Utils</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Utils.KeyOrderedDict.html">mlos.Utils.KeyOrderedDict</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mlos.Utils.unit_tests.html">mlos.Utils.unit_tests</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="mlos.Utils.unit_tests.TestKeyOrderedDict.html">mlos.Utils.unit_tests.TestKeyOrderedDict</a></li>
 </ul>
 </li>
 </ul>
@@ -325,6 +385,8 @@
 
 
 
+
+
 <div role="navigation" aria-label="breadcrumbs navigation">
 
   <ul class="wy-breadcrumbs">
@@ -342,7 +404,7 @@
     
       <li class="wy-breadcrumbs-aside">
         
-            
+          
             <a href="../_sources/api/mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.rst.txt" rel="nofollow"> View page source</a>
           
         
@@ -359,17 +421,17 @@
   <div class="section" id="module-mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig">
 <span id="mlos-optimizers-regressionmodels-sklearnridgeregressionmodelconfig"></span><h1>mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig<a class="headerlink" href="#module-mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
-<dt id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig">
-<em class="property">class </em><code class="sig-prename descclassname">mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.</code><code class="sig-name descname">SklearnRidgeRegressionModelConfig</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">alpha</span><span class="o">=</span><span class="default_value">1.0</span></em>, <em class="sig-param"><span class="n">fit_intercept</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">normalize</span><span class="o">=</span><span class="default_value">False</span></em>, <em class="sig-param"><span class="n">copy_x</span><span class="o">=</span><span class="default_value">True</span></em>, <em class="sig-param"><span class="n">max_iter</span><span class="o">=</span><span class="default_value">1000</span></em>, <em class="sig-param"><span class="n">tol</span><span class="o">=</span><span class="default_value">0.0001</span></em>, <em class="sig-param"><span class="n">random_state</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">solver</span><span class="o">=</span><span class="default_value">'auto'</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/d946242/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L11"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.</span></span><span class="sig-name descname"><span class="pre">SklearnRidgeRegressionModelConfig</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_intercept</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy_x</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_iter</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.0001</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/f828cf2/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L11"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py attribute">
-<dt id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.CONFIG_SPACE">
-<code class="sig-name descname">CONFIG_SPACE</code><em class="property"> = Name: sklearn_ridge_regression_model_config   Dimensions:     alpha: [0.00, 65536.00]     fit_intercept: {False, True}     normalize: {False, True}     copy_x: {False, True}     max_iter: {0, 1, ... , 100000}     tol: [0.00, 1024.00]     solver: {auto, svd, cholesky, ...}</em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/d946242/source/Mlos.Python/mlos/Spaces/SimpleHypergrid.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.CONFIG_SPACE" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.CONFIG_SPACE">
+<span class="sig-name descname"><span class="pre">CONFIG_SPACE</span></span><em class="property"> <span class="pre">=</span> <span class="pre">Name:</span> <span class="pre">sklearn_ridge_regression_model_config</span>&#160;&#160; <span class="pre">Dimensions:</span>&#160;&#160;&#160;&#160; <span class="pre">alpha:</span> <span class="pre">[0.00,</span> <span class="pre">65536.00]</span>&#160;&#160;&#160;&#160; <span class="pre">fit_intercept:</span> <span class="pre">{False,</span> <span class="pre">True}</span>&#160;&#160;&#160;&#160; <span class="pre">normalize:</span> <span class="pre">{False,</span> <span class="pre">True}</span>&#160;&#160;&#160;&#160; <span class="pre">copy_x:</span> <span class="pre">{False,</span> <span class="pre">True}</span>&#160;&#160;&#160;&#160; <span class="pre">max_iter:</span> <span class="pre">{0,</span> <span class="pre">1,</span> <span class="pre">...</span> <span class="pre">,</span> <span class="pre">100000}</span>&#160;&#160;&#160;&#160; <span class="pre">tol:</span> <span class="pre">[0.00,</span> <span class="pre">1024.00]</span>&#160;&#160;&#160;&#160; <span class="pre">solver:</span> <span class="pre">{auto,</span> <span class="pre">svd,</span> <span class="pre">cholesky,</span> <span class="pre">...}</span></em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/f828cf2/source/Mlos.Python/mlos/Spaces/SimpleHypergrid.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.CONFIG_SPACE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py class">
-<dt id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver">
-<em class="property">class </em><code class="sig-name descname">Solver</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">value</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/d946242/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L12"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver">
+<em class="property"><span class="pre">class</span> </em><span class="sig-name descname"><span class="pre">Solver</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/f828cf2/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L12"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
 <p>From <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html">https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Ridge.html</a>:
 Solver to use in the computational routines:</p>
@@ -406,50 +468,50 @@ approximately the same scale. You can preprocess the data with a scaler from skl
 <p>All last five solvers support both dense and sparse data. However, only ‘sag’ and ‘sparse_cg’ supports
 sparse input when fit_intercept is True.</p>
 <dl class="py attribute">
-<dt id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.AUTO">
-<code class="sig-name descname">AUTO</code><em class="property"> = 'auto'</em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/d946242/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.AUTO" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.AUTO">
+<span class="sig-name descname"><span class="pre">AUTO</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'auto'</span></em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/f828cf2/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.AUTO" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.CHOLESKY">
-<code class="sig-name descname">CHOLESKY</code><em class="property"> = 'cholesky'</em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/d946242/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.CHOLESKY" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.CHOLESKY">
+<span class="sig-name descname"><span class="pre">CHOLESKY</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'cholesky'</span></em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/f828cf2/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.CHOLESKY" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.LSQR">
-<code class="sig-name descname">LSQR</code><em class="property"> = 'lsqr'</em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/d946242/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.LSQR" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.LSQR">
+<span class="sig-name descname"><span class="pre">LSQR</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'lsqr'</span></em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/f828cf2/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.LSQR" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SAG">
-<code class="sig-name descname">SAG</code><em class="property"> = 'sag'</em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/d946242/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SAG" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SAG">
+<span class="sig-name descname"><span class="pre">SAG</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'sag'</span></em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/f828cf2/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SAG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SAGA">
-<code class="sig-name descname">SAGA</code><em class="property"> = 'saga'</em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/d946242/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SAGA" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SAGA">
+<span class="sig-name descname"><span class="pre">SAGA</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'saga'</span></em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/f828cf2/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SAGA" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SPARSE_CG">
-<code class="sig-name descname">SPARSE_CG</code><em class="property"> = 'sparse_cg'</em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/d946242/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SPARSE_CG" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SPARSE_CG">
+<span class="sig-name descname"><span class="pre">SPARSE_CG</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'sparse_cg'</span></em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/f828cf2/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SPARSE_CG" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
-<dt id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SVD">
-<code class="sig-name descname">SVD</code><em class="property"> = 'svd'</em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/d946242/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SVD" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SVD">
+<span class="sig-name descname"><span class="pre">SVD</span></span><em class="property"> <span class="pre">=</span> <span class="pre">'svd'</span></em><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/f828cf2/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.Solver.SVD" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py method">
-<dt id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.contains">
-<em class="property">classmethod </em><code class="sig-name descname">contains</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/d946242/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L64"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.contains" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.contains">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">contains</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/f828cf2/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L64"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.contains" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.create_from_config_point">
-<em class="property">classmethod </em><code class="sig-name descname">create_from_config_point</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">config_point</span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/d946242/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L77"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.create_from_config_point" title="Permalink to this definition">¶</a></dt>
+<dt class="sig sig-object py" id="mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.create_from_config_point">
+<em class="property"><span class="pre">classmethod</span> </em><span class="sig-name descname"><span class="pre">create_from_config_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_point</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/Microsoft/MLOS/blob/f828cf2/source/Mlos.Python/mlos/Optimizers/RegressionModels/SklearnRidgeRegressionModelConfig.py#L77"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#mlos.Optimizers.RegressionModels.SklearnRidgeRegressionModelConfig.SklearnRidgeRegressionModelConfig.create_from_config_point" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -461,37 +523,29 @@ sparse input when fit_intercept is True.</p>
            
           </div>
           <footer>
-  
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
-      
-        <a href="mlos.Optimizers.RegressionModels.unit_tests.html" class="btn btn-neutral float-right" title="mlos.Optimizers.RegressionModels.unit_tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
-      
-      
-        <a href="mlos.Optimizers.RegressionModels.SklearnRandomForestRegressionModelConfig.html" class="btn btn-neutral float-left" title="mlos.Optimizers.RegressionModels.SklearnRandomForestRegressionModelConfig" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
-      
+        <a href="mlos.Optimizers.RegressionModels.unit_tests.html" class="btn btn-neutral float-right" title="mlos.Optimizers.RegressionModels.unit_tests" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="mlos.Optimizers.RegressionModels.SklearnRandomForestRegressionModelConfig.html" class="btn btn-neutral float-left" title="mlos.Optimizers.RegressionModels.SklearnRandomForestRegressionModelConfig" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
     </div>
-  
 
   <hr/>
 
   <div role="contentinfo">
     <p>
-        
-        &copy; Copyright 2020, Microsoft
+        &#169; Copyright 2020, Microsoft.
 
     </p>
   </div>
     
     
     
-    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     
-    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
     
     provided by <a href="https://readthedocs.org">Read the Docs</a>. 
 
 </footer>
-
         </div>
       </div>
 

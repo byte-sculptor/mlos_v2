@@ -14,8 +14,13 @@ mlos.OptimizerEvaluationTools
    mlos.OptimizerEvaluationTools.ObjectiveFunctionBase
    mlos.OptimizerEvaluationTools.ObjectiveFunctionConfigStore
    mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory
+   mlos.OptimizerEvaluationTools.OptimizerEvaluationReport
+   mlos.OptimizerEvaluationTools.OptimizerEvaluator
+   mlos.OptimizerEvaluationTools.OptimizerEvaluatorConfigStore
+   mlos.OptimizerEvaluationTools.OptimumOverTime
 
 .. toctree::
    :maxdepth: 1
 
    mlos.OptimizerEvaluationTools.SyntheticFunctions
+   mlos.OptimizerEvaluationTools.unit_tests

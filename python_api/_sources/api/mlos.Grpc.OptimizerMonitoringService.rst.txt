@@ -1,0 +1,7 @@
+mlos.Grpc.OptimizerMonitoringService
+====================================
+
+.. automodule:: mlos.Grpc.OptimizerMonitoringService
+   :members:
+   :undoc-members:
+   :show-inheritance:

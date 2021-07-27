@@ -1,0 +1,7 @@
+mlos.Optimizers.RegressionModels.LassoCrossValidatedRegressionModel
+===================================================================
+
+.. automodule:: mlos.Optimizers.RegressionModels.LassoCrossValidatedRegressionModel
+   :members:
+   :undoc-members:
+   :show-inheritance:

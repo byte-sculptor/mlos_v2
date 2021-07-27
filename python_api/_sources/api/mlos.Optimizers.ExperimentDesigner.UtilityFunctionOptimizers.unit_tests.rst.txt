@@ -11,4 +11,5 @@ mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.unit\_tests
 .. toctree::
    :maxdepth: 1
 
+   mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.unit_tests.MultiObjectivePassThroughModelForTesting
    mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.unit_tests.TestUtilityFunctionOptimizers

@@ -11,7 +11,12 @@ mlos.OptimizerEvaluationTools.SyntheticFunctions
 .. toctree::
    :maxdepth: 1
 
+   mlos.OptimizerEvaluationTools.SyntheticFunctions.EnvelopedWaves
    mlos.OptimizerEvaluationTools.SyntheticFunctions.Flower
+   mlos.OptimizerEvaluationTools.SyntheticFunctions.Hypersphere
+   mlos.OptimizerEvaluationTools.SyntheticFunctions.HypersphereConfigStore
+   mlos.OptimizerEvaluationTools.SyntheticFunctions.MultiObjectiveEnvelopedWaves
+   mlos.OptimizerEvaluationTools.SyntheticFunctions.MultiObjectiveNestedPolynomialObjective
    mlos.OptimizerEvaluationTools.SyntheticFunctions.NestedPolynomialObjective
    mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective
    mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper

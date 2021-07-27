@@ -1,0 +1,7 @@
+mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.unit\_tests.MultiObjectivePassThroughModelForTesting
+=================================================================================================================
+
+.. automodule:: mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.unit_tests.MultiObjectivePassThroughModelForTesting
+   :members:
+   :undoc-members:
+   :show-inheritance:
