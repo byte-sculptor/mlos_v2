@@ -74,6 +74,18 @@ experiment_designer_config_store.add_config_by_name(
 )
 
 experiment_designer_config_store.add_config_by_name(
+    config_name="default_random_near_incumbent_config_single_objective",
+    config_point=Point(
+        utility_function_implementation=ConfidenceBoundUtilityFunction.__name__,
+        numeric_optimizer_implementation=RandomNearIncumbentOptimizer.__name__,
+        confidence_bound_utility_function_config=confidence_bound_utility_function_config_store.default,
+        random_near_incumbent_optimizer_config=random_near_incumbent_optimizer_config_store.default,
+        fraction_random_suggestions=0.5
+    )
+)
+
+
+experiment_designer_config_store.add_config_by_name(
     config_name="default_glow_worm_config",
     config_point=Point(
         utility_function_implementation=ConfidenceBoundUtilityFunction.__name__,
