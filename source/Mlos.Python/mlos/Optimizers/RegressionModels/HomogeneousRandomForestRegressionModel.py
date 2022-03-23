@@ -13,12 +13,13 @@ from mlos.Tracer import trace
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel
+from mlos.Optimizers.RegressionModels.EnsembleRegressionModelBase import EnsembleRegressionModelBase
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore import homogeneous_random_forest_config_store
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestFitState import HomogeneousRandomForestFitState
 from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel
 
 
-class HomogeneousRandomForestRegressionModel(RegressionModel):
+class HomogeneousRandomForestRegressionModel(EnsembleRegressionModelBase):
     """ A RandomForest with homogeneously configured trees.
 
     This is the first implementation of a random forest regressor (and more generally of an ensemble model)
@@ -53,7 +54,7 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
 
         assert model_config in homogeneous_random_forest_config_store.parameter_space
 
-        RegressionModel.__init__(
+        EnsembleRegressionModelBase.__init__(
             self,
             model_type=type(self),
             model_config=model_config,
@@ -62,20 +63,12 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
             fit_state=HomogeneousRandomForestFitState()
         )
 
-        self._input_space_adapter = HierarchicalToFlatHypergridAdapter(adaptee=self.input_space)
-
-        assert len(self.target_dimension_names) == 1, "Single target predictions for now."
-
-        self._decision_trees = []
-        self._create_estimators()
-        self._trained = False
-
     @property
     def trained(self):
         return self._trained
 
     @trace()
-    def _create_estimators(self):
+    def _create_regressors(self):
         """ Create individual estimators.
 
         Each estimator is meant to have a different subset of features and a different subset of samples.
@@ -126,7 +119,7 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
             )
 
             # TODO: each one of them also needs a sample filter.
-            self._decision_trees.append(estimator)
+            self._regressors.append(estimator)
             self.fit_state.decision_trees_fit_states.append(estimator.fit_state)
 
     @staticmethod
@@ -170,7 +163,7 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
 
         feature_values_pandas_frame = self._input_space_adapter.project_dataframe(feature_values_pandas_frame, in_place=False)
 
-        for i, tree in enumerate(self._decision_trees):
+        for i, tree in enumerate(self._regressors):
             # Let's filter out samples with missing values
             estimators_df = feature_values_pandas_frame[tree.input_dimension_names]
             non_null_observations = estimators_df[estimators_df.notnull().all(axis=1)]
@@ -202,8 +195,8 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
                     iteration_number=len(feature_values_pandas_frame.index)
                 )
 
-        self.last_refit_iteration_number = max(tree.last_refit_iteration_number for tree in self._decision_trees)
-        self._trained = any(tree.trained for tree in self._decision_trees)
+        self.last_refit_iteration_number = max(tree.last_refit_iteration_number for tree in self._regressors)
+        self._trained = any(tree.trained for tree in self._regressors)
 
     @trace()
     def predict(self, feature_values_pandas_frame, include_only_valid_rows=True):
@@ -230,7 +223,7 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
         # collect predictions from ensemble constituent models
         predictions_per_tree = [
             estimator.predict(feature_values_pandas_frame=feature_values_pandas_frame, include_only_valid_rows=True)
-            for estimator in self._decision_trees
+            for estimator in self._regressors
         ]
         prediction_dataframes_per_tree = [prediction.get_dataframe() for prediction in predictions_per_tree]
         num_prediction_dataframes = len(prediction_dataframes_per_tree)

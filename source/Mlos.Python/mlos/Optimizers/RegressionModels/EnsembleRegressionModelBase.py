@@ -4,6 +4,7 @@ from typing import List
 
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.RegressionModel import RegressionModel
+from mlos.Optimizers.RegressionModels.RegressionModelFitState import RegressionModelFitState
 from mlos.Spaces import Hypergrid, Point
 from mlos.Spaces.HypergridAdapters import HierarchicalToFlatHypergridAdapter
 from mlos.Tracer import trace
@@ -25,6 +26,7 @@ class EnsembleRegressionModelBase(RegressionModel):
         model_config: Point,
         input_space: Hypergrid,
         output_space: Hypergrid,
+        fit_state: RegressionModelFitState = None,
         logger: logging.Logger = None
     ) -> None:
         if logger is None:
@@ -36,7 +38,8 @@ class EnsembleRegressionModelBase(RegressionModel):
             model_type=model_type,
             model_config=model_config,
             input_space=input_space,
-            output_space=output_space
+            output_space=output_space,
+            fit_state=fit_state
         )
         assert len(self.target_dimension_names) == 1, "Single target predictions for now."
 
