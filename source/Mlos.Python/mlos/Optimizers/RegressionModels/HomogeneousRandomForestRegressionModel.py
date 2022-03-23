@@ -7,8 +7,7 @@ import random
 
 import pandas as pd
 
-from mlos.Spaces import Dimension, Hypergrid, Point, SimpleHypergrid
-from mlos.Spaces.HypergridAdapters import HierarchicalToFlatHypergridAdapter
+from mlos.Spaces import Hypergrid, Point
 from mlos.Tracer import trace
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
@@ -122,81 +121,7 @@ class HomogeneousRandomForestRegressionModel(EnsembleRegressionModelBase):
             self._regressors.append(estimator)
             self.fit_state.decision_trees_fit_states.append(estimator.fit_state)
 
-    @staticmethod
-    def _create_random_flat_subspace(original_space, subspace_name, max_num_dimensions):
-        """ Creates a random simple hypergrid from the hypergrid with up to max_num_dimensions dimensions.
 
-        TODO: move this to the *Hypergrid classes.
-
-        :param original_space:
-        :return:
-        """
-        random_point = original_space.random()
-        dimensions_for_point = original_space.get_dimensions_for_point(random_point, return_join_dimensions=False)
-        selected_dimensions = random.sample(dimensions_for_point, min(len(dimensions_for_point), max_num_dimensions))
-        flat_dimensions = []
-        for dimension in selected_dimensions:
-            flat_dimension = dimension.copy()
-            flat_dimension.name = Dimension.flatten_dimension_name(flat_dimension.name)
-            flat_dimensions.append(flat_dimension)
-        flat_hypergrid = SimpleHypergrid(
-            name=subspace_name,
-            dimensions=flat_dimensions
-        )
-        return flat_hypergrid
-
-    @trace()
-    def fit(self, feature_values_pandas_frame, target_values_pandas_frame, iteration_number):
-        """ Fits the random forest.
-
-            The issue here is that the feature_values will come in as a numpy array where each column corresponds to one
-            of the dimensions in our input space. The target_values will come in a similar numpy array with each column
-            corresponding to a single dimension in our output space.
-
-            Our goal is to slice them up and feed the observations to individual decision trees.
-
-        :param feature_values:
-        :param target_values:
-        :return:
-        """
-        self.logger.debug(f"Fitting a {self.__class__.__name__} with {len(feature_values_pandas_frame.index)} observations.")
-
-        feature_values_pandas_frame = self._input_space_adapter.project_dataframe(feature_values_pandas_frame, in_place=False)
-
-        for i, tree in enumerate(self._regressors):
-            # Let's filter out samples with missing values
-            estimators_df = feature_values_pandas_frame[tree.input_dimension_names]
-            non_null_observations = estimators_df[estimators_df.notnull().all(axis=1)]
-            targets_for_non_null_observations = target_values_pandas_frame.loc[non_null_observations.index]
-
-            n_samples_for_tree = math.ceil(min(self.model_config.samples_fraction_per_estimator * len(estimators_df.index), len(non_null_observations.index)))
-            observations_for_tree_training = non_null_observations.sample(
-                n=n_samples_for_tree,
-                replace=False, # TODO: add options to control bootstrapping vs. subsampling,
-                random_state=i,
-                axis='index'
-            )
-            if self.model_config.bootstrap and n_samples_for_tree < len(estimators_df.index):
-                bootstrapped_observations_for_tree_training = observations_for_tree_training.sample(
-                    frac=1.0/self.model_config.samples_fraction_per_estimator,
-                    replace=True,
-                    random_state=i,
-                    axis='index'
-                )
-            else:
-                bootstrapped_observations_for_tree_training = observations_for_tree_training.copy()
-            num_selected_observations = len(observations_for_tree_training.index)
-            if tree.should_fit(num_selected_observations):
-                bootstrapped_targets_for_tree_training = targets_for_non_null_observations.loc[bootstrapped_observations_for_tree_training.index]
-                assert len(bootstrapped_observations_for_tree_training.index) == len(bootstrapped_targets_for_tree_training.index)
-                tree.fit(
-                    feature_values_pandas_frame=bootstrapped_observations_for_tree_training,
-                    target_values_pandas_frame=bootstrapped_targets_for_tree_training,
-                    iteration_number=len(feature_values_pandas_frame.index)
-                )
-
-        self.last_refit_iteration_number = max(tree.last_refit_iteration_number for tree in self._regressors)
-        self._trained = any(tree.trained for tree in self._regressors)
 
     @trace()
     def predict(self, feature_values_pandas_frame, include_only_valid_rows=True):
