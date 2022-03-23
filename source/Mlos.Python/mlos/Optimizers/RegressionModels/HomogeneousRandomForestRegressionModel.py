@@ -64,7 +64,6 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
 
         self._input_space_adapter = HierarchicalToFlatHypergridAdapter(adaptee=self.input_space)
 
-        self.target_dimension_names = [dimension.name for dimension in self.output_space.dimensions]
         assert len(self.target_dimension_names) == 1, "Single target predictions for now."
 
         self._decision_trees = []

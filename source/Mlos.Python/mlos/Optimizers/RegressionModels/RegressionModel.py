@@ -11,7 +11,7 @@ from scipy.stats import t
 from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import GoodnessOfFitMetrics, DataSetType
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Optimizers.RegressionModels.RegressionModelFitState import RegressionModelFitState
-from mlos.Spaces import Hypergrid
+from mlos.Spaces import Hypergrid, Point
 from mlos.Tracer import trace
 
 
@@ -22,14 +22,20 @@ class RegressionModel(ABC):
     so that all models can be inspected in a homogeneous way.
     """
 
-    @abstractmethod
-    def __init__(self, model_type, model_config, input_space: Hypergrid, output_space: Hypergrid, fit_state: RegressionModelFitState = None):
+    def __init__(
+        self,
+        model_type: type,
+        model_config: Point,
+        input_space: Hypergrid,
+        output_space: Hypergrid,
+        fit_state: RegressionModelFitState = None
+    ):
         self.model_type = model_type
         self.model_config = model_config
         self.input_space = input_space
         self.output_space = output_space
         self.input_dimension_names = None
-        self.target_dimension_names = self.target_dimension_names = [dimension.name for dimension in self.output_space.dimensions]
+        self.target_dimension_names = [dimension.name for dimension in self.output_space.dimensions]
         self.fit_state = fit_state if fit_state is not None else RegressionModelFitState()
         self.last_refit_iteration_number = 0  # Every time we refit, we update this. It serves as a version number.
 
