@@ -34,8 +34,8 @@ class RegressionModel(ABC):
         self.model_config = model_config
         self.input_space = input_space
         self.output_space = output_space
-        self.input_dimension_names = None
-        self.target_dimension_names = [dimension.name for dimension in self.output_space.dimensions]
+        self.input_dimension_names = self.input_space.dimension_names
+        self.target_dimension_names = self.output_space.dimension_names
         self.fit_state = fit_state if fit_state is not None else RegressionModelFitState()
         self.last_refit_iteration_number = 0  # Every time we refit, we update this. It serves as a version number.
 

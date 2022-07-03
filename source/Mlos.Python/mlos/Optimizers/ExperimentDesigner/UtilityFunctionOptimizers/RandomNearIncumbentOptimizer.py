@@ -135,7 +135,7 @@ class RandomNearIncumbentOptimizer(UtilityFunctionOptimizer):
             optimizer_config: Point,
             optimization_problem: OptimizationProblem,
             utility_function: UtilityFunction,
-            pareto_frontier: ParetoFrontier,
+            pareto_frontier: ParetoFrontier = None,
             logger=None
     ):
         UtilityFunctionOptimizer.__init__(self, optimizer_config, optimization_problem, utility_function, logger)
@@ -328,7 +328,11 @@ class RandomNearIncumbentOptimizer(UtilityFunctionOptimizer):
 
         # Let's start with the pareto points.
         #
-        pareto_params_df = self.pareto_frontier.params_for_pareto_df
+        if self.pareto_frontier is not None:
+            pareto_params_df = self.pareto_frontier.params_for_pareto_df
+        else:
+            pareto_params_df = None
+
         if pareto_params_df is None:
             pareto_params_df = pd.DataFrame()
 

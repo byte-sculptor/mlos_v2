@@ -50,7 +50,9 @@ def trace():
                     raise e
 
             else:
+                print(f"Start {wrapped_function.__qualname__}")
                 result = wrapped_function(*args, **kwargs)
+                print(f"Finish {wrapped_function.__qualname__}")
 
             return result
 
