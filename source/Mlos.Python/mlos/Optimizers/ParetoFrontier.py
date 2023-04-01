@@ -83,11 +83,11 @@ class ParetoFrontier:
 
         self.optimization_problem: OptimizationProblem = optimization_problem
         self._objective_names = optimization_problem.objective_names
-        self._pareto_df: pd.DataFrame = pd.DataFrame()
+        self._pareto_df: pd.DataFrame = pd.DataFrame(columns=optimization_problem.objective_names)
 
         # What parameters produced the pareto.
         #
-        self._params_for_pareto_df: pd.DataFrame = None
+        self._params_for_pareto_df: pd.DataFrame = pd.DataFrame()
 
         # Maintains a version of the pareto frontier, where all objectives are set to be maximized. So value for the objectives that were
         # originally meant to be minimized, are multiplied by -1.
@@ -165,7 +165,7 @@ class ParetoFrontier:
         #
         pareto_df = self._flip_sign_for_minimized_objectives(pareto_df)
         self._pareto_df = pareto_df
-        self._params_for_pareto_df = parameters_df.iloc[self._pareto_df.index]
+        self._params_for_pareto_df = parameters_df.loc[self._pareto_df.index]
 
     @trace()
     def is_dominated(self, objectives_df) -> pd.Series:

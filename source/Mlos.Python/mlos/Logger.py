@@ -4,7 +4,7 @@
 #
 import logging
 import time
-
+import loguru
 
 class BufferingHandler(logging.StreamHandler):
     def __init__(self):
@@ -57,6 +57,8 @@ def create_logger(logger_name, create_console_handler=True, create_file_handler=
     logging_level : int, default=logging.INFO
         Log level.
     """
+    #return loguru.logger
+
     logger = logging.getLogger(logger_name)
     logger.setLevel(logging_level)
     logger.propagate = False

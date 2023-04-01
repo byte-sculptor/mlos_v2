@@ -57,8 +57,7 @@ class TestBayesianOptimizer:
         #warnings.simplefilter("error")
         global_values.declare_singletons()
         global_values.tracer = Tracer(actor_id=cls.__name__, thread_id=0)
-        cls.logger = create_logger(logger_name=cls.__name__)
-        cls.logger.setLevel(logging.DEBUG)
+        cls.logger = create_logger(logger_name=cls.__name__, logging_level=logging.DEBUG)
         cls.port = None
 
         # Start up the gRPC service. Try a bunch of ports, before giving up so we can do several in parallel.
@@ -396,18 +395,33 @@ class TestBayesianOptimizer:
             rf_model_config.max_depth = min(rf_model_config.max_depth, 10)
             rf_model_config.n_jobs = min(rf_model_config.n_jobs, 4)
 
-        if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
-            optimizer_config.experiment_designer_config.glow_worm_swarm_optimizer_config.num_iterations = 5
+        if optimizer_config.experiment_designer_implementation == ExperimentDesigner.__name__:
+            if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
+                optimizer_config.experiment_designer_config.glow_worm_swarm_optimizer_config.num_iterations = 5
 
-        if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomNearIncumbentOptimizer.__name__:
-            optimizer_config.experiment_designer_config.random_near_incumbent_optimizer_config.num_starting_configs = 10
-            optimizer_config.experiment_designer_config.random_near_incumbent_optimizer_config.max_num_iterations = 10
+            if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomNearIncumbentOptimizer.__name__:
+                optimizer_config.experiment_designer_config.random_near_incumbent_optimizer_config.num_starting_configs = 10
+                optimizer_config.experiment_designer_config.random_near_incumbent_optimizer_config.max_num_iterations = 10
 
-        if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomSearchOptimizer.__name__:
-            optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = min(
-                optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration,
-                1000
-            )
+            if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomSearchOptimizer.__name__:
+                optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = min(
+                    optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration,
+                    1000
+                )
+        elif optimizer_config.experiment_designer_implementation == ParallelExperimentDesigner.__name__:
+            if optimizer_config.parallel_experiment_designer_config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
+                optimizer_config.parallel_experiment_designer_config.glow_worm_swarm_optimizer_config.num_iterations = 5
+
+            if optimizer_config.parallel_experiment_designer_config.numeric_optimizer_implementation == RandomNearIncumbentOptimizer.__name__:
+                optimizer_config.parallel_experiment_designer_config.random_near_incumbent_optimizer_config.num_starting_configs = 10
+                optimizer_config.parallel_experiment_designer_config.random_near_incumbent_optimizer_config.max_num_iterations = 10
+
+            if optimizer_config.parallel_experiment_designer_config.numeric_optimizer_implementation == RandomSearchOptimizer.__name__:
+                optimizer_config.parallel_experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = min(
+                    optimizer_config.parallel_experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration,
+                    1000
+                )
+
 
         print(f"[Restart: {restart_num}] Creating a BayesianOptimimizer with the following config: ")
         print(optimizer_config.to_json(indent=2))

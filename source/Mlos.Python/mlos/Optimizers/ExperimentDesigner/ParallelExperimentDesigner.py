@@ -197,7 +197,7 @@ class ParallelExperimentDesigner(ExperimentDesignerBase):
             features_dfs = []
             for _, suggestion in self._pending_suggestions.items():
                 parameters_df = suggestion.to_dataframe()
-                features_df = self.optimization_problem.construct_feature_dataframe(parameter_values=parameters_df)
+                features_df = self.optimization_problem.construct_feature_dataframe(parameters_df=parameters_df)
                 features_dfs.append(features_df)
 
             features_for_all_pending_suggestions_df = pd.concat(features_dfs, ignore_index=True)
@@ -209,4 +209,7 @@ class ParallelExperimentDesigner(ExperimentDesignerBase):
 
         all_objectives_dfs.append(self.pareto_frontier.pareto_df)
         empirical_and_speculative_objectives_df = pd.concat(all_objectives_dfs)
-        self._tentative_pareto_frontier.update_pareto(objectives_df=empirical_and_speculative_objectives_df)
+        self._tentative_pareto_frontier.update_pareto(
+            objectives_df=empirical_and_speculative_objectives_df,
+            parameters_df=pd.DataFrame(columns=['speculative'], index=empirical_and_speculative_objectives_df.index)
+        )

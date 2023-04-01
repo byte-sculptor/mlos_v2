@@ -60,6 +60,46 @@
             "type": "coreclr",
             "request": "attach",
             "processId": "${command:pickProcess}"
-        }
+        },
+        {
+            "name": "Python: Attach 5678",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5678
+            },
+            "justMyCode": false,
+        },
+        {
+            "name": "Python: Attach 5679",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5679
+            },
+            "justMyCode": false,
+        },
+        {
+            "name": "Python: Attach 5680",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5680
+            },
+            "justMyCode": false,
+        },
+        {
+            "name": "Python: Attach 5681",
+            "type": "python",
+            "request": "attach",
+            "connect": {
+                "host": "localhost",
+                "port": 5681
+            },
+            "justMyCode": false,
+        },
     ]
 }
