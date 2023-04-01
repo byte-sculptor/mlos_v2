@@ -44,6 +44,7 @@ class OptimizerEvaluator:
             optimizer_config: Point = None,
             objective_function: ObjectiveFunctionBase = None,
             objective_function_config: Point = None,
+            suggestion: Point=None,
             logger=None
     ):
         assert optimizer_evaluator_config in optimizer_evaluator_config_store.parameter_space
@@ -60,6 +61,7 @@ class OptimizerEvaluator:
         self.objective_function = None
         self.optimizer_config = None
         self.optimizer = None
+        self.suggestion = suggestion
 
         # Let's get the objective function assigned to self's fields.
         #
@@ -107,7 +109,8 @@ class OptimizerEvaluator:
             optimizer_configuration=self.optimizer_config,
             objective_function_configuration=self.objective_function_config,
             num_optimization_iterations=self.optimizer_evaluator_config.num_iterations,
-            evaluation_frequency=self.optimizer_evaluator_config.evaluation_frequency
+            evaluation_frequency=self.optimizer_evaluator_config.evaluation_frequency,
+            suggestion=self.suggestion
         )
 
         if self.optimizer_evaluator_config.include_execution_trace_in_report:
@@ -156,6 +159,7 @@ class OptimizerEvaluator:
         try:
             with traced(scope_name="optimization_loop"):
                 for i in range(self.optimizer_evaluator_config.num_iterations):
+                    print(f"[{i + 1}/{self.optimizer_evaluator_config.num_iterations}]")
                     parameters = self.optimizer.suggest()
                     objectives = self.objective_function.evaluate_point(parameters)
                     self.optimizer.register(parameters.to_dataframe(), objectives.to_dataframe())
@@ -223,6 +227,14 @@ class OptimizerEvaluator:
                     )
                 except Exception as e:
                     self.logger.info(f"Failed to get {optimum_name} optimum.", exc_info=True)
+
+        if self.optimizer_evaluator_config.report_pareto_over_time:
+            evaluation_report.pareto_over_time[i] = copy.deepcopy(self.optimizer.optimization_problem)
+
+        if self.optimizer_evaluator_config.report_pareto_volume_over_time:
+            volume_estimator = self.optimizer.pareto_frontier.approximate_pareto_volume()
+            ci99_on_volume = volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.01)
+            evaluation_report.pareto_volume_over_time[i] = ci99_on_volume
 
         if self.optimizer_evaluator_config.report_pareto_over_time:
             evaluation_report.pareto_over_time[i] = copy.deepcopy(self.optimizer.optimization_problem)

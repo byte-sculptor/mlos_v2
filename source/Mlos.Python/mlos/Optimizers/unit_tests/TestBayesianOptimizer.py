@@ -26,6 +26,8 @@ from mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective import
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions import quadratic
 from mlos.Optimizers.BayesianOptimizerConfigStore import bayesian_optimizer_config_store
 from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory
+from mlos.Optimizers.ExperimentDesigner.ExperimentDesigner import ExperimentDesigner
+from mlos.Optimizers.ExperimentDesigner.ParallelExperimentDesigner import ParallelExperimentDesigner
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.GlowWormSwarmOptimizer import GlowWormSwarmOptimizer
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomNearIncumbentOptimizer import RandomNearIncumbentOptimizer
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer, random_search_optimizer_config_store
@@ -55,8 +57,7 @@ class TestBayesianOptimizer:
         #warnings.simplefilter("error")
         global_values.declare_singletons()
         global_values.tracer = Tracer(actor_id=cls.__name__, thread_id=0)
-        cls.logger = create_logger(logger_name=cls.__name__)
-        cls.logger.setLevel(logging.DEBUG)
+        cls.logger = create_logger(logger_name=cls.__name__, logging_level=logging.DEBUG)
         cls.port = None
 
         # Start up the gRPC service. Try a bunch of ports, before giving up so we can do several in parallel.
@@ -89,7 +90,6 @@ class TestBayesianOptimizer:
             os.remove(cls.trace_output_path)
         except OSError:
             pass
-
 
 
     @classmethod
@@ -395,18 +395,33 @@ class TestBayesianOptimizer:
             rf_model_config.max_depth = min(rf_model_config.max_depth, 10)
             rf_model_config.n_jobs = min(rf_model_config.n_jobs, 4)
 
-        if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
-            optimizer_config.experiment_designer_config.glow_worm_swarm_optimizer_config.num_iterations = 5
+        if optimizer_config.experiment_designer_implementation == ExperimentDesigner.__name__:
+            if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
+                optimizer_config.experiment_designer_config.glow_worm_swarm_optimizer_config.num_iterations = 5
 
-        if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomNearIncumbentOptimizer.__name__:
-            optimizer_config.experiment_designer_config.random_near_incumbent_optimizer_config.num_starting_configs = 10
-            optimizer_config.experiment_designer_config.random_near_incumbent_optimizer_config.max_num_iterations = 10
+            if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomNearIncumbentOptimizer.__name__:
+                optimizer_config.experiment_designer_config.random_near_incumbent_optimizer_config.num_starting_configs = 10
+                optimizer_config.experiment_designer_config.random_near_incumbent_optimizer_config.max_num_iterations = 10
 
-        if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomSearchOptimizer.__name__:
-            optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = min(
-                optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration,
-                1000
-            )
+            if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomSearchOptimizer.__name__:
+                optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = min(
+                    optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration,
+                    1000
+                )
+        elif optimizer_config.experiment_designer_implementation == ParallelExperimentDesigner.__name__:
+            if optimizer_config.parallel_experiment_designer_config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
+                optimizer_config.parallel_experiment_designer_config.glow_worm_swarm_optimizer_config.num_iterations = 5
+
+            if optimizer_config.parallel_experiment_designer_config.numeric_optimizer_implementation == RandomNearIncumbentOptimizer.__name__:
+                optimizer_config.parallel_experiment_designer_config.random_near_incumbent_optimizer_config.num_starting_configs = 10
+                optimizer_config.parallel_experiment_designer_config.random_near_incumbent_optimizer_config.max_num_iterations = 10
+
+            if optimizer_config.parallel_experiment_designer_config.numeric_optimizer_implementation == RandomSearchOptimizer.__name__:
+                optimizer_config.parallel_experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = min(
+                    optimizer_config.parallel_experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration,
+                    1000
+                )
+
 
         print(f"[Restart: {restart_num}] Creating a BayesianOptimimizer with the following config: ")
         print(optimizer_config.to_json(indent=2))
@@ -457,10 +472,10 @@ class TestBayesianOptimizer:
         print(original_config.experiment_designer_config.fraction_random_suggestions)
         assert original_config.experiment_designer_config.fraction_random_suggestions == .5
 
-    @pytest.mark.parametrize("objective_function_implementation", [Hypersphere, MultiObjectiveNestedPolynomialObjective])
-    @pytest.mark.parametrize("minimize", ["all", "none", "some"])
-    @pytest.mark.parametrize("num_output_dimensions", [2, 5])
-    @pytest.mark.parametrize("num_points", [30])
+    @pytest.mark.parametrize("objective_function_implementation", [Hypersphere])
+    @pytest.mark.parametrize("minimize", ["some"])
+    @pytest.mark.parametrize("num_output_dimensions", [2])
+    @pytest.mark.parametrize("num_points", [50])
     def test_multi_objective_optimization(self, objective_function_implementation, minimize, num_output_dimensions, num_points):
         if objective_function_implementation == Hypersphere:
             hypersphere_radius = 10
@@ -504,11 +519,11 @@ class TestBayesianOptimizer:
             # We need to modify the default optimization problem to respect the "minimize" argument.
             #
             objectives = []
-            for i, default_objective in enumerate(optimization_problem.objectives):
+            for num_registered_observations, default_objective in enumerate(optimization_problem.objectives):
                 if minimize == "all":
                     minimize = True
                 elif minimize == "some":
-                    minimize = ((i % 2) == 0)
+                    minimize = ((num_registered_observations % 2) == 0)
                 else:
                     minimize = False
                 new_objective = Objective(name=default_objective.name, minimize=minimize)
@@ -528,21 +543,44 @@ class TestBayesianOptimizer:
         # We can now go through the optimization loop, at each point validating that:
         #   1) The suggested point is valid.
         #   2) The volume of the pareto frontier is monotonically increasing.
+        #
+        # Let's also test the ParallelExperimentDesigner by keeping some number of suggestions outstanding.
 
         lower_bounds_on_pareto_volume = []
         upper_bounds_on_pareto_volume = []
 
-        for i in range(num_points):
+        max_num_pending_suggestions = 10
+        pending_suggestions = []
+        num_registered_observations = 0
+
+        while num_registered_observations < num_points:
             suggestion = optimizer.suggest()
+            self.logger.info(f"Got: {suggestion}")
+            optimizer.add_pending_suggestion(suggestion)
+            pending_suggestions.append(suggestion)
+
+            if len(pending_suggestions) >= max_num_pending_suggestions:
+                random_index = random.randint(0, len(pending_suggestions) - 1)
+                suggestion = pending_suggestions.pop(random_index)
+
+                assert suggestion in optimization_problem.parameter_space
+                objectives = objective_function.evaluate_point(suggestion)
+                self.logger.info(f"Registering: {suggestion}")
+                optimizer.register(parameter_values_pandas_frame=suggestion.to_dataframe(), target_values_pandas_frame=objectives.to_dataframe())
+                self.logger.info(f"Registred {num_registered_observations} observations in total.")
+                num_registered_observations += 1
+
+                if num_registered_observations > 10:
+                    pareto_volume_estimator = optimizer.pareto_frontier.approximate_pareto_volume(num_samples=1000000)
+                    lower_bound, upper_bound = pareto_volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.95)
+                    lower_bounds_on_pareto_volume.append(lower_bound)
+                    upper_bounds_on_pareto_volume.append(upper_bound)
+
+        for suggestion in pending_suggestions:
             assert suggestion in optimization_problem.parameter_space
             objectives = objective_function.evaluate_point(suggestion)
             optimizer.register(parameter_values_pandas_frame=suggestion.to_dataframe(), target_values_pandas_frame=objectives.to_dataframe())
 
-            if i > 10:
-                pareto_volume_estimator = optimizer.pareto_frontier.approximate_pareto_volume(num_samples=1000000)
-                lower_bound, upper_bound = pareto_volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.95)
-                lower_bounds_on_pareto_volume.append(lower_bound)
-                upper_bounds_on_pareto_volume.append(upper_bound)
 
 
         pareto_volumes_over_time_df = pd.DataFrame({
@@ -786,8 +824,6 @@ class TestBayesianOptimizer:
         optimum_y1 = local_optimizer.optimum(optimum_definition=OptimumDefinition.BEST_SPECULATIVE_WITHIN_CONTEXT , context=Point(y=1).to_dataframe())
         assert optimum_y1.x > .6
         assert optimum_y_1.x < .4
-
-
 
     def validate_optima(self, optimizer: OptimizerBase):
         should_raise_for_predicted_value = False

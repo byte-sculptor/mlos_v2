@@ -100,15 +100,9 @@ class MultiObjectiveProbabilityOfImprovementUtilityFunction(UtilityFunction):
             prediction_df = prediction.get_dataframe()
             valid_predictions_index = valid_predictions_index.intersection(prediction_df.index)
 
-        # Let's make sure all predictions have a standard deviation available.
-        #
-        for _, objective_prediction in multi_objective_predictions:
-            std_dev_column_name = objective_prediction.add_standard_deviation_column()
-
         batched_poi_df = self._batched_probability_of_improvement(
             multi_objective_predictions=multi_objective_predictions,
-            valid_predictions_index=valid_predictions_index,
-            std_dev_column_name=std_dev_column_name
+            valid_predictions_index=valid_predictions_index
         )
 
         batched_poi_df['utility'] = pd.to_numeric(arg=batched_poi_df['utility'], errors='raise')
@@ -120,7 +114,6 @@ class MultiObjectiveProbabilityOfImprovementUtilityFunction(UtilityFunction):
             self,
             multi_objective_predictions: MultiObjectivePrediction,
             valid_predictions_index: pd.Index,
-            std_dev_column_name: str
     ):
         """Generates a single large dataframe of monte carlo samples to send to ParetoFrontier for evaluation.
 
@@ -138,10 +131,9 @@ class MultiObjectiveProbabilityOfImprovementUtilityFunction(UtilityFunction):
         monte_carlo_samples_dfs = []
 
         for config_idx in valid_predictions_index:
-            monte_carlo_samples_df = self.create_monte_carlo_samples_df(
-                multi_objective_predictions=multi_objective_predictions,
-                config_idx=config_idx,
-                std_dev_column_name=std_dev_column_name
+            monte_carlo_samples_df = multi_objective_predictions.create_monte_carlo_samples_df(
+                row_idx=config_idx,
+                num_samples=self.config.num_monte_carlo_samples
             )
             monte_carlo_samples_df['config_idx'] = config_idx
             monte_carlo_samples_dfs.append(monte_carlo_samples_df)
