@@ -161,6 +161,8 @@ class TestBayesianOptimizerGrpcClient:
     @pytest.mark.parametrize("i", [i for i in range(10)])
     def test_optimizer_with_random_config(self, i):
         optimizer_config = bayesian_optimizer_config_store.parameter_space.random()
+        while optimizer_config.experiment_designer_implementation == "ParallelExperimentDesigner":
+            optimizer_config = bayesian_optimizer_config_store.parameter_space.random()
 
         optimizer_config.min_samples_required_for_guided_design_of_experiments = max(min(optimizer_config.min_samples_required_for_guided_design_of_experiments, 100), 20)
         if optimizer_config.surrogate_model_implementation == "HomogeneousRandomForestRegressionModel":

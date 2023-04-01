@@ -11,13 +11,14 @@ from mlos.Optimizers.ExperimentDesigner.UtilityFunctions.UtilityFunction import 
 from mlos.Spaces import SimpleHypergrid, DiscreteDimension, Point
 from mlos.Spaces.Configs.ComponentConfigStore import ComponentConfigStore
 from mlos.Tracer import trace
+from mlos.Utils.Debugger import wait_for_debugger
 
 
 random_search_optimizer_config_store = ComponentConfigStore(
     parameter_space=SimpleHypergrid(
         name="random_search_optimizer_config",
         dimensions=[
-            DiscreteDimension(name="num_samples_per_iteration", min=1, max=100000)
+            DiscreteDimension(name="num_samples_per_iteration", min=1, max=1000000)
         ]
     ),
     default=Point(
@@ -64,6 +65,7 @@ class RandomSearchOptimizer(UtilityFunctionOptimizer):
         num_utility_function_values = len(utility_function_values.index)
 
         if num_utility_function_values == 0:
+            utility_function_values = self.utility_function(feature_values_pandas_frame=feature_values_dataframe.copy(deep=False))
             raise UtilityValueUnavailableException(f"Utility function {self.utility_function.__class__.__name__} produced no values.")
 
         index_of_max_value = utility_function_values[['utility']].idxmax()['utility']

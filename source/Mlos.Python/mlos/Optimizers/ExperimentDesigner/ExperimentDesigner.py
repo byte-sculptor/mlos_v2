@@ -6,9 +6,10 @@ import numpy as np
 
 from mlos.Exceptions import UnableToProduceGuidedSuggestionException
 from mlos.Logger import create_logger
-from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionModel import MultiObjectiveRegressionModel
+from mlos.Optimizers.ExperimentDesigner.ExperimentDesignerBase import ExperimentDesignerBase
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.ParetoFrontier import ParetoFrontier
+from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionModel import MultiObjectiveRegressionModel
 from mlos.Spaces import CategoricalDimension, ContinuousDimension, Point, SimpleHypergrid
 from mlos.Spaces.Configs.ComponentConfigStore import ComponentConfigStore
 
@@ -99,7 +100,7 @@ experiment_designer_config_store.add_config_by_name(
 )
 
 
-class ExperimentDesigner:
+class ExperimentDesigner(ExperimentDesignerBase):
     """ Portion of a BayesianOptimizer concerned with Design of Experiments.
 
     The two main components of a Bayesian Optimizer are:

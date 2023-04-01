@@ -50,7 +50,8 @@ class OptimizerEvaluationReport:
             pareto_volume_over_time: Dict[int, Tuple[float, float]] = None,
             execution_trace: List[Dict[str, object]] = None,
             start_time: datetime = None,
-            end_time: datetime = None
+            end_time: datetime = None,
+            suggestion: Point = None
     ):
         self.success = False
         self.exception = None
@@ -73,6 +74,7 @@ class OptimizerEvaluationReport:
         self.pareto_volume_over_time = pareto_volume_over_time if pareto_volume_over_time is not None else dict()
         self.start_time = start_time
         self.end_time = end_time
+        self.suggestion = suggestion
 
     def add_pickled_optimizer(self, iteration: int, pickled_optimizer: bytes):
         assert iteration >= 0

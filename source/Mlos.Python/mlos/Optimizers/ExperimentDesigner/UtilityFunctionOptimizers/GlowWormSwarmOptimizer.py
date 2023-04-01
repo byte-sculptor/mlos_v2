@@ -14,6 +14,7 @@ from mlos.Spaces import ContinuousDimension, DiscreteDimension, Point, SimpleHyp
 from mlos.Spaces.Configs.ComponentConfigStore import ComponentConfigStore
 from mlos.Spaces.HypergridAdapters import DiscreteToUnitContinuousHypergridAdapter
 from mlos.Tracer import trace, traced
+from mlos.Utils.Debugger import wait_for_debugger
 
 
 glow_worm_swarm_optimizer_config_store = ComponentConfigStore(
@@ -112,6 +113,7 @@ class GlowWormSwarmOptimizer(UtilityFunctionOptimizer):
         if num_utility_function_values == 0:
             error_message = f"Utility function {self.utility_function.__class__.__name__} produced no values."
             self.logger.info(error_message)
+            utility_function_values = self.utility_function(feature_values_pandas_frame=features_df.copy(deep=False))
             raise UtilityValueUnavailableException(f"Utility function {self.utility_function.__class__.__name__} produced no values.")
 
         # TODO: keep getting configs until we have enough utility values to get started. Or assign 0 to missing ones,
