@@ -12,7 +12,7 @@ from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Optimizers.RegressionModels.MultiObjectivePrediction import MultiObjectivePrediction
 from mlos.Spaces import SimpleHypergrid, DiscreteDimension, Point
 from mlos.Spaces.Configs.ComponentConfigStore import ComponentConfigStore
-from mlos.Tracer import trace, traced
+from mlos.Tracer import trace
 
 
 multi_objective_probability_of_improvement_utility_function_config_store = ComponentConfigStore(
@@ -105,6 +105,8 @@ class MultiObjectiveProbabilityOfImprovementUtilityFunction(UtilityFunction):
             valid_predictions_index=valid_predictions_index
         )
 
+        batched_poi_df['utility'] = pd.to_numeric(arg=batched_poi_df['utility'], errors='raise')
+        assert batched_poi_df.dtypes['utility'] == float
         return batched_poi_df
 
     @trace()
@@ -136,9 +138,35 @@ class MultiObjectiveProbabilityOfImprovementUtilityFunction(UtilityFunction):
             monte_carlo_samples_df['config_idx'] = config_idx
             monte_carlo_samples_dfs.append(monte_carlo_samples_df)
 
-        samples_for_all_configs_df = pd.concat(monte_carlo_samples_dfs, ignore_index=True, axis=0)
-        original_column_names = [column for column in samples_for_all_configs_df.columns if column != 'config_idx']
-        samples_for_all_configs_df['is_dominated'] = self.pareto_frontier.is_dominated(objectives_df=samples_for_all_configs_df[original_column_names])
-        poi_series = 1 - (samples_for_all_configs_df.groupby(by=["config_idx"])["is_dominated"].sum() / self.config.num_monte_carlo_samples)
-        poi_df = pd.DataFrame({'utility': poi_series}, index=poi_series.index)
+        poi_df = pd.DataFrame(columns=['utility'], dtype='float')
+        if len(monte_carlo_samples_dfs) > 0:
+            samples_for_all_configs_df = pd.concat(monte_carlo_samples_dfs, ignore_index=True, axis=0)
+            original_column_names = [column for column in samples_for_all_configs_df.columns if column != 'config_idx']
+            samples_for_all_configs_df['is_dominated'] = self.pareto_frontier.is_dominated(objectives_df=samples_for_all_configs_df[original_column_names])
+            poi_series = 1 - (samples_for_all_configs_df.groupby(by=["config_idx"])["is_dominated"].sum() / self.config.num_monte_carlo_samples)
+            poi_df = pd.DataFrame({'utility': poi_series}, index=poi_series.index)
+
         return poi_df
+
+    @trace()
+    def create_monte_carlo_samples_df(self, multi_objective_predictions, config_idx, std_dev_column_name):
+
+        predicted_value_col = Prediction.LegalColumnNames.PREDICTED_VALUE.value
+        dof_col = Prediction.LegalColumnNames.PREDICTED_VALUE_DEGREES_OF_FREEDOM.value
+
+        monte_carlo_samples_df = pd.DataFrame()
+
+        for objective_name, prediction in multi_objective_predictions:
+            prediction_df = prediction.get_dataframe()
+            if config_idx not in prediction_df.index:
+                # We need a valid prediction for all objectives to produce sample.
+                #
+                return monte_carlo_samples_df
+
+        for objective_name, prediction in multi_objective_predictions:
+            prediction_df = prediction.get_dataframe()
+            config_prediction = prediction_df.loc[config_idx]
+            monte_carlo_samples_df[objective_name] = np.random.standard_t(config_prediction[dof_col], self.config.num_monte_carlo_samples) \
+                                                     * config_prediction[std_dev_column_name] \
+                                                     + config_prediction[predicted_value_col]
+        return monte_carlo_samples_df

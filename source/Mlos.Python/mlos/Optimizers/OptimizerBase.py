@@ -15,6 +15,8 @@ from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.UtilityFunctionOptimizerFactory import UtilityFunctionOptimizerFactory
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer, random_search_optimizer_config_store
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctions.PredictedValueUtilityFunction import PredictedValueUtilityFunction
+from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.UtilityFunctionOptimizerFactory import UtilityFunctionOptimizerFactory
+from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer, random_search_optimizer_config_store
 
 from mlos.Spaces import Point
 from mlos.Tracer import trace
@@ -67,7 +69,7 @@ class OptimizerBase(ABC):
         raise NotImplementedError("All subclasses must implement this method.")
 
     @abstractmethod
-    def predict(self, parameter_values_pandas_frame, t=None, context_values_pandas_frame=None) -> Prediction:
+    def predict(self, parameter_values_pandas_frame, t=None, context_values_pandas_frame=None, objective_name=None) -> Prediction:
         """Predict target value based on the parameters supplied.
 
         :param params:
@@ -145,7 +147,7 @@ class OptimizerBase(ABC):
 
         # Predictions index must be a subset of features index.
         #
-        assert parameters_df.index.intersection(predictions_df.index).equals(predictions_df.index)
+        assert parameters_df.index.intersection(predictions_df.index).sort_values().equals(predictions_df.index.sort_values())
 
         predicted_value_column_name = Prediction.LegalColumnNames.PREDICTED_VALUE.value
         dof_column_name = Prediction.LegalColumnNames.PREDICTED_VALUE_DEGREES_OF_FREEDOM.value
@@ -194,22 +196,3 @@ class OptimizerBase(ABC):
 
         config_at_optimum = Point.from_dataframe(parameters_df.loc[[index_of_best]])
         return config_at_optimum, optimum_value
-
-    @abstractmethod
-    def focus(self, subspace):
-        """Force the optimizer to focus on a specific subspace.
-
-        This could be a great way to pass priors to the optimizer, as well as play with the component for the developers.
-
-        :param subspace:
-        :return:
-        """
-        raise NotImplementedError("All subclasses must implement this method.")
-
-    @abstractmethod
-    def reset_focus(self):
-        """Changes focus back to the full search space.
-
-        :return:
-        """
-        raise NotImplementedError("All subclasses must implement this method.")

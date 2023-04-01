@@ -3,8 +3,8 @@
 # Licensed under the MIT License.
 #
 import numpy as np
-import pandas as pd
 
+from mlos.Exceptions import UnableToProduceGuidedSuggestionException
 from mlos.Logger import create_logger
 from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionModel import MultiObjectiveRegressionModel
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
@@ -12,10 +12,11 @@ from mlos.Optimizers.ParetoFrontier import ParetoFrontier
 from mlos.Spaces import CategoricalDimension, ContinuousDimension, Point, SimpleHypergrid
 from mlos.Spaces.Configs.ComponentConfigStore import ComponentConfigStore
 
+from .UtilityFunctionOptimizers.RandomNearIncumbentOptimizer import RandomNearIncumbentOptimizer, random_near_incumbent_optimizer_config_store
 from .UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer, random_search_optimizer_config_store
 from .UtilityFunctionOptimizers.GlowWormSwarmOptimizer import GlowWormSwarmOptimizer, glow_worm_swarm_optimizer_config_store
 from .UtilityFunctions.ConfidenceBoundUtilityFunction import ConfidenceBoundUtilityFunction, confidence_bound_utility_function_config_store
-from .UtilityFunctions.MultiObjectiveProbabilityOfImprovementUtilityFunction import MultiObjectiveProbabilityOfImprovementUtilityFunction,\
+from .UtilityFunctions.MultiObjectiveProbabilityOfImprovementUtilityFunction import MultiObjectiveProbabilityOfImprovementUtilityFunction, \
     multi_objective_probability_of_improvement_utility_function_config_store
 
 from .UtilityFunctionOptimizers.UtilityFunctionOptimizerFactory import UtilityFunctionOptimizerFactory
@@ -29,8 +30,12 @@ experiment_designer_config_store = ComponentConfigStore(
                 ConfidenceBoundUtilityFunction.__name__,
                 MultiObjectiveProbabilityOfImprovementUtilityFunction.__name__
             ]),
-            CategoricalDimension('numeric_optimizer_implementation', values=[RandomSearchOptimizer.__name__, GlowWormSwarmOptimizer.__name__]),
-            ContinuousDimension('fraction_random_suggestions', min=0, max=1),
+            CategoricalDimension('numeric_optimizer_implementation', values=[
+                RandomSearchOptimizer.__name__,
+                GlowWormSwarmOptimizer.__name__,
+                RandomNearIncumbentOptimizer.__name__
+            ]),
+            ContinuousDimension('fraction_random_suggestions', min=0, max=1)
         ]
     ).join(
         subgrid=confidence_bound_utility_function_config_store.parameter_space,
@@ -44,12 +49,26 @@ experiment_designer_config_store = ComponentConfigStore(
     ).join(
         subgrid=glow_worm_swarm_optimizer_config_store.parameter_space,
         on_external_dimension=CategoricalDimension('numeric_optimizer_implementation', values=[GlowWormSwarmOptimizer.__name__])
+    ).join(
+        subgrid=random_near_incumbent_optimizer_config_store.parameter_space,
+        on_external_dimension=CategoricalDimension('numeric_optimizer_implementation', values=[RandomNearIncumbentOptimizer.__name__])
     ),
     default=Point(
         utility_function_implementation=ConfidenceBoundUtilityFunction.__name__,
         numeric_optimizer_implementation=RandomSearchOptimizer.__name__,
         confidence_bound_utility_function_config=confidence_bound_utility_function_config_store.default,
         random_search_optimizer_config=random_search_optimizer_config_store.default,
+        fraction_random_suggestions=0.5
+    )
+)
+
+experiment_designer_config_store.add_config_by_name(
+    config_name="default_random_near_incumbent_config",
+    config_point=Point(
+        utility_function_implementation=MultiObjectiveProbabilityOfImprovementUtilityFunction.__name__,
+        numeric_optimizer_implementation=RandomNearIncumbentOptimizer.__name__,
+        multi_objective_probability_of_improvement_config=multi_objective_probability_of_improvement_utility_function_config_store.default,
+        random_near_incumbent_optimizer_config=random_near_incumbent_optimizer_config_store.default,
         fraction_random_suggestions=0.5
     )
 )
@@ -142,12 +161,17 @@ class ExperimentDesigner:
             numeric_optimizer_config = self.config.random_search_optimizer_config
         elif self.config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
             numeric_optimizer_config = self.config.glow_worm_swarm_optimizer_config
+        elif self.config.numeric_optimizer_implementation == RandomNearIncumbentOptimizer.__name__:
+            numeric_optimizer_config = self.config.random_near_incumbent_optimizer_config
+        else:
+            raise NotImplementedError(f"Unknown numeric optimizer implementation: {self.config.numeric_optimizer_config}")
 
         self.numeric_optimizer = UtilityFunctionOptimizerFactory.create_utility_function_optimizer(
             utility_function=self.utility_function,
-            optimizer_type_name = self.config.numeric_optimizer_implementation,
-            optimizer_config = numeric_optimizer_config,
+            optimizer_type_name=self.config.numeric_optimizer_implementation,
+            optimizer_config=numeric_optimizer_config,
             optimization_problem=self.optimization_problem,
+            pareto_frontier=self.pareto_frontier,
             logger=self.logger
         )
 
@@ -157,14 +181,13 @@ class ExperimentDesigner:
         override_random = random_number < self.config.fraction_random_suggestions
         random = random or override_random
         if random:
+            suggestion = self.optimization_problem.parameter_space.random()
+            self.logger.info(f"Producing random suggestion: {suggestion}")
+            return suggestion
+        try:
+            suggestion = self.numeric_optimizer.suggest(context_values_dataframe)
+            self.logger.info(f"Produced a guided suggestion: {suggestion}")
+            return suggestion
+        except UnableToProduceGuidedSuggestionException:
+            self.logger.info("Failed to produce guided suggestion. Producing random suggestion instead.")
             return self.optimization_problem.parameter_space.random()
-        return self.numeric_optimizer.suggest(context_values_dataframe)
-
-    def add_pending_suggestion(self, suggestion: Point):
-        ...
-
-    def remove_pending_suggestion(self, suggestion: Point, update_tentative_pareto=True):
-        ...
-
-    def remove_pending_suggestions(self, suggestions_df: pd.DataFrame):
-        ...

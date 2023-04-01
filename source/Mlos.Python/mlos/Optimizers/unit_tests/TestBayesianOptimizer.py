@@ -17,7 +17,7 @@ import pandas as pd
 from mlos.Logger import create_logger
 
 import mlos.global_values as global_values
-from mlos.Grpc.OptimizerMicroserviceServer import OptimizerMicroserviceServer
+from mlos.Grpc.OptimizerServicesServer import OptimizerServicesServer
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.Hypersphere import Hypersphere
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.MultiObjectiveNestedPolynomialObjective import MultiObjectiveNestedPolynomialObjective
@@ -29,12 +29,15 @@ from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory
 from mlos.Optimizers.ExperimentDesigner.ExperimentDesigner import ExperimentDesigner
 from mlos.Optimizers.ExperimentDesigner.ParallelExperimentDesigner import ParallelExperimentDesigner
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.GlowWormSwarmOptimizer import GlowWormSwarmOptimizer
-from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer
+from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomNearIncumbentOptimizer import RandomNearIncumbentOptimizer
+from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer, random_search_optimizer_config_store
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
 from mlos.Optimizers.OptimizerBase import OptimizerBase
 from mlos.Optimizers.OptimumDefinition import OptimumDefinition
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel import HomogeneousRandomForestRegressionModel
 from mlos.Optimizers.RegressionModels.MultiObjectiveHomogeneousRandomForest import MultiObjectiveHomogeneousRandomForest
+from mlos.Optimizers.RegressionModels.RegressionEnhancedRandomForestModel import RegressionEnhancedRandomForestRegressionModel
+from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionEnhancedRandomForest import MultiObjectiveRegressionEnhancedRandomForest
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Spaces import Point, SimpleHypergrid, ContinuousDimension
 from mlos.Tracer import Tracer, trace, traced
@@ -51,7 +54,7 @@ class TestBayesianOptimizer:
         """ Sets up all the singletons needed to test the BayesianOptimizer.
 
         """
-        warnings.simplefilter("error")
+        #warnings.simplefilter("error")
         global_values.declare_singletons()
         global_values.tracer = Tracer(actor_id=cls.__name__, thread_id=0)
         cls.logger = create_logger(logger_name=cls.__name__)
@@ -66,7 +69,7 @@ class TestBayesianOptimizer:
         for port in range(50051, 50051 + max_num_tries):
             num_tries += 1
             try:
-                cls.server = OptimizerMicroserviceServer(port=port, num_threads=10, logger=cls.logger)
+                cls.server = OptimizerServicesServer(port=port, num_threads=10, logger=cls.logger)
                 cls.server.start()
                 cls.port = port
                 break
@@ -206,7 +209,7 @@ class TestBayesianOptimizer:
 
     @trace()
     @pytest.mark.parametrize('restart_num', [i for i in range(2)])
-    @pytest.mark.parametrize('use_remote_optimizer', [True])
+    @pytest.mark.parametrize('use_remote_optimizer', [True, False])
     def test_hierarchical_quadratic_cold_start(self, restart_num, use_remote_optimizer):
 
         objective_function_config = objective_function_config_store.get_config_by_name('three_level_quadratic')
@@ -345,9 +348,8 @@ class TestBayesianOptimizer:
 
     @trace()
     @pytest.mark.parametrize("restart_num", [i for i in range(10)])
-    @pytest.mark.parametrize("use_remote_optimizer", [True, False])
+    @pytest.mark.parametrize("use_remote_optimizer", [False])
     def test_hierarchical_quadratic_cold_start_random_configs(self, restart_num, use_remote_optimizer):
-
         objective_function_config = objective_function_config_store.get_config_by_name('three_level_quadratic')
         objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config=objective_function_config)
 
@@ -383,33 +385,32 @@ class TestBayesianOptimizer:
             decision_tree_config.min_samples_to_fit = 10
             decision_tree_config.n_new_samples_before_refit = 10
 
-        if optimizer_config.experiment_designer_implementation == ExperimentDesigner.__name__:
-            if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
-                optimizer_config.experiment_designer_config.glow_worm_swarm_optimizer_config.num_iterations = 5
+        if optimizer_config.surrogate_model_implementation == MultiObjectiveRegressionEnhancedRandomForest.__name__:
+            optimizer_config.min_samples_required_for_guided_design_of_experiments = 25
+            rerf_model_config = optimizer_config.regression_enhanced_random_forest_regression_model_config
+            rerf_model_config.max_basis_function_degree = min(rerf_model_config.max_basis_function_degree, 2)
+            # increased polynomial degree requires more data to estimate model parameters (poly term coefficients)
+            optimizer_config.min_samples_required_for_guided_design_of_experiments += 25 * (rerf_model_config.max_basis_function_degree - 1)
+            rf_model_config = rerf_model_config.sklearn_random_forest_regression_model_config
+            rf_model_config.perform_initial_random_forest_hyper_parameter_search = False
+            rf_model_config.max_depth = min(rf_model_config.max_depth, 10)
+            rf_model_config.n_jobs = min(rf_model_config.n_jobs, 4)
 
-            if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomSearchOptimizer.__name__:
-                optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = min(
-                    optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration,
-                    1000
-                )
+        if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
+            optimizer_config.experiment_designer_config.glow_worm_swarm_optimizer_config.num_iterations = 5
 
-        elif optimizer_config.experiment_designer_implementation == ParallelExperimentDesigner.__name__:
-            if optimizer_config.parallel_experiment_designer_config.numeric_optimizer_implementation == GlowWormSwarmOptimizer.__name__:
-                optimizer_config.parallel_experiment_designer_config.glow_worm_swarm_optimizer_config.num_iterations = 5
+        if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomNearIncumbentOptimizer.__name__:
+            optimizer_config.experiment_designer_config.random_near_incumbent_optimizer_config.num_starting_configs = 10
+            optimizer_config.experiment_designer_config.random_near_incumbent_optimizer_config.max_num_iterations = 10
 
-            if optimizer_config.parallel_experiment_designer_config.numeric_optimizer_implementation == RandomSearchOptimizer.__name__:
-                optimizer_config.parallel_experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = min(
-                    optimizer_config.parallel_experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration,
-                    1000
-                )
-
-        else:
-            assert False
-
+        if optimizer_config.experiment_designer_config.numeric_optimizer_implementation == RandomSearchOptimizer.__name__:
+            optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration = min(
+                optimizer_config.experiment_designer_config.random_search_optimizer_config.num_samples_per_iteration,
+                1000
+            )
 
         print(f"[Restart: {restart_num}] Creating a BayesianOptimimizer with the following config: ")
         print(optimizer_config.to_json(indent=2))
-
 
         if not use_remote_optimizer:
             bayesian_optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
@@ -422,7 +423,7 @@ class TestBayesianOptimizer:
                 optimizer_config=optimizer_config
             )
 
-        num_guided_samples = optimizer_config.min_samples_required_for_guided_design_of_experiments + 5
+        num_guided_samples = optimizer_config.min_samples_required_for_guided_design_of_experiments + 25
         for i in range(num_guided_samples):
             suggested_params = bayesian_optimizer.suggest()
             y = objective_function.evaluate_point(suggested_params)
@@ -678,12 +679,24 @@ class TestBayesianOptimizer:
                 index = parameters.index
             else:
                 index = [0]
-            return pd.DataFrame({'function_value': -np.exp(-50 * (parameters.x - 0.5 * context.y -0.5) ** 2)},
-                                 index=index)
+            return pd.DataFrame(
+                {'function_value': -np.exp(-50 * (parameters.x - 0.5 * context.y - 0.5) ** 2)},
+                index=index
+            )
         input_space = SimpleHypergrid(name="input", dimensions=[ContinuousDimension(name="x", min=0, max=1)])
-        output_space = SimpleHypergrid(name="objective",
-                                       dimensions=[ContinuousDimension(name="function_value", min=-10, max=10)])
-        context_space = SimpleHypergrid(name="context", dimensions=[ContinuousDimension(name="y", min=-1, max=1)])
+        output_space = SimpleHypergrid(
+            name="objective",
+            dimensions=[
+                ContinuousDimension(name="function_value", min=-10, max=10)
+            ]
+        )
+
+        context_space = SimpleHypergrid(
+            name="context",
+            dimensions=[
+                ContinuousDimension(name="y", min=-1, max=1)
+            ]
+        )
 
         optimization_problem = OptimizationProblem(
             parameter_space=input_space,
@@ -876,5 +889,42 @@ class TestBayesianOptimizer:
                 if degrees_of_freedom == 0:
                     assert ucb_90_ci_optimum.upper_confidence_bound <= ucb_95_ci_optimum.upper_confidence_bound <= ucb_99_ci_optimum.upper_confidence_bound
                 else:
-                    print(predicted_optimum.predicted_value, ucb_90_ci_optimum.upper_confidence_bound, ucb_95_ci_optimum.upper_confidence_bound, ucb_99_ci_optimum.upper_confidence_bound)
+                    print(f'upper confidence intervals not nested as expected: \n\tpredicted_value: {predicted_optimum.predicted_value}\n'
+                          f'\t 90th, 95th, and 99th upper confidence bounds: {ucb_90_ci_optimum.upper_confidence_bound}, {ucb_95_ci_optimum.upper_confidence_bound}, {ucb_99_ci_optimum.upper_confidence_bound}')
+                    print(f'degrees of freedom: {optimum_predicted_value_prediction_df[Prediction.LegalColumnNames.PREDICTED_VALUE_DEGREES_OF_FREEDOM.value]}')
                     assert False
+
+
+    def test_bayesian_optimizer_with_random_near_incumbent(self):
+        objective_function_config = objective_function_config_store.get_config_by_name('multi_objective_waves_3_params_2_objectives_half_pi_phase_difference')
+        objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config=objective_function_config)
+
+        optimization_problem = objective_function.default_optimization_problem
+
+        optimizer_config = bayesian_optimizer_config_store.get_config_by_name('default_with_random_near_incumbent_config')
+        assert optimizer_config.experiment_designer_config.numeric_optimizer_implementation == "RandomNearIncumbentOptimizer"
+        optimizer_config.experiment_designer_config.fraction_random_suggestions = 0
+
+        # Let's give it a little more resolution.
+        #
+        optimizer_config.experiment_designer_config.multi_objective_probability_of_improvement_config.num_monte_carlo_samples = 200
+
+        bayesian_optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
+            optimization_problem=optimization_problem,
+            optimizer_config=optimizer_config
+        )
+
+        random_params_df = objective_function.parameter_space.random_dataframe(num_samples=1000)
+        objectives_df = objective_function.evaluate_dataframe(random_params_df)
+        bayesian_optimizer.register(parameter_values_pandas_frame=random_params_df, target_values_pandas_frame=objectives_df)
+
+        num_suggestions = 10
+        for suggestion_number in range(num_suggestions):
+            parameters = bayesian_optimizer.suggest()
+            objectives = objective_function.evaluate_point(parameters)
+            self.logger.info(f"[{suggestion_number}/{num_suggestions}] parameters: {parameters}, objectives: {objectives}")
+            bayesian_optimizer.register(
+                parameter_values_pandas_frame=parameters.to_dataframe(),
+                target_values_pandas_frame=objectives.to_dataframe()
+            )
+

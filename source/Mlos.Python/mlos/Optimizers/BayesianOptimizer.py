@@ -15,6 +15,8 @@ from mlos.Optimizers.ExperimentDesigner.ParallelExperimentDesigner import Parall
 from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel import HomogeneousRandomForestRegressionModel
 from mlos.Optimizers.RegressionModels.MultiObjectiveHomogeneousRandomForest import MultiObjectiveHomogeneousRandomForest
+from mlos.Optimizers.RegressionModels.MultiObjectiveLassoCrossValidated import MultiObjectiveLassoCrossValidated
+from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionEnhancedRandomForest import MultiObjectiveRegressionEnhancedRandomForest
 from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionModel import MultiObjectiveRegressionModel
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Tracer import trace
@@ -56,24 +58,51 @@ class BayesianOptimizer(OptimizerBase):
 
         self.surrogate_model_output_space = optimization_problem.objective_space
         self.optimizer_config = optimizer_config
-        self.pareto_frontier: ParetoFrontier = ParetoFrontier(optimization_problem=self.optimization_problem, objectives_df=None)
+        self.pareto_frontier: ParetoFrontier = ParetoFrontier(optimization_problem=self.optimization_problem)
 
         # Now let's put together the surrogate model.
         #
+        self.logger.info(f'self.optimizer_config.surrogate_model_implementation: {self.optimizer_config.surrogate_model_implementation}')
         assert self.optimizer_config.surrogate_model_implementation in (
             HomogeneousRandomForestRegressionModel.__name__,
-            MultiObjectiveHomogeneousRandomForest.__name__
+            MultiObjectiveHomogeneousRandomForest.__name__,
+            MultiObjectiveLassoCrossValidated.__name__,
+            MultiObjectiveRegressionEnhancedRandomForest.__name__
         )
 
         # Note that even if the user requested a HomogeneousRandomForestRegressionModel, we still create a MultiObjectiveRegressionModel
         # with just a single RandomForest inside it. This means we have to maintain only a single interface.
         #
-        self.surrogate_model: MultiObjectiveRegressionModel = MultiObjectiveHomogeneousRandomForest(
-            model_config=self.optimizer_config.homogeneous_random_forest_regression_model_config,
-            input_space=self.optimization_problem.feature_space,
-            output_space=self.surrogate_model_output_space,
-            logger=self.logger
-        )
+        if self.optimizer_config.surrogate_model_implementation == HomogeneousRandomForestRegressionModel.__name__:
+            self.surrogate_model: MultiObjectiveRegressionModel = MultiObjectiveHomogeneousRandomForest(
+                model_config=self.optimizer_config.homogeneous_random_forest_regression_model_config,
+                input_space=self.optimization_problem.feature_space,
+                output_space=self.surrogate_model_output_space,
+                logger=self.logger
+            )
+        elif self.optimizer_config.surrogate_model_implementation == MultiObjectiveHomogeneousRandomForest.__name__:
+            self.surrogate_model: MultiObjectiveRegressionModel = MultiObjectiveHomogeneousRandomForest(
+                model_config=self.optimizer_config.homogeneous_random_forest_regression_model_config,
+                input_space=self.optimization_problem.feature_space,
+                output_space=self.surrogate_model_output_space,
+                logger=self.logger
+            )
+        elif self.optimizer_config.surrogate_model_implementation == MultiObjectiveLassoCrossValidated.__name__:
+            self.surrogate_model: MultiObjectiveRegressionModel = MultiObjectiveLassoCrossValidated(
+                model_config=self.optimizer_config.lasso_regression_model_config,
+                input_space=self.optimization_problem.feature_space,
+                output_space=self.surrogate_model_output_space,
+                logger=self.logger
+            )
+        elif self.optimizer_config.surrogate_model_implementation == MultiObjectiveRegressionEnhancedRandomForest.__name__:
+            self.surrogate_model: MultiObjectiveRegressionModel = MultiObjectiveRegressionEnhancedRandomForest(
+                model_config=self.optimizer_config.regression_enhanced_random_forest_regression_model_config,
+                input_space=self.optimization_problem.feature_space,
+                output_space=self.surrogate_model_output_space,
+                logger=self.logger
+            )
+        else:
+            raise RuntimeError(f"Unrecognized surrogate_model_implementation {self.optimizer_config.surrogate_model_implementation}")
 
         # Now let's put together the experiment designer that will suggest parameters for each experiment.
         #
@@ -128,8 +157,11 @@ class BayesianOptimizer(OptimizerBase):
     def compute_surrogate_model_goodness_of_fit(self):
         if not self.surrogate_model.trained:
             raise RuntimeError("Model has not been trained yet.")
-        feature_values_pandas_frame = self.optimization_problem.construct_feature_dataframe(parameter_values=self._parameter_values_df.copy(),
-                                                                                            context_values=self._context_values_df.copy())
+        feature_values_pandas_frame = self.optimization_problem.construct_feature_dataframe(
+            parameters_df=self._parameter_values_df.copy(),
+            context_df=self._context_values_df.copy()
+        )
+
         return self.surrogate_model.compute_goodness_of_fit(
             features_df=feature_values_pandas_frame,
             targets_df=self._target_values_df.copy(),
@@ -173,6 +205,8 @@ class BayesianOptimizer(OptimizerBase):
         # TODO: add to a Dataset and move on. The surrogate model should have a reference to the same dataset
         # TODO: and should be able to refit automatically.
 
+        self.logger.info(f"Registering {len(parameter_values_pandas_frame.index)} parameters and {len(target_values_pandas_frame.index)} objectives.")
+
         if self.optimization_problem.context_space is not None and context_values_pandas_frame is None:
             raise ValueError("Context required by optimization problem but not provided.")
 
@@ -210,16 +244,18 @@ class BayesianOptimizer(OptimizerBase):
             if len(context_columns_to_retain) == 0:
                 raise ValueError(f"None of the {context_values_pandas_frame.columns} is a context recognized by this optimizer.")
             context_values_pandas_frame = context_values_pandas_frame[context_columns_to_retain]
-            self._context_values_df = self._context_values_df.append(context_values_pandas_frame, ignore_index=True)
 
-        self._parameter_values_df = self._parameter_values_df.append(parameter_values_pandas_frame, ignore_index=True)
-        self._target_values_df = self._target_values_df.append(target_values_pandas_frame, ignore_index=True)
+            self._context_values_df = pd.concat([self._context_values_df, context_values_pandas_frame], ignore_index=True)
+            #self._context_values_df = self._context_values_df.append(context_values_pandas_frame, ignore_index=True)
+
+        self._parameter_values_df = pd.concat([self._parameter_values_df, parameter_values_pandas_frame], ignore_index=True)
+        self._target_values_df = pd.concat([self._target_values_df, target_values_pandas_frame], ignore_index=True)
 
         # TODO: ascertain that min_samples_required ... is more than min_samples to fit the model
         if self.num_observed_samples >= self.optimizer_config.min_samples_required_for_guided_design_of_experiments:
             feature_values_pandas_frame = self.optimization_problem.construct_feature_dataframe(
-                parameter_values=self._parameter_values_df,
-                context_values=self._context_values_df
+                parameters_df=self._parameter_values_df,
+                context_df=self._context_values_df
             )
 
             self.surrogate_model.fit(
@@ -233,15 +269,21 @@ class BayesianOptimizer(OptimizerBase):
         # TODO: make all experiment designers implement this.
         #
         self.experiment_designer.remove_pending_suggestions(metadata_df)
+        assert False, "merge conflict happened here. The line below may need to be uncommented."
+        #self.pareto_frontier.update_pareto(objectives_df=self._target_values_df, parameters_df=self._parameter_values_df)
 
     @trace()
-    def predict(self, parameter_values_pandas_frame, t=None, context_values_pandas_frame=None) -> Prediction:  # pylint: disable=unused-argument
+    def predict(self, parameter_values_pandas_frame, t=None, context_values_pandas_frame=None, objective_name=None) -> Prediction:  # pylint: disable=unused-argument
         feature_values_pandas_frame = self.optimization_problem.construct_feature_dataframe(
-            parameter_values=parameter_values_pandas_frame,
-            context_values=context_values_pandas_frame
+            parameters_df=parameter_values_pandas_frame,
+            context_df=context_values_pandas_frame
         )
 
-        return self.surrogate_model.predict(feature_values_pandas_frame)
+        if objective_name is None:
+            objective_name = self.optimization_problem.objective_names[0]
+
+        return self.surrogate_model.predict(feature_values_pandas_frame)[objective_name]
+
 
     @trace()
     def _update_pareto(self):
@@ -271,10 +313,3 @@ class BayesianOptimizer(OptimizerBase):
 
         predictions_for_pareto_df = predictions_for_pareto_df.loc[valid_index]
         self.pareto_frontier.update_pareto(objectives_df=predictions_for_pareto_df)
-
-
-    def focus(self, subspace):
-        ...
-
-    def reset_focus(self):
-        ...

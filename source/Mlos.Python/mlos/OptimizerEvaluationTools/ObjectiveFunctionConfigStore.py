@@ -18,7 +18,7 @@ from mlos.Spaces.Configs import ComponentConfigStore
 
 objective_function_config_store = ComponentConfigStore(
     parameter_space=SimpleHypergrid(
-        name="objective_function",
+        name="objective_function_config",
         dimensions=[
             CategoricalDimension(name="implementation", values=[
                 EnvelopedWaves.__name__,
@@ -207,4 +207,31 @@ objective_function_config_store.add_config_by_name(
             )
         )
     )
+)
+
+objective_function_config_store.add_config_by_name(
+    config_name="multi_objective_waves_3_params_2_objectives_no_phase_difference",
+    config_point=Point(
+        implementation=MultiObjectiveEnvelopedWaves.__name__,
+        multi_objective_enveloped_waves_config=multi_objective_enveloped_waves_config_store.get_config_by_name("no_phase_difference")
+    ),
+    description="The pareto frontier is formed by a single point, as all objectives are the same."
+)
+
+objective_function_config_store.add_config_by_name(
+    config_name="multi_objective_waves_3_params_2_objectives_half_pi_phase_difference",
+    config_point=Point(
+        implementation=MultiObjectiveEnvelopedWaves.__name__,
+        multi_objective_enveloped_waves_config=multi_objective_enveloped_waves_config_store.get_config_by_name("half_pi_phase_difference")
+    ),
+    description="The pareto frontier forms a quarter circle."
+)
+
+objective_function_config_store.add_config_by_name(
+    config_name="multi_objective_waves_3_params_2_objectives_pi_phase_difference",
+    config_point=Point(
+        implementation=MultiObjectiveEnvelopedWaves.__name__,
+        multi_objective_enveloped_waves_config=multi_objective_enveloped_waves_config_store.get_config_by_name("pi_phase_difference")
+    ),
+    description="The pareto frontier is a diagonal of a square."
 )

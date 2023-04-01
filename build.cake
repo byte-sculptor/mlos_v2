@@ -20,9 +20,9 @@ string ObjectDirectory
     {
         string objectDirectory =  Configuration switch
         {
-                "Release" => objectDirectory = "obj",
-                "Debug" => objectDirectory = "objd",
-                _ => throw new InvalidOperationException("Unsupported configuration")
+            "Release" => objectDirectory = "obj",
+            "Debug" => objectDirectory = "objd",
+            _ => throw new InvalidOperationException("Unsupported configuration")
         };
 
         return objectDirectory;
@@ -341,6 +341,7 @@ Task("Test-CMake")
 Task("Run-CMake-UnitTests")
     .IsDependentOn("Binplace-CMake")
     .WithCriteria(() => IsRunningOnUnix())
+    .WithCriteria(() => !IsRunningInGithub()) // github pipelines already test this via `make dotnet-test cmake-test`
     .Does(() =>
     {
         var dotNetCoreMSBuildSettings = new DotNetCoreMSBuildSettings { MaxCpuCount = 0 };

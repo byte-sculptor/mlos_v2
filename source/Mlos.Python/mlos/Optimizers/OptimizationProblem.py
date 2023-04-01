@@ -3,14 +3,11 @@
 # Licensed under the MIT License.
 #
 from collections import namedtuple
-import json
-from typing import List
+from typing import List, Tuple
 
 import pandas as pd
 
-from mlos.Grpc import OptimizerService_pb2
-from mlos.Spaces import Hypergrid, SimpleHypergrid, CategoricalDimension
-from mlos.Spaces.HypergridsJsonEncoderDecoder import HypergridJsonDecoder, HypergridJsonEncoder
+from mlos.Spaces import SimpleHypergrid, CategoricalDimension
 
 Objective = namedtuple("Objective", ["name", "minimize"])
 
@@ -20,8 +17,10 @@ def objective_to_dict(objective):
         "minimize": objective.minimize
     }
 
+
 def objective_from_dict(objective_dict):
     return Objective(**objective_dict)
+
 
 class OptimizationProblem:
     """Models an instance of an optimization problem.
@@ -87,10 +86,10 @@ class OptimizationProblem:
 
     def __init__(
             self,
-            parameter_space: Hypergrid,
-            objective_space: Hypergrid,
+            parameter_space: SimpleHypergrid,
+            objective_space: SimpleHypergrid,
             objectives: List[Objective],
-            context_space: Hypergrid = None,
+            context_space: SimpleHypergrid = None,
     ):
         self.parameter_space = parameter_space
         self.context_space = context_space
@@ -122,31 +121,61 @@ class OptimizationProblem:
                 on_external_dimension=CategoricalDimension(name="contains_context", values=[True])
             )
 
-    def construct_feature_dataframe(self, parameter_values, context_values=None, product=False):
+    def construct_feature_dataframe(self, parameters_df: pd.DataFrame, context_df: pd.DataFrame = None, product: bool = False):
         """Construct feature value dataframe from config value and context value dataframes.
 
         If product is True, creates a cartesian product, otherwise appends columns.
 
         """
-        if (self.context_space is not None) and (context_values is None):
+        if (self.context_space is not None) and (context_df is None):
             raise ValueError("Context required by optimization problem but not provided.")
 
         # prefix column names to adhere to dimensions in hierarchical hypergrid
-        feature_values = parameter_values.rename(lambda x: f"{self.parameter_space.name}.{x}", axis=1)
-        if context_values is not None and len(context_values) > 0:
-            renamed_context_values = context_values.rename(lambda x: f"{self.context_space.name}.{x}", axis=1)
-            feature_values['contains_context'] = True
+        #
+        features_df = parameters_df.rename(lambda x: f"{self.parameter_space.name}.{x}", axis=1)
+        if context_df is not None and len(context_df) > 0:
+            renamed_context_values = context_df.rename(lambda x: f"{self.context_space.name}.{x}", axis=1)
+            features_df['contains_context'] = True
             if product:
                 renamed_context_values['contains_context'] = True
-                feature_values = feature_values.merge(renamed_context_values, how='outer', on='contains_context')
+                features_df = features_df.merge(renamed_context_values, how='outer', on='contains_context')
+                features_df.index = parameters_df.index.copy()
             else:
-                if len(parameter_values) != len(context_values):
-                    raise ValueError(f"Incompatible shape of parameters and context: {parameter_values.shape} and {context_values.shape}.")
-                feature_values = pd.concat([feature_values, renamed_context_values], axis=1)
+                if len(parameters_df) != len(context_df):
+                    raise ValueError(f"Incompatible shape of parameters and context: {parameters_df.shape} and {context_df.shape}.")
+                features_df = pd.concat([features_df, renamed_context_values], axis=1)
 
         else:
-            feature_values['contains_context'] = False
-        return feature_values
+            features_df['contains_context'] = False
+        return features_df
+
+    def deconstruct_feature_dataframe(self, features_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+        """Splits the feature dataframe back into parameters and context dataframes.
+
+        This is a workaround. What we should really do is implement this functionality as a proper operator on Hypergrids.
+        """
+        parameter_column_names_mapping = {
+            f"{self.parameter_space.name}.{dimension_name}": dimension_name
+            for dimension_name
+            in self.parameter_space.dimension_names
+        }
+        existing_parameter_names = [parameter_name for parameter_name in parameter_column_names_mapping.keys() if parameter_name in features_df.columns]
+        parameters_df = features_df[existing_parameter_names]
+        parameters_df.rename(columns=parameter_column_names_mapping, inplace=True)
+
+        if self.context_space is not None:
+            context_column_names_mapping = {
+                f"{self.context_space.name}.{dimension_name}": dimension_name
+                for dimension_name
+                in self.context_space.dimension_names
+            }
+            existing_context_column_names = [column_name for column_name in context_column_names_mapping.keys() if column_name in features_df.columns]
+            context_df = features_df[existing_context_column_names]
+            context_df.rename(columns=context_column_names_mapping, inplace=True)
+        else:
+            context_df = None
+
+        return parameters_df, context_df
 
     def to_dict(self):
         return {
@@ -155,34 +184,3 @@ class OptimizationProblem:
             "objective_space": self.objective_space,
             "objectives": [objective_to_dict(objective) for objective in self.objectives]
         }
-
-    def to_protobuf(self):
-        """ Serializes self to a protobuf.
-
-        :return:
-        """
-        return OptimizerService_pb2.OptimizationProblem(
-            ParameterSpace=OptimizerService_pb2.Hypergrid(HypergridJsonString=json.dumps(self.parameter_space, cls=HypergridJsonEncoder)),
-            ObjectiveSpace=OptimizerService_pb2.Hypergrid(HypergridJsonString=json.dumps(self.objective_space, cls=HypergridJsonEncoder)),
-            Objectives=[OptimizerService_pb2.Objective(Name=objective.name, Minimize=objective.minimize) for objective in self.objectives],
-            ContextSpace=None if self.context_space is None
-            else OptimizerService_pb2.Hypergrid(HypergridJsonString=json.dumps(self.context_space, cls=HypergridJsonEncoder))
-        )
-
-    @classmethod
-    def from_protobuf(cls, optimization_problem_pb2: OptimizerService_pb2.OptimizationProblem):
-        """ Builds an optimization problem from protobufs.
-
-        :param optimization_problem_pb2:
-        :return:
-        """
-        return OptimizationProblem(
-            parameter_space=json.loads(optimization_problem_pb2.ParameterSpace.HypergridJsonString, cls=HypergridJsonDecoder),
-            objective_space=json.loads(optimization_problem_pb2.ObjectiveSpace.HypergridJsonString, cls=HypergridJsonDecoder),
-            objectives=[
-                Objective(name=objective_pb2.Name, minimize=objective_pb2.Minimize)
-                for objective_pb2 in optimization_problem_pb2.Objectives
-            ],
-            context_space=None if not optimization_problem_pb2.ContextSpace.HypergridJsonString
-            else json.loads(optimization_problem_pb2.ContextSpace.HypergridJsonString, cls=HypergridJsonDecoder)
-        )

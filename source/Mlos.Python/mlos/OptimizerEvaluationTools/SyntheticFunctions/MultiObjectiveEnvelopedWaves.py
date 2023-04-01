@@ -32,40 +32,68 @@ multi_objective_enveloped_waves_config_store = ComponentConfigStore(
     default=Point(
         num_objectives=2,
         phase_difference=0.5 * math.pi,
-        period_change=1.1,
+        period_change=1.0,
         single_objective_function=EnvelopedWaves.__name__,
         enveloped_waves_config=enveloped_waves_config_store.default
     ),
     description="TODO"
 )
 
+multi_objective_enveloped_waves_config_store.add_config_by_name(
+    config_name="no_phase_difference",
+    config_point=Point(
+        num_objectives=2,
+        phase_difference=0,
+        period_change=1.0,
+        single_objective_function=EnvelopedWaves.__name__,
+        enveloped_waves_config=enveloped_waves_config_store.default
+    ),
+    description="This function should produce a pareto frontier consisting of a single point at all parameter values equal to (math.pi / 2)."
+)
+
+multi_objective_enveloped_waves_config_store.add_config_by_name(
+    config_name="half_pi_phase_difference",
+    config_point=Point(
+        num_objectives=2,
+        phase_difference=math.pi / 2,
+        period_change=1.0,
+        single_objective_function=EnvelopedWaves.__name__,
+        enveloped_waves_config=enveloped_waves_config_store.default
+    ),
+    description="This function should produce a pareto frontier consisting of points in a quarter cricle in a first quadrat with the radius equal to 3."
+)
+
+multi_objective_enveloped_waves_config_store.add_config_by_name(
+    config_name="pi_phase_difference",
+    config_point=Point(
+        num_objectives=2,
+        phase_difference=math.pi,
+        period_change=1.0,
+        single_objective_function=EnvelopedWaves.__name__,
+        enveloped_waves_config=enveloped_waves_config_store.default
+    ),
+    description="This function should produce a pareto frontier consisting of points on a diagonal of a square centered on the origin"
+                " with side length equal to 18."
+)
+
 class MultiObjectiveEnvelopedWaves(ObjectiveFunctionBase):
     """Multi-objective function with many useful properties.
-
     The way it works is that we pass the same parameters through 1 or more single-objective enveloped waves functions.
-
     One useful property is that we not only know where the optima for individual functions are (maxima of sine are easy to find),
     but we can also know and control the shape of the pareto frontier, by controlling the phase difference between the individual
     objectives. For example: a phase difference of 0, means that that the objective functions are overlaid on top of each other
     and their optima are exactly on top of each other, so the pareto frontier is a single, optimal point
-
     Alternatively, the phase difference of quarter-period, introduces a trade-off between the objectives where
-
         y0 = sin(x)
         and
         y1 = sin(x - math.pi / 2) = -cos(x)
-
     which yields a pareto frontier in a shape of a quarter-cirle of radius 1 (or amplitude more generally).
-
     Yet another option is to use a phase difference of math.pi. This yields a trade-off between the objectives where:
-
         y0 = sin(x)
         and
         y1 = sin(x - math.pi) = -sin(x) = -y0
-
     which yields a pareto frontier where a gain in one objective results in an equal loss in the other objective, so the shape
     of that frontier is a diagonal of a square with side length equal to amplitude.
-
     """
 
     def __init__(self, objective_function_config: Point = None):

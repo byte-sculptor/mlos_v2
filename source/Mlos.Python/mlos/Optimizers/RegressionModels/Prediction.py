@@ -113,11 +113,20 @@ class Prediction:
 
         if mean_variance_col in self.expected_column_names:
             if dataframe[mean_variance_col].notnull().any():
-                assert (dataframe[mean_variance_col].notnull() >= 0).all()
+                if not (dataframe[dataframe[mean_variance_col].notnull()][mean_variance_col] >= 0).all():
+                    violated_rows_df = dataframe[dataframe[dataframe[mean_variance_col].notnull()][mean_variance_col] < 0]
+                    with pd.option_context('display.max_rows', None, 'display.max_columns', None):
+                        print(violated_rows_df)
+                        print(violated_rows_df[mean_variance_col])
+                    print(f"Num invalid rows: {len(violated_rows_df.index)}")
+                    print(f"Index: {violated_rows_df.index}")
+                    print(f"{mean_variance_col}: {violated_rows_df[mean_variance_col]}")
+                    assert False
 
         if sample_variance_col in self.expected_column_names:
             if dataframe[sample_variance_col].notnull().any():
-                assert (dataframe[sample_variance_col].notnull() >= 0).all()
+                assert (dataframe[dataframe[sample_variance_col].notnull()][sample_variance_col] >= 0).all()
+
 
     @classmethod
     def get_enum_by_column_name(cls, column_name):
@@ -128,7 +137,7 @@ class Prediction:
 
     @classmethod
     def dataframe_from_json(cls, json_string):
-        return pd.read_json(json_string, orient='index')
+        return pd.read_json(json_string, orient='index').sort_index()
 
     def dataframe_to_json(self):
         return self.get_dataframe().to_json(orient='index', double_precision=15)

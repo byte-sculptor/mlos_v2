@@ -8,6 +8,7 @@ import pickle
 import traceback
 
 import mlos.global_values
+from mlos.Logger import create_logger
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.OptimizerEvaluationTools.OptimizerEvaluationReport import OptimizerEvaluationReport
@@ -43,12 +44,17 @@ class OptimizerEvaluator:
             optimizer_config: Point = None,
             objective_function: ObjectiveFunctionBase = None,
             objective_function_config: Point = None,
-            suggestion: Point=None
+            suggestion: Point=None,
+            logger=None
     ):
         assert optimizer_evaluator_config in optimizer_evaluator_config_store.parameter_space
         assert (optimizer is None) != (optimizer_config is None), "A valid optimizer XOR a valid optimizer_config must be supplied."
         assert (objective_function is None) != (objective_function_config is None),\
             "A valid objective_function XOR a valid objective_function_config must be specified"
+
+        if logger is None:
+            logger = create_logger("OptimizerEvaluator")
+        self.logger = logger
 
         self.optimizer_evaluator_config = optimizer_evaluator_config
         self.objective_function_config = None
@@ -159,7 +165,7 @@ class OptimizerEvaluator:
                     self.optimizer.register(parameters.to_dataframe(), objectives.to_dataframe())
 
                     if i % self.optimizer_evaluator_config.evaluation_frequency == 0:
-                        print(f"[{i + 1}/{self.optimizer_evaluator_config.num_iterations}]")
+                        self.logger.info(f"[{i + 1}/{self.optimizer_evaluator_config.num_iterations}]")
                         with traced(scope_name="evaluating_optimizer"):
                             if self.optimizer_evaluator_config.include_pickled_optimizer_in_report:
                                 evaluation_report.add_pickled_optimizer(iteration=i, pickled_optimizer=pickle.dumps(self.optimizer))
@@ -184,7 +190,7 @@ class OptimizerEvaluator:
                                         optimum_value=value
                                     )
                                 except ValueError as e:
-                                    print(e)
+                                    self.logger.info(f"Failed to get {optimum_name} optimum.", exc_info=True)
 
                             if self.optimizer_evaluator_config.report_pareto_over_time:
                                 evaluation_report.pareto_over_time[i] = copy.deepcopy(self.optimizer.optimization_problem)
@@ -220,7 +226,15 @@ class OptimizerEvaluator:
                         optimum_value=value
                     )
                 except Exception as e:
-                    print(e)
+                    self.logger.info(f"Failed to get {optimum_name} optimum.", exc_info=True)
+
+        if self.optimizer_evaluator_config.report_pareto_over_time:
+            evaluation_report.pareto_over_time[i] = copy.deepcopy(self.optimizer.optimization_problem)
+
+        if self.optimizer_evaluator_config.report_pareto_volume_over_time:
+            volume_estimator = self.optimizer.pareto_frontier.approximate_pareto_volume()
+            ci99_on_volume = volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.01)
+            evaluation_report.pareto_volume_over_time[i] = ci99_on_volume
 
         if self.optimizer_evaluator_config.report_pareto_over_time:
             evaluation_report.pareto_over_time[i] = copy.deepcopy(self.optimizer.optimization_problem)
