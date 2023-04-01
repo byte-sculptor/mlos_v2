@@ -145,7 +145,7 @@ class OptimizerBase(ABC):
 
         # Predictions index must be a subset of features index.
         #
-        assert parameters_df.index.intersection(predictions_df.index).equals(predictions_df.index)
+        assert parameters_df.index.intersection(predictions_df.index).sort_values().equals(predictions_df.index.sort_values())
 
         predicted_value_column_name = Prediction.LegalColumnNames.PREDICTED_VALUE.value
         dof_column_name = Prediction.LegalColumnNames.PREDICTED_VALUE_DEGREES_OF_FREEDOM.value

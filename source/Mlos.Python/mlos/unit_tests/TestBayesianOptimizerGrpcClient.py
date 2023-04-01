@@ -290,12 +290,12 @@ class TestBayesianOptimizerGrpcClient:
             if registered_features_df is None:
                 registered_features_df = suggested_params_df
             else:
-                registered_features_df = registered_features_df.append(suggested_params_df, ignore_index=True)
+                registered_features_df = pd.concat([registered_features_df, suggested_params_df], ignore_index=True)
 
             if registered_objectives_df is None:
                 registered_objectives_df = objective_values.to_dataframe()
             else:
-                registered_objectives_df = registered_objectives_df.append(objective_values.to_dataframe(), ignore_index=True)
+                registered_objectives_df = pd.concat([registered_objectives_df, objective_values.to_dataframe()], ignore_index=True)
 
             best_params, optimum = optimizer.optimum()
             # ensure current optimum doesn't go up
