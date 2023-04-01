@@ -65,7 +65,6 @@ class RandomSearchOptimizer(UtilityFunctionOptimizer):
         num_utility_function_values = len(utility_function_values.index)
 
         if num_utility_function_values == 0:
-            wait_for_debugger()
             utility_function_values = self.utility_function(feature_values_pandas_frame=feature_values_dataframe.copy(deep=False))
             raise UtilityValueUnavailableException(f"Utility function {self.utility_function.__class__.__name__} produced no values.")
 

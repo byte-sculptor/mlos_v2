@@ -113,7 +113,6 @@ class GlowWormSwarmOptimizer(UtilityFunctionOptimizer):
         if num_utility_function_values == 0:
             error_message = f"Utility function {self.utility_function.__class__.__name__} produced no values."
             self.logger.info(error_message)
-            wait_for_debugger()
             utility_function_values = self.utility_function(feature_values_pandas_frame=features_df.copy(deep=False))
             raise UtilityValueUnavailableException(f"Utility function {self.utility_function.__class__.__name__} produced no values.")
 
