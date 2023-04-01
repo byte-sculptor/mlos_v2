@@ -136,7 +136,7 @@ class ParallelExperimentDesigner(ExperimentDesignerBase):
         override_random = random_number < self.config.fraction_random_suggestions
         random = random or override_random
 
-        if random:
+        if random or not self.surrogate_model.trained:
             suggestion = self.optimization_problem.parameter_space.random()
         else:
             suggestion = self.numeric_optimizer.suggest(context_values_dataframe)

@@ -4,7 +4,6 @@
 #
 import logging
 import time
-import loguru
 
 class BufferingHandler(logging.StreamHandler):
     def __init__(self):

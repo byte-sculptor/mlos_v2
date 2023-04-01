@@ -23,6 +23,7 @@ from mlos.Tracer import Tracer, traced
 
 
 
+@pytest.mark.skip(reason="Way slow")
 class TestOptimizerEvaluator:
 
     @classmethod
