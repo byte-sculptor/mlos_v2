@@ -269,7 +269,7 @@ class BayesianOptimizer(OptimizerBase):
         # TODO: make all experiment designers implement this.
         #
         self.experiment_designer.remove_pending_suggestions(metadata_df)
-        assert False, "merge conflict happened here. The line below may need to be uncommented."
+        #assert False, "merge conflict happened here. The line below may need to be uncommented."
         #self.pareto_frontier.update_pareto(objectives_df=self._target_values_df, parameters_df=self._parameter_values_df)
 
     @trace()
@@ -297,8 +297,8 @@ class BayesianOptimizer(OptimizerBase):
         :return:
         """
         feature_values_df = self.optimization_problem.construct_feature_dataframe(
-            parameter_values=self._parameter_values_df,
-            context_values=self._context_values_df
+            parameters_df=self._parameter_values_df,
+            context_df=self._context_values_df
         )
 
         mo_predictions = self.surrogate_model.predict(features_df=feature_values_df)
@@ -312,4 +312,7 @@ class BayesianOptimizer(OptimizerBase):
             valid_index = valid_index.intersection(prediction_df.index)
 
         predictions_for_pareto_df = predictions_for_pareto_df.loc[valid_index]
-        self.pareto_frontier.update_pareto(objectives_df=predictions_for_pareto_df)
+        self.pareto_frontier.update_pareto(
+            objectives_df=predictions_for_pareto_df,
+            parameters_df=feature_values_df.loc[valid_index] # TODO: rename to features_df
+        )

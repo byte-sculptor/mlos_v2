@@ -8,6 +8,7 @@ from typing import Dict
 from uuid import UUID, uuid4
 
 from mlos.Logger import create_logger
+from mlos.Optimizers.ExperimentDesigner.ExperimentDesignerBase import ExperimentDesignerBase
 from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionModel import MultiObjectiveRegressionModel
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.ParetoFrontier import ParetoFrontier
@@ -53,7 +54,7 @@ parallel_experiment_designer_config_store = ComponentConfigStore(
 )
 
 
-class ParallelExperimentDesigner:
+class ParallelExperimentDesigner(ExperimentDesignerBase):
     """An experiment designer able to take advantage of experimentation platform's parallelism.
 
     This designer keeps track of outstanding suggestions (suggestions that the experimenter committed to trying) and for each such
@@ -90,7 +91,11 @@ class ParallelExperimentDesigner:
 
         # This pareto frontier contains true pareto along with all speculative objectives for the pending suggestions.
         #
-        self._tentative_pareto_frontier = ParetoFrontier(optimization_problem=optimization_problem, objectives_df=pareto_frontier.pareto_df)
+        self._tentative_pareto_frontier = ParetoFrontier(
+            optimization_problem=optimization_problem,
+            objectives_df=pareto_frontier.pareto_df,
+            parameters_df=pareto_frontier.params_for_pareto_df,
+        )
 
         self.surrogate_model: MultiObjectiveRegressionModel = surrogate_model
         self.rng = np.random.Generator(np.random.PCG64())

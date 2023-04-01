@@ -83,7 +83,7 @@ class ParetoFrontier:
 
         self.optimization_problem: OptimizationProblem = optimization_problem
         self._objective_names = optimization_problem.objective_names
-        self._pareto_df: pd.DataFrame = None
+        self._pareto_df: pd.DataFrame = pd.DataFrame()
 
         # What parameters produced the pareto.
         #
@@ -112,7 +112,11 @@ class ParetoFrontier:
             return None
         return self._params_for_pareto_df.copy(deep=True)
 
-    def update_pareto(self, objectives_df: pd.DataFrame, parameters_df: pd.DataFrame):
+    def update_pareto(
+        self,
+        objectives_df: pd.DataFrame,
+        parameters_df: pd.DataFrame
+    ):
         """Computes a pareto frontier for the given objectives_df (including weak-pareto-optimal points).
 
         We do this by consecutively removing points on the interior of the pareto frontier from objectives_df until none are left.
