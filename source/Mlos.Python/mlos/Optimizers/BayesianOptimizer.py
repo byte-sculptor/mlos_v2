@@ -216,10 +216,12 @@ class BayesianOptimizer(OptimizerBase):
             if len(context_columns_to_retain) == 0:
                 raise ValueError(f"None of the {context_values_pandas_frame.columns} is a context recognized by this optimizer.")
             context_values_pandas_frame = context_values_pandas_frame[context_columns_to_retain]
-            self._context_values_df = self._context_values_df.append(context_values_pandas_frame, ignore_index=True)
 
-        self._parameter_values_df = self._parameter_values_df.append(parameter_values_pandas_frame, ignore_index=True)
-        self._target_values_df = self._target_values_df.append(target_values_pandas_frame, ignore_index=True)
+            self._context_values_df = pd.concat([self._context_values_df, context_values_pandas_frame], ignore_index=True)
+            #self._context_values_df = self._context_values_df.append(context_values_pandas_frame, ignore_index=True)
+
+        self._parameter_values_df = pd.concat([self._parameter_values_df, parameter_values_pandas_frame], ignore_index=True)
+        self._target_values_df = pd.concat([self._target_values_df, target_values_pandas_frame], ignore_index=True)
 
         # TODO: ascertain that min_samples_required ... is more than min_samples to fit the model
         if self.num_observed_samples >= self.optimizer_config.min_samples_required_for_guided_design_of_experiments:
