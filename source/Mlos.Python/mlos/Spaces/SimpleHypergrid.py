@@ -180,7 +180,7 @@ class SimpleHypergrid(Hypergrid):
             )
         return self
 
-    def contains_point(self, point: Point):
+    def contains_point(self, point: Point, verbose: bool = False):
         """ Checks if point belongs to the  hypergrid.
 
         We must first see if for every dimension of the root hypergrid, the Point:
@@ -200,6 +200,11 @@ class SimpleHypergrid(Hypergrid):
         """
 
         if not all(point.get(dimension.name) is not None and point.get(dimension.name) in dimension for dimension in self._dimensions):
+            if verbose:
+                for dimension in self._dimensions:
+                    val = point.get(dimension.name)
+                    if val is None or val not in dimension:
+                        print(f"Invalid value: {val=} for {dimension=}")
             return False
 
         for external_dimension_name, guest_subgrids_joined_on_dimension in self.joined_subgrids_by_pivot_dimension.items():
@@ -209,6 +214,11 @@ class SimpleHypergrid(Hypergrid):
                     #
                     subgrid = guest_subgrid.subgrid
                     if subgrid.name not in point or point[subgrid.name] not in subgrid:
+                        if verbose:
+                            if subgrid.name not in point:
+                                print(f"{subgrid.name=} not in {point=}")
+                            else:
+                                print(f"{point[subgrid.name]=} not in {subgrid=}")
                         return False
         return True
 

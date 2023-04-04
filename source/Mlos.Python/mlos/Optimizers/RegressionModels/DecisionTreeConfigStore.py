@@ -15,9 +15,10 @@ class Criterion(Enum):
     which uses mean squared error with Friedman’s improvement score for potential splits, and 'mae' for the
     mean absolute error, which minimizes the L1 loss using the median of each terminal node.
     """
-    MSE = 'mse'
+    MSE = 'squared_error'
     FRIEDMAN_MSE = 'friedman_mse'
-    MAE = 'mae'
+    MAE = 'absolute_error'
+    POISSON = 'poisson'
 
 class Splitter(Enum):
     """ The strategy used to choose the split at each node.
@@ -28,7 +29,7 @@ class Splitter(Enum):
     RANDOM = "random"
 
 class MaxFeaturesFunc(Enum):
-    AUTO = "auto"
+    AUTO = 1.0
     SQRT = "sqrt"
     LOG2 = "log2"
 
