@@ -164,7 +164,7 @@ class ParetoFrontier:
         self._params_for_pareto_df = parameters_df.iloc[self._pareto_df.index]
 
     @trace()
-    def is_dominated(self, objectives_df) -> pd.Series:
+    def is_dominated(self, objectives_df, reject_equal=False) -> pd.Series:
         """For each row in objectives_df checks if the row is dominated by any of the rows in pareto_df.
 
         :param objectives_df:
@@ -175,7 +175,10 @@ class ParetoFrontier:
         objectives_df = self._flip_sign_for_minimized_objectives(objectives_df)
         is_dominated = pd.Series([False for i in range(len(objectives_df.index))], index=objectives_df.index)
         for _, pareto_row in self._pareto_df_maximize_all.iterrows():
-            is_dominated_by_this_pareto_point = (objectives_df < pareto_row).all(axis=1)
+            if reject_equal:
+                is_dominated_by_this_pareto_point = (objectives_df <= pareto_row).all(axis=1)
+            else:
+                is_dominated_by_this_pareto_point = (objectives_df < pareto_row).all(axis=1)
             is_dominated = is_dominated | is_dominated_by_this_pareto_point
         return is_dominated
 
@@ -213,6 +216,49 @@ class ParetoFrontier:
             num_dominated_points=num_dominated_points,
             objectives_maxima=objectives_extremes
         )
+
+    def compute_pareto_volume(self) -> float:
+        """Analytically computes the pareto volume."""
+        n_axes = len(self.optimization_problem.objectives)
+        pareto_df = self._flip_sign_for_minimized_objectives(self.pareto_df)
+        pareto_df = pareto_df.drop_duplicates()
+        if n_axes == 2:
+            # The 2D case is simple and faster to compute, so we special case it.
+            diffs = pareto_df.iloc[:, 1].diff()
+            diffs.iloc[0] = pareto_df.iloc[0, 1]
+            area = (diffs * pareto_df.iloc[:, 0]).sum()
+            return area
+
+        # partition the n-d space by all occurring values for each axes
+        # first, sort all the axes separately
+        sorted_corners_df = pd.DataFrame(np.sort(pareto_df.values, axis=0), columns=pareto_df.columns)
+
+        # Then, generate all permutations of indices to get all the points on the partition grid
+        # The shape of this array is (n_points, n_axes) where n_points is the number of cells in the partition,
+        # So if there's three objectives, and 10 points on the pareto frontier,
+        # there will be 10 ** 3 cells, and this array will have shape (10 ** 3, 3)
+        all_permutations = np.array(np.meshgrid(*[range(len(pareto_df))] * n_axes)).reshape(n_axes, -1).T
+        # Compute the length of the edges in the partition
+        edge_lengths_df = pd.DataFrame()
+        for col in sorted_corners_df.columns:
+            steps = sorted_corners_df[col].diff()
+            # The first length is the difference to zero, which is just the original value.
+            # Alternatively one could add [0, 0] to the pareto curve.
+            steps.iloc[0] = sorted_corners_df[col].iloc[0]
+            edge_lengths_df[col] = steps
+        # we need numpy arrays for fancy indexing
+        edge_length_array = np.array(edge_lengths_df)
+        corners_array = np.array(sorted_corners_df)
+        # now we materialize the corners of all the cells
+        all_points = np.c_[[corners_array[all_permutations[:, i], i] for i in range(n_axes)]].T
+        # we also compute the volume for each cell
+        all_areas = np.c_[[edge_length_array[all_permutations[:, i], i] for i in range(n_axes)]].prod(axis=0)
+        # Then we check whether for each cell whether it is on the inside of the Pareto frontier
+        all_cell_corner_points_df = pd.DataFrame(all_points, columns=pareto_df.columns)
+        all_cell_corner_points_df = self._flip_sign_for_minimized_objectives(all_cell_corner_points_df)
+        is_inside = self.is_dominated(all_cell_corner_points_df, reject_equal=True)
+        # And finally we sum up all the cells using the result as a boolean mask.
+        return all_areas[is_inside].sum()
 
     def _flip_sign_for_minimized_objectives(self, df: pd.DataFrame) -> pd.DataFrame:
         """Takes a data frame in objective space and multiplies all minimized objectives by -1.
