@@ -48,7 +48,7 @@ class TestDecisionTreeRegressionModel:
         self.output_space = SimpleHypergrid(
             name="output",
             dimensions=[
-                ContinuousDimension(name="y", min=-math.inf, max=math.inf)
+                ContinuousDimension(name="y", min=ContinuousDimension.MIN_VAL, max=ContinuousDimension.MAX_VAL)
             ]
         )
 

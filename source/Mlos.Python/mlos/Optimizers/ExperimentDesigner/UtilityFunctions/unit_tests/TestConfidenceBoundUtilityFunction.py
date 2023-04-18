@@ -37,7 +37,7 @@ class TestConfidenceBoundUtilityFunction:
 
         cls.output_space = SimpleHypergrid(
             name="output",
-            dimensions=[ContinuousDimension(name="y", min=-math.inf, max=math.inf)]
+            dimensions=[ContinuousDimension(name="y", min=ContinuousDimension.MIN_VAL, max=ContinuousDimension.MAX_VAL)]
         )
 
         cls.input_pandas_dataframe = pd.DataFrame({"x": cls.input_values})

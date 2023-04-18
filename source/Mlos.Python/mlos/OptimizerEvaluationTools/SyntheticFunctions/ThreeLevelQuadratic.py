@@ -52,7 +52,7 @@ class ThreeLevelQuadratic(ObjectiveFunctionBase):
     _range = SimpleHypergrid(
         name='range',
         dimensions=[
-            ContinuousDimension(name='y', min=0, max=math.inf)
+            ContinuousDimension(name='y', min=0, max=ContinuousDimension.MAX_VAL)
         ]
     )
 

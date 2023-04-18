@@ -54,7 +54,7 @@ class TestRegressionEnhancedRandomForestRegressionModel:
             'output_space': SimpleHypergrid(
                 name="degree2_polynomial",
                 dimensions=[
-                    ContinuousDimension(name="degree2_polynomial_y", min=-10 ** 15, max=10 ** 15)
+                    ContinuousDimension(name="degree2_polynomial_y", min=ContinuousDimension.MIN_VAL, max=ContinuousDimension.MAX_VAL)
                 ]
             )
         }

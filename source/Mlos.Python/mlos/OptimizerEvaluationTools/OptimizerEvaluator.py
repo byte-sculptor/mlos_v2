@@ -192,9 +192,8 @@ class OptimizerEvaluator:
                                 evaluation_report.pareto_over_time[i] = copy.deepcopy(self.optimizer.optimization_problem)
 
                             if self.optimizer_evaluator_config.report_pareto_volume_over_time:
-                                volume_estimator = self.optimizer.pareto_frontier.approximate_pareto_volume()
-                                ci99_on_volume = volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.01)
-                                evaluation_report.pareto_volume_over_time[i] = ci99_on_volume
+                                pareto_volume = self.optimizer.pareto_frontier.compute_pareto_volume()
+                                evaluation_report.pareto_volume_over_time[i] = pareto_volume
 
                 evaluation_report.success = True
 
@@ -228,9 +227,8 @@ class OptimizerEvaluator:
             evaluation_report.pareto_over_time[i] = copy.deepcopy(self.optimizer.optimization_problem)
 
         if self.optimizer_evaluator_config.report_pareto_volume_over_time:
-            volume_estimator = self.optimizer.pareto_frontier.approximate_pareto_volume()
-            ci99_on_volume = volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.01)
-            evaluation_report.pareto_volume_over_time[i] = ci99_on_volume
+            pareto_volume = self.optimizer.pareto_frontier.compute_pareto_volume()
+            evaluation_report.pareto_volume_over_time[i] = pareto_volume
 
         if self.optimizer_evaluator_config.include_execution_trace_in_report:
             evaluation_report.execution_trace = mlos.global_values.tracer.trace_events

@@ -49,7 +49,7 @@ class MultiObjectiveNestedPolynomialObjective(ObjectiveFunctionBase):
         self._output_space = SimpleHypergrid(
             name='output_space',
             dimensions=[
-                ContinuousDimension(name=output_dim_name, min=-math.inf, max=math.inf)
+                ContinuousDimension(name=output_dim_name, min=ContinuousDimension.MIN_VAL, max=ContinuousDimension.MAX_VAL)
                 for output_dim_name in self._ordered_output_dimension_names
             ]
         )

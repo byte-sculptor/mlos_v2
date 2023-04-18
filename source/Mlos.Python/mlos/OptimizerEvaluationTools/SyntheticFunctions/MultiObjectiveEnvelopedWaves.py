@@ -120,7 +120,7 @@ class MultiObjectiveEnvelopedWaves(ObjectiveFunctionBase):
         self._output_space = SimpleHypergrid(
             name="range",
             dimensions=[
-                ContinuousDimension(name=f"y{objective_id}", min=-math.inf, max=math.inf)
+                ContinuousDimension(name=f"y{objective_id}", min=ContinuousDimension.MIN_VAL, max=ContinuousDimension.MAX_VAL)
                 for objective_id in range(objective_function_config.num_objectives)
             ]
         )

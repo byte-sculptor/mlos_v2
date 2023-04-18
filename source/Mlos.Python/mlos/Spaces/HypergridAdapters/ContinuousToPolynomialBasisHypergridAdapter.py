@@ -135,7 +135,7 @@ class ContinuousToPolynomialBasisHypergridAdapter(HypergridAdapter):
             # min and max are placed at -Inf and +Inf since .random() on the target hypergrid is generated on the original
             # hypergrid and passed through the adapters.
             self._target.add_dimension(
-                ContinuousDimension(name=target_dim_name, min=-math.inf, max=math.inf)
+                ContinuousDimension(name=target_dim_name, min=ContinuousDimension.MIN_VAL, max=ContinuousDimension.MAX_VAL)
             )
             self._target_polynomial_feature_map[target_dim_name] = i
 

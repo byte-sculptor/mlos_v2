@@ -2,12 +2,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+import math
+
 from collections import namedtuple
 from typing import List, Tuple
 
 import pandas as pd
 
-from mlos.Spaces import SimpleHypergrid, CategoricalDimension
+from mlos.Spaces import SimpleHypergrid, CategoricalDimension, ContinuousDimension
 
 Objective = namedtuple("Objective", ["name", "minimize"])
 
@@ -95,6 +97,8 @@ class OptimizationProblem:
         self.context_space = context_space
 
         assert not any(isinstance(dimension, CategoricalDimension) for dimension in objective_space.dimensions), "Objective dimension cannot be Categorical."
+        assert all(math.isfinite(dimension.min) and math.isfinite(dimension.max) for dimension in objective_space.dimensions), "Objective dimensions must be finite."
+        assert all(isinstance(dimension, ContinuousDimension) for dimension in objective_space.dimensions)
         objective_dimension_names = {dimension.name for dimension in objective_space.dimensions}
         assert all(objective.name in objective_dimension_names for objective in objectives), "All objectives must belong to objective space."
         self.objective_space = objective_space

@@ -26,7 +26,7 @@ class Flower(ObjectiveFunctionBase):
     _range = SimpleHypergrid(
         name='range',
         dimensions=[
-            ContinuousDimension(name='y', min=-math.inf, max=math.inf)
+            ContinuousDimension(name='y', min=ContinuousDimension.MIN_VAL, max=ContinuousDimension.MAX_VAL)
         ]
     )
 
