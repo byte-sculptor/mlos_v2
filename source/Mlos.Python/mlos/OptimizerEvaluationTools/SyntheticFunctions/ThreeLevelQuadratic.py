@@ -9,6 +9,7 @@ import pandas as pd
 from mlos.Spaces import CategoricalDimension, ContinuousDimension, Hypergrid, Point, SimpleHypergrid
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.sample_functions import quadratic
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 
 class ThreeLevelQuadratic(ObjectiveFunctionBase):
     """ Wraps the MultilevelQuadratic to provide the interface defined in the ObjectiveFunctionBase.
@@ -52,7 +53,7 @@ class ThreeLevelQuadratic(ObjectiveFunctionBase):
     _range = SimpleHypergrid(
         name='range',
         dimensions=[
-            ContinuousDimension(name='y', min=0, max=ContinuousDimension.MAX_VAL)
+            ContinuousDimension(name='y', min=0, max=OptimizationProblem.OBJECTIVE_MAX_VAL)
         ]
     )
 

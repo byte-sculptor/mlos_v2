@@ -2,13 +2,13 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-import math
 
 import pandas as pd
 
 from mlos.Spaces import ContinuousDimension, Hypergrid, Point, SimpleHypergrid
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective import PolynomialObjective
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 
 class PolynomialObjectiveWrapper(ObjectiveFunctionBase):
     """Wraps the PolynomialObjective to provide the interface defined in the ObjectiveFunctionBase.
@@ -48,7 +48,7 @@ class PolynomialObjectiveWrapper(ObjectiveFunctionBase):
         self._output_space = SimpleHypergrid(
             name='output_space',
             dimensions=[
-                ContinuousDimension(name='y', min=ContinuousDimension.MIN_VAL, max=ContinuousDimension.MAX_VAL)
+                ContinuousDimension(name='y', min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)
             ]
         )
 

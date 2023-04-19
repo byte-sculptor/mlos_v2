@@ -6,9 +6,12 @@ import math
 import numpy as np
 from pandas import DataFrame
 from sklearn.preprocessing import PolynomialFeatures
+
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Spaces import ContinuousDimension, Hypergrid, SimpleHypergrid
 from mlos.Spaces.HypergridAdapters.HypergridAdapter import HypergridAdapter
 from mlos.Spaces.HypergridAdapters.HierarchicalToFlatHypergridAdapter import HierarchicalToFlatHypergridAdapter
+
 
 
 class ContinuousToPolynomialBasisHypergridAdapter(HypergridAdapter):
@@ -135,7 +138,7 @@ class ContinuousToPolynomialBasisHypergridAdapter(HypergridAdapter):
             # min and max are placed at -Inf and +Inf since .random() on the target hypergrid is generated on the original
             # hypergrid and passed through the adapters.
             self._target.add_dimension(
-                ContinuousDimension(name=target_dim_name, min=ContinuousDimension.MIN_VAL, max=ContinuousDimension.MAX_VAL)
+                ContinuousDimension(name=target_dim_name, min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)
             )
             self._target_polynomial_feature_map[target_dim_name] = i
 

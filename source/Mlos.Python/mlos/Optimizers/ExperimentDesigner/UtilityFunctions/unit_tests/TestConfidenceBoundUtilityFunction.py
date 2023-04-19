@@ -8,6 +8,7 @@ from scipy.stats import t
 import numpy as np
 import pandas as pd
 
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.RegressionModels.MultiObjectiveHomogeneousRandomForest import MultiObjectiveHomogeneousRandomForest
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestConfigStore import homogeneous_random_forest_config_store
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
@@ -37,7 +38,7 @@ class TestConfidenceBoundUtilityFunction:
 
         cls.output_space = SimpleHypergrid(
             name="output",
-            dimensions=[ContinuousDimension(name="y", min=ContinuousDimension.MIN_VAL, max=ContinuousDimension.MAX_VAL)]
+            dimensions=[ContinuousDimension(name="y", min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)]
         )
 
         cls.input_pandas_dataframe = pd.DataFrame({"x": cls.input_values})

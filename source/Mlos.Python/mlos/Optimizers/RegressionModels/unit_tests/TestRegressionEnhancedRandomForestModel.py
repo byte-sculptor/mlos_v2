@@ -8,6 +8,7 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import PolynomialFeatures
 
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Optimizers.RegressionModels.RegressionEnhancedRandomForestModel import \
     RegressionEnhancedRandomForestRegressionModel, regression_enhanced_random_forest_config_store
@@ -54,7 +55,7 @@ class TestRegressionEnhancedRandomForestRegressionModel:
             'output_space': SimpleHypergrid(
                 name="degree2_polynomial",
                 dimensions=[
-                    ContinuousDimension(name="degree2_polynomial_y", min=ContinuousDimension.MIN_VAL, max=ContinuousDimension.MAX_VAL)
+                    ContinuousDimension(name="degree2_polynomial_y", min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)
                 ]
             )
         }

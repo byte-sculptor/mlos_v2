@@ -14,12 +14,8 @@ class ContinuousDimension(Dimension):
     """ Models a dimension that can assume continuous values.
 
     """
-    MIN_VAL = -2 ** 50
-    MAX_VAL = 2 ** 50
 
     def __init__(self, name, min=None, max=None, include_min=True, include_max=True, random_state=None): # pylint: disable=redefined-builtin
-        assert min >= self.MIN_VAL
-        assert max <= self.MAX_VAL
         super(ContinuousDimension, self).__init__(name=name, random_state=random_state)
         if min > max:
             min, max = max, min
