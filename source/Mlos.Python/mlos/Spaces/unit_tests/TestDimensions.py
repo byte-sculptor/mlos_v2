@@ -23,7 +23,7 @@ class TestContinuousDimension:
 
     def setup_method(self, method):
         self.empty = ContinuousDimension(name='x', min=0, max=0, include_min=False, include_max=False)
-        #self.unbounded_continuous = ContinuousDimension(name='x', min=0, max=math.inf)
+        self.unbounded_continuous = ContinuousDimension(name='x', min=0, max=math.inf)
         self.unbounded_discrete = DiscreteDimension(name='x', min=0, max=math.inf)
         self.should_be_empty = ContinuousDimension(name='x', min=0, max=0, include_min=False, include_max=True)
         self.should_be_empty_too = ContinuousDimension(name='x', min=0, max=0, include_min=True, include_max=False)
@@ -139,8 +139,8 @@ class TestContinuousDimension:
     def test_random(self):
         with pytest.raises(ValueError):
             self.empty.random()
-        #with pytest.raises(ValueError):
-        #    self.unbounded_continuous.random()
+        with pytest.raises(ValueError):
+            self.unbounded_continuous.random()
         with pytest.raises(OverflowError):
             self.unbounded_discrete.random()
 
