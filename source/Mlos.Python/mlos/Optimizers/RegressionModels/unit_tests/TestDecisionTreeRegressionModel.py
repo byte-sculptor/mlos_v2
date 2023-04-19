@@ -10,6 +10,7 @@ import numpy as np
 import pandas as pd
 
 import mlos.global_values as global_values
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.RegressionModels.DecisionTreeRegressionModel import DecisionTreeRegressionModel, decision_tree_config_store
 from mlos.Optimizers.RegressionModels.GoodnessOfFitMetrics import DataSetType
 from mlos.Spaces import SimpleHypergrid, ContinuousDimension
@@ -48,7 +49,7 @@ class TestDecisionTreeRegressionModel:
         self.output_space = SimpleHypergrid(
             name="output",
             dimensions=[
-                ContinuousDimension(name="y", min=-math.inf, max=math.inf)
+                ContinuousDimension(name="y", min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)
             ]
         )
 

@@ -8,10 +8,11 @@ import pandas as pd
 from scipy.stats import norm
 
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem
+from mlos.Spaces import Hypergrid
 from mlos.Tracer import trace
 from mlos.Utils.KeyOrderedDict import KeyOrderedDict
 
-class ParetoVolumeEsimator:
+class ParetoVolumeEstimator:
     """Contains all information required to compute a confidence interval on the pareto volume.
 
     Note that the dimensionality analysis for this volume is meaningless. Each objective carries
@@ -25,25 +26,35 @@ class ParetoVolumeEsimator:
             self,
             num_random_points: int,
             num_dominated_points: int,
-            objectives_maxima: KeyOrderedDict
+            objective_space: Hypergrid
     ):
         assert 0 <= num_dominated_points <= num_random_points
-        assert len(objectives_maxima) > 0
+        assert len(objective_space.dimensions) > 0
         self.num_random_points = num_random_points
         self.num_dominated_points = num_dominated_points
-        self.objectives_maxima = objectives_maxima
+        self.objective_space: Hypergrid = objective_space
         self.sample_proportion_of_dominated_points = (1.0 * num_dominated_points) / num_random_points
 
     def get_two_sided_confidence_interval_on_pareto_volume(self, alpha=0.01):
         z_score = norm.ppf(1 - alpha / 2.0)
         p_hat = self.sample_proportion_of_dominated_points
+        #use_wilson_score = False
+        #if use_wilson_score:
+        #    center = (self.num_dominated_points + 0.5 * z_score ** 2) / (self.num_random_points + z_score ** 2)
+        #    num_nondominated_points = self.num_random_points - self.num_dominated_points
+        #    ci_radius = z_score / (self.num_random_points + z_score * 2) * math.sqrt(
+        #        self.num_dominated_points * num_nondominated_points / self.num_random_points + z_score ** 2 / 4)
+        #    lower_bound_on_proportion = center - ci_radius
+        #    upper_bound_on_proportion = center + ci_radius
+        #else:
         ci_radius = z_score * math.sqrt(p_hat * (1 - p_hat) / self.num_random_points)
         lower_bound_on_proportion = p_hat - ci_radius
         upper_bound_on_proportion = p_hat + ci_radius
 
+
         total_volume_of_enclosing_parallelotope = 1.0
-        for _, objective_maximum in self.objectives_maxima:
-            total_volume_of_enclosing_parallelotope *= objective_maximum
+        for dimension in self.objective_space.dimensions:
+            total_volume_of_enclosing_parallelotope *= (dimension.max - dimension.min)
 
         total_volume_of_enclosing_parallelotope = abs(total_volume_of_enclosing_parallelotope)
 
@@ -164,7 +175,7 @@ class ParetoFrontier:
         self._params_for_pareto_df = parameters_df.iloc[self._pareto_df.index]
 
     @trace()
-    def is_dominated(self, objectives_df) -> pd.Series:
+    def is_dominated(self, objectives_df, reject_equal=False) -> pd.Series:
         """For each row in objectives_df checks if the row is dominated by any of the rows in pareto_df.
 
         :param objectives_df:
@@ -175,11 +186,14 @@ class ParetoFrontier:
         objectives_df = self._flip_sign_for_minimized_objectives(objectives_df)
         is_dominated = pd.Series([False for i in range(len(objectives_df.index))], index=objectives_df.index)
         for _, pareto_row in self._pareto_df_maximize_all.iterrows():
-            is_dominated_by_this_pareto_point = (objectives_df < pareto_row).all(axis=1)
+            if reject_equal:
+                is_dominated_by_this_pareto_point = (objectives_df <= pareto_row).all(axis=1)
+            else:
+                is_dominated_by_this_pareto_point = (objectives_df < pareto_row).all(axis=1)
             is_dominated = is_dominated | is_dominated_by_this_pareto_point
         return is_dominated
 
-    def approximate_pareto_volume(self, num_samples=1000000) -> ParetoVolumeEsimator:
+    def approximate_pareto_volume(self, num_samples=1000000) -> ParetoVolumeEstimator:
         """Approximates the volume of the pareto frontier.
 
         The idea here is that we can randomly sample from the objective space and observe the proportion of
@@ -190,29 +204,107 @@ class ParetoFrontier:
         We can get arbitrarily precise simply by drawing more samples.
         """
 
-        # First we need to find the maxima for each of the objective values.
+        # First we need to find the extremes for each of the objective values.
         #
-        objectives_extremes = KeyOrderedDict(ordered_keys=self._pareto_df.columns, value_type=float)
-        for objective in self.optimization_problem.objectives:
-            if objective.minimize:
-                objectives_extremes[objective.name] = self._pareto_df[objective.name].min()
-            else:
-                objectives_extremes[objective.name] = self._pareto_df[objective.name].max()
+        #objective_minima = KeyOrderedDict(ordered_keys=list(self.pareto_df.columns), value_type=float)
+        #objective_maxima = KeyOrderedDict(ordered_keys=list(self.pareto_df.columns), value_type=float)
+        #objective_ranges = KeyOrderedDict(ordered_keys=list(self.pareto_df.columns), value_type=float)
+
+        #for objective in self.optimization_problem.objectives:
+        #    min_objective_value = self.pareto_df[objective.name].min()
+        #    max_objective_value = self.pareto_df[objective.name].max()
+        #    objective_minima[objective.name] = min_objective_value
+        #    objective_maxima[objective.name] = max_objective_value
+        #    objective_ranges[objective.name] = max_objective_value - min_objective_value
 
 
-        random_points_array = np.random.uniform(low=0.0, high=1.0, size=(len(objectives_extremes), num_samples))
-        random_objectives_df = pd.DataFrame({
-            objective_name: random_points_array[i] * objective_extremum
-            for i, (objective_name, objective_extremum)
-            in enumerate(objectives_extremes)
-        })
+        #random_points_array = np.random.uniform(low=0.0, high=1.0, size=(len(objective_ranges), num_samples))
+        #random_objectives_df = pd.DataFrame({
+        #    objective_name: random_points_array[i] * objective_range + objective_minima[objective_name]
+        #    for i, (objective_name, objective_range)
+        #    in enumerate(objective_ranges)
+        #})
+
+        #for objective in self.optimization_problem.objectives:
+        #    assert (random_objectives_df[objective.name] >= objective_minima[objective.name]).all()
+        #    assert (random_objectives_df[objective.name] <= objective_maxima[objective.name]).all()
+
+        random_objectives_df = self.optimization_problem.objective_space.random_dataframe(
+            num_samples=num_samples
+        )
 
         num_dominated_points = self.is_dominated(objectives_df=random_objectives_df).sum()
-        return ParetoVolumeEsimator(
+        return ParetoVolumeEstimator(
             num_random_points=num_samples,
             num_dominated_points=num_dominated_points,
-            objectives_maxima=objectives_extremes
+            objective_space=self.optimization_problem.objective_space
         )
+
+    def compute_pareto_volume(self) -> float:
+        """Analytically computes the pareto volume."""
+        n_axes = len(self.optimization_problem.objectives)
+        pareto_df = self.pareto_df.copy(deep=True)
+        pareto_df = pareto_df.drop_duplicates()
+
+        pareto_df = self._flip_sign_for_minimized_objectives(pareto_df)
+
+        # We want all points in Q1, so we need to subtract the dimension minimum from points.
+        for objective in self.optimization_problem.objectives:
+            objective_dimension = self.optimization_problem.objective_space[objective.name]
+            if objective.minimize:
+                pareto_df[objective.name] += objective_dimension.max
+            else:
+                pareto_df[objective.name] -= objective_dimension.min
+
+        assert (pareto_df >= -1e-12).all().all()
+
+
+        if n_axes == 2:
+            # The 2D case is simple and faster to compute, so we special case it.
+            diffs = pareto_df.iloc[:, 1].diff()
+            diffs.iloc[0] = pareto_df.iloc[0, 1]
+            area = (diffs * pareto_df.iloc[:, 0]).sum()
+            return area
+
+        # partition the n-d space by all occurring values for each axes
+        # first, sort all the axes separately
+        sorted_corners_df = pd.DataFrame(np.sort(pareto_df.values, axis=0), columns=pareto_df.columns)
+
+        # Then, generate all permutations of indices to get all the points on the partition grid
+        # The shape of this array is (n_points, n_axes) where n_points is the number of cells in the partition,
+        # So if there's three objectives, and 10 points on the pareto frontier,
+        # there will be 10 ** 3 cells, and this array will have shape (10 ** 3, 3)
+        all_permutations = np.array(np.meshgrid(*[range(len(pareto_df))] * n_axes)).reshape(n_axes, -1).T
+        # Compute the length of the edges in the partition
+        edge_lengths_df = pd.DataFrame()
+        for col in sorted_corners_df.columns:
+            steps = sorted_corners_df[col].diff()
+            # The first length is the difference to zero, which is just the original value.
+            # Alternatively one could add [0, 0] to the pareto curve.
+            steps.iloc[0] = sorted_corners_df[col].iloc[0]
+            edge_lengths_df[col] = steps
+        # we need numpy arrays for fancy indexing
+        edge_length_array = np.array(edge_lengths_df)
+        corners_array = np.array(sorted_corners_df)
+        # now we materialize the corners of all the cells
+        all_points = np.c_[[corners_array[all_permutations[:, i], i] for i in range(n_axes)]].T
+        # we also compute the volume for each cell
+        all_areas = np.c_[[edge_length_array[all_permutations[:, i], i] for i in range(n_axes)]].prod(axis=0)
+        # Then we check whether for each cell whether it is on the inside of the Pareto frontier
+        all_cell_corner_points_df = pd.DataFrame(all_points, columns=pareto_df.columns)
+
+        for objective in self.optimization_problem.objectives:
+            objective_dimension = self.optimization_problem.objective_space[objective.name]
+            if objective.minimize:
+                pareto_df[objective.name] -= objective_dimension.max
+            else:
+                pareto_df[objective.name] += objective_dimension.min
+
+        all_cell_corner_points_df = self._flip_sign_for_minimized_objectives(all_cell_corner_points_df)
+
+        is_inside = self.is_dominated(all_cell_corner_points_df, reject_equal=True)
+        # And finally we sum up all the cells using the result as a boolean mask.
+        return all_areas[is_inside].sum()
 
     def _flip_sign_for_minimized_objectives(self, df: pd.DataFrame) -> pd.DataFrame:
         """Takes a data frame in objective space and multiplies all minimized objectives by -1.

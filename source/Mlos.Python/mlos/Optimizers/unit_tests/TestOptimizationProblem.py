@@ -63,7 +63,7 @@ class TestOptimizationProblem:
         output_space = SimpleHypergrid(
             name="output",
             dimensions=[
-                ContinuousDimension(name='y', min=-math.inf, max=math.inf)
+                ContinuousDimension(name='y', min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)
             ]
         )
         optimization_problem = OptimizationProblem(

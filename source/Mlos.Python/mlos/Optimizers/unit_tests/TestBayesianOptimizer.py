@@ -119,7 +119,7 @@ class TestBayesianOptimizer:
         output_space = SimpleHypergrid(
             name="output",
             dimensions=[
-                ContinuousDimension(name='y', min=-math.inf, max=math.inf)
+                ContinuousDimension(name='y', min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)
             ]
         )
 
@@ -188,7 +188,7 @@ class TestBayesianOptimizer:
 
         input_space = SimpleHypergrid(name="input", dimensions=[ContinuousDimension(name='x', min=-10, max=10)])
 
-        output_space = SimpleHypergrid(name="output", dimensions=[ContinuousDimension(name='y', min=-math.inf, max=math.inf)])
+        output_space = SimpleHypergrid(name="output", dimensions=[ContinuousDimension(name='y', min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)])
 
         optimization_problem = OptimizationProblem(
             parameter_space=input_space,
@@ -275,7 +275,7 @@ class TestBayesianOptimizer:
         output_space = SimpleHypergrid(
             name="output",
             dimensions=[
-                ContinuousDimension(name='y', min=-math.inf, max=math.inf)
+                ContinuousDimension(name='y', min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)
             ]
         )
 
@@ -355,7 +355,7 @@ class TestBayesianOptimizer:
         output_space = SimpleHypergrid(
             name="output",
             dimensions=[
-                ContinuousDimension(name='y', min=-math.inf, max=math.inf)
+                ContinuousDimension(name='y', min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)
             ]
         )
 
@@ -457,7 +457,7 @@ class TestBayesianOptimizer:
         print(original_config.experiment_designer_config.fraction_random_suggestions)
         assert original_config.experiment_designer_config.fraction_random_suggestions == .5
 
-    @pytest.mark.parametrize("objective_function_implementation", [Hypersphere, MultiObjectiveNestedPolynomialObjective])
+    @pytest.mark.parametrize("objective_function_implementation", [MultiObjectiveNestedPolynomialObjective, Hypersphere])
     @pytest.mark.parametrize("minimize", ["all", "none", "some"])
     @pytest.mark.parametrize("num_output_dimensions", [2, 5])
     @pytest.mark.parametrize("num_points", [30])
@@ -531,6 +531,7 @@ class TestBayesianOptimizer:
 
         lower_bounds_on_pareto_volume = []
         upper_bounds_on_pareto_volume = []
+        exact_pareto_volumes = []
 
         for i in range(num_points):
             suggestion = optimizer.suggest()
@@ -539,33 +540,44 @@ class TestBayesianOptimizer:
             optimizer.register(parameter_values_pandas_frame=suggestion.to_dataframe(), target_values_pandas_frame=objectives.to_dataframe())
 
             if i > 10:
-                pareto_volume_estimator = optimizer.pareto_frontier.approximate_pareto_volume(num_samples=1000000)
-                lower_bound, upper_bound = pareto_volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.95)
-                lower_bounds_on_pareto_volume.append(lower_bound)
-                upper_bounds_on_pareto_volume.append(upper_bound)
+                #pareto_volume_estimator = optimizer.pareto_frontier.approximate_pareto_volume(num_samples=1_000_000)
+                #lower_bound, upper_bound = pareto_volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.90)
+                #lower_bounds_on_pareto_volume.append(lower_bound)
+                #upper_bounds_on_pareto_volume.append(upper_bound)
+
+                exact_pareto_volume = optimizer.pareto_frontier.compute_pareto_volume()
+                exact_pareto_volumes.append(exact_pareto_volume)
+
 
 
         pareto_volumes_over_time_df = pd.DataFrame({
-            'lower_bounds': lower_bounds_on_pareto_volume,
-            'upper_bounds': upper_bounds_on_pareto_volume
+            #'lower_bounds': lower_bounds_on_pareto_volume,
+            'exact_volume': exact_pareto_volumes,
+            #'upper_bounds': upper_bounds_on_pareto_volume,
         })
+
+        # The CIs seem surprisingly overconfident. Let's add a bit of tolerance.
+        tolerance = 0.01
+        #assert ((pareto_volumes_over_time_df["lower_bounds"] * 0.50 <= pareto_volumes_over_time_df["exact_volume"]) & (pareto_volumes_over_time_df["exact_volume"] <= pareto_volumes_over_time_df["upper_bounds"] * 1.5)).all()
 
         # If we had precise volume measurements, we would want to ascertain that the volume of the pareto frontier is monotonically increasing.
         # However, we only have estimates so we cannot assert that they are monotonic. But we can assert that they are approximately monotonic:
         # we can make sure that any dip between consecutive volumes is smaller than some small number. Actually we can make sure that there
         # is no drift, by looking over larger windows too.
         #
-        threshold = -0.1
-        for periods in [1, 10, 20]:
-            min_pct_increase_in_lower_bound = pareto_volumes_over_time_df['lower_bounds'].pct_change(periods=periods).fillna(0).min()
-            if not (min_pct_increase_in_lower_bound > threshold):
-                print(pareto_volumes_over_time_df)
-                assert min_pct_increase_in_lower_bound > threshold
+        #threshold = -0.1
+        #for periods in [1, 10, 20]:
+        #    min_pct_increase_in_lower_bound = pareto_volumes_over_time_df['lower_bounds'].pct_change(periods=periods).fillna(0).min()
+        #    if not (min_pct_increase_in_lower_bound > threshold):
+        #        print(pareto_volumes_over_time_df)
+        #        assert min_pct_increase_in_lower_bound > threshold
 
-            min_pct_increase_in_upper_bound = pareto_volumes_over_time_df['upper_bounds'].pct_change(periods=periods).fillna(0).min()
-            if not (min_pct_increase_in_upper_bound > threshold):
-                print(pareto_volumes_over_time_df)
-                assert min_pct_increase_in_upper_bound > threshold
+        #    min_pct_increase_in_upper_bound = pareto_volumes_over_time_df['upper_bounds'].pct_change(periods=periods).fillna(0).min()
+        #    if not (min_pct_increase_in_upper_bound > threshold):
+        #        print(pareto_volumes_over_time_df)
+        #        assert min_pct_increase_in_upper_bound > threshold
+
+        assert (pareto_volumes_over_time_df["exact_volume"].diff()[1:] >= 0).all()
 
 
     def test_registering_multiple_objectives(self):

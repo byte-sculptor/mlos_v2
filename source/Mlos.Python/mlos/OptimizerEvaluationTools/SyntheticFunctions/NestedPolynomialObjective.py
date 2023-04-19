@@ -7,6 +7,7 @@ import math
 import pandas as pd
 
 from mlos.Spaces import CategoricalDimension, ContinuousDimension, DiscreteDimension, Hypergrid, Point, SimpleHypergrid
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjective import PolynomialObjective
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.PolynomialObjectiveWrapper import PolynomialObjectiveWrapper
@@ -65,7 +66,7 @@ class NestedPolynomialObjective(ObjectiveFunctionBase):
         self._output_space = SimpleHypergrid(
             name='output_space',
             dimensions=[
-                ContinuousDimension(name='y', min=-math.inf, max=math.inf)
+                ContinuousDimension(name='y', min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)
             ]
         )
 

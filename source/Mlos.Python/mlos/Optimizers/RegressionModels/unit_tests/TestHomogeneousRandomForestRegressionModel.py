@@ -3,10 +3,10 @@
 # Licensed under the MIT License.
 #
 import datetime
-import math
 import numpy as np
 import pandas as pd
 
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel import HomogeneousRandomForestRegressionModel, homogeneous_random_forest_config_store
 from mlos.Spaces import SimpleHypergrid, ContinuousDimension
 import mlos.global_values as global_values
@@ -35,7 +35,7 @@ class TestHomogeneousRandomForestRegressionModel:
         self.output_space = SimpleHypergrid(
             name="output",
             dimensions=[
-                ContinuousDimension(name="y", min=-math.inf, max=math.inf)
+                ContinuousDimension(name="y", min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)
             ]
         )
 

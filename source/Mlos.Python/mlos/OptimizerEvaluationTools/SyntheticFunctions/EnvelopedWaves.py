@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
+from mlos.Optimizers.OptimizationProblem import OptimizationProblem
 from mlos.Spaces import CategoricalDimension, ContinuousDimension, DiscreteDimension, Point, SimpleHypergrid, Hypergrid
 from mlos.Spaces.Configs import ComponentConfigStore
 
@@ -106,7 +107,7 @@ class EnvelopedWaves(ObjectiveFunctionBase):
         self._output_space = SimpleHypergrid(
             name="range",
             dimensions=[
-                ContinuousDimension(name="y", min=-math.inf, max=math.inf)
+                ContinuousDimension(name="y", min=OptimizationProblem.OBJECTIVE_MIN_VAL, max=OptimizationProblem.OBJECTIVE_MAX_VAL)
             ]
         )
 

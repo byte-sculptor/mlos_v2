@@ -2,12 +2,14 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+import math
+
 from collections import namedtuple
 from typing import List, Tuple
 
 import pandas as pd
 
-from mlos.Spaces import SimpleHypergrid, CategoricalDimension
+from mlos.Spaces import SimpleHypergrid, CategoricalDimension, ContinuousDimension
 
 Objective = namedtuple("Objective", ["name", "minimize"])
 
@@ -84,6 +86,13 @@ class OptimizationProblem:
     # for modeling purposes.
     META_DIMENSION_NAMES = {"contains_parameters", "contains_context", "contains_objectives"}
 
+    # Pareto volume computation depends on objective dimensions being finite, and at most half the range
+    # of float 64 (so that they can be shifted to be positive). The smaller the range on the objective
+    # dimensions, the more precision and less numeric instability we get, so here are the min and max values
+    # for any objective dimension.
+    OBJECTIVE_MIN_VAL = - 2**30
+    OBJECTIVE_MAX_VAL = 2**30
+
     def __init__(
             self,
             parameter_space: SimpleHypergrid,
@@ -95,6 +104,8 @@ class OptimizationProblem:
         self.context_space = context_space
 
         assert not any(isinstance(dimension, CategoricalDimension) for dimension in objective_space.dimensions), "Objective dimension cannot be Categorical."
+        assert all(dimension.min >= self.OBJECTIVE_MIN_VAL and dimension.max <= self.OBJECTIVE_MAX_VAL for dimension in objective_space.dimensions), "Objective dimensions must be finite."
+        assert all(isinstance(dimension, ContinuousDimension) for dimension in objective_space.dimensions)
         objective_dimension_names = {dimension.name for dimension in objective_space.dimensions}
         assert all(objective.name in objective_dimension_names for objective in objectives), "All objectives must belong to objective space."
         self.objective_space = objective_space
