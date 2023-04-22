@@ -108,13 +108,13 @@ class DiscreteToUnitContinuousHypergridAdapter(HypergridAdapter):
             dim_name = adaptee_dimension.name
             if isinstance(adaptee_dimension, DiscreteDimension):
                 if df[dim_name].isnull().any():
-                    df.loc[:, dim_name] = np.floor(df[dim_name] * len(adaptee_dimension) + adaptee_dimension.min)
+                    df[dim_name] = np.floor(df[dim_name] * len(adaptee_dimension) + adaptee_dimension.min)
                 else:
                     # If there are no nulls, we must cast back to int64.
-                    df.loc[:, dim_name] = np.floor(df[dim_name] * len(adaptee_dimension) + adaptee_dimension.min).astype(np.int64)
+                    df[dim_name] = np.floor(df[dim_name] * len(adaptee_dimension) + adaptee_dimension.min).astype(np.int64)
 
             elif isinstance(adaptee_dimension, ContinuousDimension):
-                df.loc[:, dim_name] = df[dim_name] * (adaptee_dimension.max - adaptee_dimension.min) + adaptee_dimension.min
+                df[dim_name] = df[dim_name] * (adaptee_dimension.max - adaptee_dimension.min) + adaptee_dimension.min
             else:
                 raise ValueError(f"Dimension {adaptee_dimension.name} is neither Discrete nor Continuous.")
         return df

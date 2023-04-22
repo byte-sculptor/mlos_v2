@@ -27,8 +27,8 @@ class SklearnRandomForestRegressionModelConfig(metaclass=DefaultConfigMeta):
             reduction as feature selection criterion, and "mae" for the mean
             absolute error.
         """
-        MSE = "mse"
-        MAE = "mae"
+        MSE = "squared_error"
+        MAE = "absolute_error"
 
     CONFIG_SPACE = SimpleHypergrid(
         name="sklearn_random_forest_regression_model_config",

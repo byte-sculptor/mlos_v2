@@ -89,6 +89,7 @@ class Prediction:
             self.set_dataframe(dataframe)
 
     def set_dataframe(self, dataframe: pd.DataFrame):
+        dataframe = dataframe.astype(dtype=np.float64)
         self.validate_dataframe(dataframe)
         if self._dataframe.index.empty or (len(self._dataframe.index) == len(dataframe.index) and self._dataframe.index.equals(dataframe.index)):
             self._dataframe = dataframe

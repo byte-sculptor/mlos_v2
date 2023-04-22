@@ -89,8 +89,10 @@ class RegressionModel(ABC):
             # TODO: Ask Ed about which degrees of freedom to use here...
             # adjusted_coefficient_of_determination = ...
 
+            predictions_df = predictions_df.astype(dtype=np.float64)
+
             if not (predictions_df[dof_col] == 0).any():
-                t_values_90_percent = t.ppf(0.95, predictions_df[dof_col])
+                t_values_90_percent = t.ppf(0.95, predictions_df[dof_col].astype(dtype=np.float32))
                 # t_values_95_percent = t.ppf(0.975, predictions_df[dof_col])
                 # t_values_99_percent = t.ppf(0.995, predictions_df[dof_col])
                 prediction_90_ci_radius = t_values_90_percent * np.sqrt(predictions_df[predicted_value_var_col])

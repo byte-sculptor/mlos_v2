@@ -80,13 +80,15 @@ class BayesianOptimizerFactory:
         optimizer_handle = self._optimizer_service_stub.CreateOptimizer(create_optimizer_request)
         self.logger.info(f"Created bayesian optimizer with id: {optimizer_handle.Id} with config: {optimizer_config.to_json(indent=2)}.")
 
-        return BayesianOptimizerProxy(
+        proxy =  BayesianOptimizerProxy(
             grpc_channel=self._grpc_channel,
             optimization_problem=optimization_problem,
             optimizer_config=optimizer_config,
             id=optimizer_handle.Id,
             logger=self.logger
         )
+
+        return self.create_local_optimizer(optimization_problem=optimization_problem, optimizer_config=optimizer_config)
 
     def connect_to_existing_remote_optimizer(self, optimizer_info: OptimizerInfo) -> BayesianOptimizerProxy:
         """Connects to an existing optimizer.

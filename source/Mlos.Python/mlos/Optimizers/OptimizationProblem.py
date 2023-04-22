@@ -90,8 +90,8 @@ class OptimizationProblem:
     # of float 64 (so that they can be shifted to be positive). The smaller the range on the objective
     # dimensions, the more precision and less numeric instability we get, so here are the min and max values
     # for any objective dimension.
-    OBJECTIVE_MIN_VAL = - 2**30
-    OBJECTIVE_MAX_VAL = 2**30
+    OBJECTIVE_MIN_VAL = - 2**40
+    OBJECTIVE_MAX_VAL = 2**40
 
     def __init__(
             self,

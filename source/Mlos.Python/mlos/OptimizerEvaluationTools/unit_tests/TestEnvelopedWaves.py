@@ -45,7 +45,8 @@ class TestEnvelopedWaves:
         objective_function = EnvelopedWaves(function_config)
         random_params_df = objective_function.parameter_space.random_dataframe(100)
         objectives_df = objective_function.evaluate_dataframe(random_params_df)
-        assert objective_function.output_space.get_valid_rows_index(objectives_df).equals(objectives_df.index)
+        valid_rows_index = objective_function.output_space.get_valid_rows_index(objectives_df)
+        assert valid_rows_index.equals(objectives_df.index), f"{valid_rows_index=}, {objectives_df.index=}"
 
     @pytest.mark.parametrize('i', [i for i in range(10)])
     def test_random_multi_objective_configs(self, i):
