@@ -148,7 +148,7 @@ class SimpleHypergrid(Hypergrid):
     def __contains__(self, item):
         if isinstance(item, Point):
             return self.contains_point(point=item)
-        raise NotImplementedError
+        raise NotImplementedError(f"Containment type not supported for type: {type(item)}")
 
     def join(self, subgrid: Hypergrid, on_external_dimension: Dimension):
         """ Joins the subgrid on the specified dimension.

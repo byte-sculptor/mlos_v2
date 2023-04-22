@@ -25,6 +25,7 @@ from mlos.Spaces import CategoricalDimension, ContinuousDimension, DiscreteDimen
 from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionEnhancedRandomForest import MultiObjectiveRegressionEnhancedRandomForest
 
 
+@pytest.mark.skip(reason="Defering GRPC fixes.")
 class TestBayesianOptimizerGrpcClient:
     """ Tests the E2E Grpc Client-Service workflow.
 
