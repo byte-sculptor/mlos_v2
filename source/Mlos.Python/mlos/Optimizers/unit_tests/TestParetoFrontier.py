@@ -237,7 +237,7 @@ class TestParetoFrontier:
         )
         pareto_frontier = ParetoFrontier(optimization_problem, objectives_df=pareto_df, parameters_df=pd.DataFrame(index=pareto_df.index))
         pareto_volume_estimator = pareto_frontier.approximate_pareto_volume(num_samples=1000000)
-        lower_bound, upper_bound = pareto_volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.05)
+        lower_bound, upper_bound = pareto_volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.15)
         print(lower_bound, upper_bound)
         assert lower_bound <= pareto_frontier.compute_pareto_volume() <= upper_bound
         assert 0.49 < lower_bound < upper_bound < 0.51
