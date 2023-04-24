@@ -115,14 +115,17 @@ class Prediction:
         if mean_variance_col in self.expected_column_names:
             if dataframe[mean_variance_col].notnull().any():
                 if not (dataframe[dataframe[mean_variance_col].notnull()][mean_variance_col] >= 0).all():
+                    error_message_chunks: list[str] = []
                     violated_rows_df = dataframe[dataframe[dataframe[mean_variance_col].notnull()][mean_variance_col] < 0]
                     with pd.option_context('display.max_rows', None, 'display.max_columns', None):
-                        print(violated_rows_df)
-                        print(violated_rows_df[mean_variance_col])
-                    print(f"Num invalid rows: {len(violated_rows_df.index)}")
-                    print(f"Index: {violated_rows_df.index}")
-                    print(f"{mean_variance_col}: {violated_rows_df[mean_variance_col]}")
-                    assert False
+                        error_message_chunks.append(violated_rows_df.to_string())
+                        error_message_chunks.append(violated_rows_df[[mean_variance_col]].to_string())
+                    error_message_chunks.append(f"Num invalid rows: {len(violated_rows_df.index)}")
+                    error_message_chunks.append(f"Index: {violated_rows_df.index}")
+                    error_message_chunks.append(f"{mean_variance_col}: {violated_rows_df[mean_variance_col]}")
+
+                    error_message = "\n--------------------------------------------------\n".join(error_message_chunks)
+                    assert False, error_message
 
         if sample_variance_col in self.expected_column_names:
             if dataframe[sample_variance_col].notnull().any():
