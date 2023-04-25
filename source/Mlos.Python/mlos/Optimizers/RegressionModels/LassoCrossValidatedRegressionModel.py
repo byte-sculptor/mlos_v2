@@ -70,7 +70,6 @@ class LassoCrossValidatedRegressionModel(RegressionModel):
             'n_alphas': self.model_config.num_alphas,
             'alphas': None,
             'fit_intercept': self.model_config.fit_intercept,
-            'normalize': self.model_config.normalize,
             'precompute': self.model_config.precompute,
             'max_iter': self.model_config.max_iter,
             'tol': self.model_config.tol,

@@ -27,7 +27,6 @@ lasso_cross_validated_config_store = ComponentConfigStore(
             ContinuousDimension(name="eps", min=0, max=10.0 ** -3),
             DiscreteDimension(name="num_alphas", min=0, max=200),
             CategoricalDimension(name="fit_intercept", values=[False, True]),
-            CategoricalDimension(name="normalize", values=[False, True]),
             CategoricalDimension(name="precompute", values=[False, True]),
             DiscreteDimension(name="max_iter", min=100, max=5 * 10 ** 3),
             ContinuousDimension(name="tol", min=0, max=1.0),
@@ -43,7 +42,6 @@ lasso_cross_validated_config_store = ComponentConfigStore(
         eps=10 ** -6,
         num_alphas=100,
         fit_intercept=False,
-        normalize=False,
         # sklearn model expects precompute type str, bool, array-like, so setting to sklearn's default and excluding their list option
         precompute=False,
         max_iter=2000,

@@ -120,7 +120,7 @@ class TestOptimizerEvaluator:
             gof_df = fit_state.get_goodness_of_fit_dataframe()
             assert len(gof_df.index) > 0
             assert all((col_name in gof_df.columns.values or col_name == "data_set_type") for col_name in GoodnessOfFitMetrics._fields)
-            assert all(gof_df[col_name].is_monotonic for col_name in ["last_refit_iteration_number", "observation_count", "prediction_count"])
+            assert all(gof_df[col_name].is_monotonic_increasing for col_name in ["last_refit_iteration_number", "observation_count", "prediction_count"])
 
         for key, optimum_over_time in restored_evaluation_report.optima_over_time.items():
             assert optimizer_evaluation_report.optima_over_time[key].get_dataframe().equals(optimum_over_time.get_dataframe())

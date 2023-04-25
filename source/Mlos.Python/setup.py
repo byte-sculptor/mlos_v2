@@ -17,7 +17,9 @@ setup(
         'pylint>=2.3.1',
         'pyodbc',
         'grpcio-tools>=1.30.0',
-        'tensorboardX>=2.1'
+        'tensorboardX>=2.1',
+        'pytest',
+        'pytest-xdist'
     ],
     author="Microsoft",
     author_email="mlos-maintainers@service.microsoft.com",

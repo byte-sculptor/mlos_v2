@@ -5,6 +5,7 @@
 import math
 import random
 
+import numpy as np
 import pandas as pd
 
 from mlos.Spaces import Dimension, Hypergrid, Point, SimpleHypergrid
@@ -259,12 +260,20 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
         # To compute the pooled variance we will use the second to last form of the equation from the paper:
         #   paper: https://arxiv.org/pdf/1211.0906.pdf
         #   section: section: 4.3.2 for details
-        all_predictions_df[predicted_value_var_col] = all_predictions_df[mean_var_col_names_per_tree].mean(axis=1) \
-                                             + (all_predictions_df[predicted_value_col_names_per_tree] ** 2).mean(axis=1) \
-                                             - all_predictions_df[predicted_value_col] ** 2 + 0.0000001 # A little numerical instability correction
-        all_predictions_df[sample_var_col] = all_predictions_df[sample_var_col_names_per_tree].mean(axis=1) \
-                                             + (all_predictions_df[predicted_value_col_names_per_tree] ** 2).mean(axis=1) \
-                                             - all_predictions_df[predicted_value_col] ** 2 + 0.0000001 # A little numerical instability correction
+        all_predictions_df[predicted_value_var_col] = \
+            all_predictions_df[mean_var_col_names_per_tree].mean(axis=1) \
+            - all_predictions_df[predicted_value_col] ** 2 \
+            + (all_predictions_df[predicted_value_col_names_per_tree] ** 2).mean(axis=1)
+
+        all_predictions_df[predicted_value_var_col] = self._clip_variance_to_zero(all_predictions_df[predicted_value_var_col])
+
+        all_predictions_df[sample_var_col] = \
+            all_predictions_df[sample_var_col_names_per_tree].mean(axis=1) \
+            - all_predictions_df[predicted_value_col] ** 2 \
+            + (all_predictions_df[predicted_value_col_names_per_tree] ** 2).mean(axis=1)
+
+        all_predictions_df[sample_var_col] = self._clip_variance_to_zero(all_predictions_df[sample_var_col])
+
         all_predictions_df[sample_size_col] = all_predictions_df[predicted_value_col_names_per_tree].count(axis=1)
         all_predictions_df[dof_col] = all_predictions_df[sample_size_col_names_per_tree].sum(axis=1) - all_predictions_df[sample_size_col]
         all_predictions_df[is_valid_input_col] = True
@@ -280,3 +289,24 @@ class HomogeneousRandomForestRegressionModel(RegressionModel):
         if not include_only_valid_rows:
             aggregate_predictions.add_invalid_rows_at_missing_indices(desired_index=feature_values_pandas_frame.index)
         return aggregate_predictions
+
+    def _clip_variance_to_zero(self, variance_col: pd.Series, tolerance: float = 0.01) -> pd.Series:
+        """Clips all column values less than 0 to 0 if they are withing tolerance.
+
+        The variance computation operates across a large range of numbers, leading to some numeric instability.
+        This function applies a small numeric instability correction to prevent downstream problems.
+         """
+        if (variance_col >= 0).all():
+            return variance_col
+
+        irrecoverable_rows = variance_col[variance_col < - abs(tolerance)]
+        if len(irrecoverable_rows.index) > 0:
+            error_message_chunks: list[str] = []
+            error_message_chunks.append("Found negative variance beyond tolerance level.")
+            error_message_chunks.append(irrecoverable_rows.to_string())
+            error_message_chunks.append(f"Num invalid rows: {len(irrecoverable_rows.index)}")
+            error_message_chunks.append(f"Index: {irrecoverable_rows.index}")
+            error_message = "\n--------------------------------------------------\n".join(error_message_chunks)
+            raise ValueError(error_message)
+
+        return pd.Series(data=np.minimum(0, variance_col), index=variance_col.index, dtype=variance_col.index)

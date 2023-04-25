@@ -63,8 +63,8 @@ class CategoricalToOneHotEncodedHypergridAdapter(HypergridAdapter):
         self._merge_all_categorical_dimensions = merge_all_categorical_dimensions
         self._one_hot_encoder_kwargs = {
             'drop': drop,
-            'dtype': np.float64,
-            'sparse': False,
+            'dtype': np.int64,
+            'sparse_output': False,
             'handle_unknown': 'error'
         }
         self._all_one_hot_encoded_target_dimension_names = []
@@ -167,7 +167,7 @@ class CategoricalToOneHotEncodedHypergridAdapter(HypergridAdapter):
             my_ohe_dict = self._adaptee_to_target_data_dict[self._merged_categorical_dimension_column_name]
             target_columns_to_invert = my_ohe_dict.target_dims
             my_ohe = my_ohe_dict.one_hot_encoder
-            df[self._merged_categorical_dimension_column_name] = my_ohe.inverse_transform(df[target_columns_to_invert])
+            df[self._merged_categorical_dimension_column_name] = my_ohe.inverse_transform(df[target_columns_to_invert]).ravel()
             df[self._adaptee_dimension_names_to_transform] = df[self._merged_categorical_dimension_column_name]\
                 .str.split(self._concatenation_delim, expand=True)
             df.loc[:, self._adaptee_dimension_names_to_transform].replace('nan', np.NaN, inplace=True)
@@ -180,7 +180,7 @@ class CategoricalToOneHotEncodedHypergridAdapter(HypergridAdapter):
                 my_ohe_dict = self._adaptee_to_target_data_dict[adaptee_column_name]
                 target_columns_to_invert = my_ohe_dict.target_dims
                 my_ohe = my_ohe_dict.one_hot_encoder
-                df[adaptee_column_name] = my_ohe.inverse_transform(df[target_columns_to_invert])
+                df[adaptee_column_name] = my_ohe.inverse_transform(df[target_columns_to_invert]).ravel()
                 df[adaptee_column_name].replace('nan', np.NaN, inplace=True)
                 df[adaptee_column_name] = df[adaptee_column_name].astype('float64')
                 columns_to_drop.extend(target_columns_to_invert)

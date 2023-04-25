@@ -183,7 +183,7 @@ class ContinuousToPolynomialBasisHypergridAdapter(HypergridAdapter):
         replaceable_feature_names = []
         for i in range(len(self._adaptee_dimension_names_to_transform)):
             replaceable_feature_names.append(f'x{i}{self._internal_feature_name_terminal_char}')
-        return self._polynomial_features.get_feature_names(replaceable_feature_names)
+        return self._polynomial_features.get_feature_names_out(replaceable_feature_names)
 
     def _project_dataframe(self, df: DataFrame, in_place=True) -> DataFrame:
         if not in_place:
