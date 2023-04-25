@@ -80,6 +80,11 @@ class BayesianOptimizerFactory:
         optimizer_handle = self._optimizer_service_stub.CreateOptimizer(create_optimizer_request)
         self.logger.info(f"Created bayesian optimizer with id: {optimizer_handle.Id} with config: {optimizer_config.to_json(indent=2)}.")
 
+        # Many tests currently create both a local and a remote optimizer and compare their behavior.
+        # These tests are still useful, but I don't want to fix the gRPC right now. So the simplest
+        # way to get it all to work is to never return a remote optimizer.
+        # Re-enabling gRPC tests will expose this little hack. At that point, return the proxy
+        # instead of creating a local optimizer.
         proxy =  BayesianOptimizerProxy(
             grpc_channel=self._grpc_channel,
             optimization_problem=optimization_problem,
