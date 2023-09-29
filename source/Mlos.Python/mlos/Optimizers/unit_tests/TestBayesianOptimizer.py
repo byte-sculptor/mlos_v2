@@ -660,6 +660,118 @@ class TestBayesianOptimizer:
         with pytest.raises(ValueError):
             optimizer.register(input_df, only_invalid_outputs_df)
 
+    def test_optimization_with_context_no_grpc(self):
+        # Gaussian blob in x with position dependent on context variable y.
+        def f(parameters_df: pd.DataFrame, context: Point):
+            assert isinstance(parameters_df, pd.DataFrame)
+            index = parameters_df.index
+            return pd.DataFrame({'function_value': -np.exp(-50 * (parameters_df['x'] - 0.5 * context.y - 0.5) ** 2)}, index=index)
+
+        input_space = SimpleHypergrid(
+            name="input",
+            dimensions=[ContinuousDimension(name="x", min=0, max=1)]
+        )
+
+        output_space = SimpleHypergrid(
+            name="objective",
+            dimensions=[
+                ContinuousDimension(name="function_value", min=-10, max=10)
+            ]
+        )
+
+        context_space = SimpleHypergrid(
+            name="context",
+            dimensions=[
+                ContinuousDimension(name="y", min=-1, max=1)
+            ]
+        )
+
+        optimization_problem = OptimizationProblem(
+            parameter_space=input_space,
+            objective_space=output_space,
+            objectives=[Objective(name="function_value", minimize=True)],
+            context_space=context_space
+        )
+
+        # create some data points to eval
+        n_samples = 5000
+        parameter_df = input_space.random_dataframe(n_samples)
+        context_df = context_space.random_dataframe(n_samples)
+
+        target_df = f(parameter_df, context_df)
+
+        local_optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
+            optimization_problem=optimization_problem,
+        )
+
+        with pytest.raises(ValueError, match="Context required"):
+             local_optimizer.register(
+                 parameter_values_pandas_frame=parameter_df,
+                 target_values_pandas_frame=target_df
+             )
+
+
+        with pytest.raises(ValueError, match="Incompatible shape of parameters and context"):
+            local_optimizer.register(
+                parameter_values_pandas_frame=parameter_df,
+                target_values_pandas_frame=target_df,
+                context_values_pandas_frame=context_df.iloc[:-1]
+            )
+
+        local_optimizer.register(
+            parameter_values_pandas_frame=parameter_df,
+            target_values_pandas_frame=target_df,
+            context_values_pandas_frame=context_df
+        )
+
+        with pytest.raises(ValueError, match="Context required"):
+            local_optimizer.suggest()
+
+        with pytest.raises(ValueError, match="Context required"):
+            local_optimizer.predict(parameter_values_pandas_frame=parameter_df)
+
+        suggestion = local_optimizer.suggest(context=context_space.random())
+        assert isinstance(suggestion, Point)
+        assert suggestion in input_space
+
+        with pytest.raises(ValueError, match="Incompatible shape of parameters and context"):
+            # unaligned parameters and context
+            local_optimizer.predict(
+                parameter_values_pandas_frame=parameter_df,
+                context_values_pandas_frame=context_df.iloc[:-1]
+            )
+
+        predictions = local_optimizer.predict(parameter_values_pandas_frame=parameter_df, context_values_pandas_frame=context_df)
+        predictions_df = predictions.get_dataframe()
+        assert len(predictions_df) == len(parameter_df)
+
+        with pytest.raises(ValueError, match="not supported if context is provided"):
+            local_optimizer.optimum(optimum_definition=OptimumDefinition.BEST_OBSERVATION, context=Point(y=0).to_dataframe())
+
+        with pytest.raises(ValueError, match="not supported if context is provided"):
+            local_optimizer.optimum(optimum_definition=OptimumDefinition.BEST_OBSERVATION)
+
+        with pytest.raises(ValueError, match="requires context to be not None"):
+            local_optimizer.optimum(optimum_definition=OptimumDefinition.BEST_SPECULATIVE_WITHIN_CONTEXT)
+
+        # run some iterations on local optimizer to see we do something sensible
+        for _ in range(100):
+            # pick context at random
+            context = context_space.random()
+            suggested_config = local_optimizer.suggest(context=context)
+            suggested_config_df = suggested_config.to_dataframe()
+            target_values = f(suggested_config_df, context)
+            local_optimizer.register(
+                parameter_values_pandas_frame=suggested_config_df,
+                target_values_pandas_frame=target_values,
+                context_values_pandas_frame=context.to_dataframe()
+            )
+
+        optimum_y_1 = local_optimizer.optimum(optimum_definition=OptimumDefinition.BEST_SPECULATIVE_WITHIN_CONTEXT , context=Point(y=-1).to_dataframe())
+        optimum_y1 = local_optimizer.optimum(optimum_definition=OptimumDefinition.BEST_SPECULATIVE_WITHIN_CONTEXT , context=Point(y=1).to_dataframe())
+        assert optimum_y1.x > .6
+        assert optimum_y_1.x < .4
+
     @pytest.mark.skip(reason="Too intertwined with gRPC.")
     def test_optimization_with_context(self):
         # Gaussian blob in x with position dependent on context variable y.
@@ -799,7 +911,6 @@ class TestBayesianOptimizer:
         optimum_y1 = local_optimizer.optimum(optimum_definition=OptimumDefinition.BEST_SPECULATIVE_WITHIN_CONTEXT , context=Point(y=1).to_dataframe())
         assert optimum_y1.x > .6
         assert optimum_y_1.x < .4
-
 
 
     def validate_optima(self, optimizer: OptimizerBase):
