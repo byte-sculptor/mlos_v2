@@ -1,3 +1,0 @@
-# Examples
-
-- [Smart Cache](./SmartCache/)
