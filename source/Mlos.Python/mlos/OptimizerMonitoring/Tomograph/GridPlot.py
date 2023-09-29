@@ -104,14 +104,14 @@ class GridPlot:
         hover = HoverTool(tooltips=tooltips)
 
         plot_options = dict(
-            plot_width=int(2000 / self.num_features),
-            plot_height=int(2000 / self.num_features),
+            width=int(2000 / self.num_features),
+            height=int(2000 / self.num_features),
             tools=['box_select', 'lasso_select', 'box_zoom', 'wheel_zoom', 'reset', hover]
         )
 
         final_column_plot_options = dict(
-            plot_width=int(2000 / self.num_features) + 75,
-            plot_height=int(2000 / self.num_features),
+            width=int(2000 / self.num_features) + 75,
+            height=int(2000 / self.num_features),
             tools=['box_select', 'lasso_select', 'box_zoom', 'wheel_zoom', 'reset', hover]
         )
 

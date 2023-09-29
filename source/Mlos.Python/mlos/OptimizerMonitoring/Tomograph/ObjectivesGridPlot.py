@@ -75,8 +75,8 @@ class ObjectivesGridPlot:
         hover = HoverTool(tooltips=tooltips)
 
         plot_options = dict(
-            plot_width=int(2000 / self.num_objectives),
-            plot_height=int(2000 / self.num_objectives),
+            width=int(2000 / self.num_objectives),
+            height=int(2000 / self.num_objectives),
             tools=['box_select', 'lasso_select', 'box_zoom', 'wheel_zoom', 'reset', hover]
         )
 
