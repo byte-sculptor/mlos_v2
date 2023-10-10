@@ -12,10 +12,12 @@ It's only temporarily living in this repo - will move it to a separate repo when
 so that it can be used elsewhere too.
 
 """
-
-from collections import defaultdict, deque
+import ast
+from collections import deque
 from pathlib import Path
 from typing import Iterator
+
+from .ImportExtractor import ImportExtractor
 
 class ProjectCrawler:
     """Crawls a project directory structure.
@@ -40,15 +42,12 @@ class ProjectCrawler:
         self.root: Path = root
 
     def run(self) -> None:
-        num_files_by_extension: dict = defaultdict(lambda: 0)
-        for file in self._iterate_file_paths():
-            print(file)
-            num_files_by_extension[file.suffix] += 1
-
-        for extension, count in num_files_by_extension.items():
-            print(f"{extension}: {count}")
+        for file_path in self._iterate_file_paths():
+            if file_path.suffix == ".py":
+                self._visit_file(file_path=file_path)
 
     def _iterate_file_paths(self) -> Iterator[Path]:
+        """Recursively iterates all file paths in self.root"""
         dir_stack: deque[Path] = deque()
         dir_stack.append(self.root)
         while len(dir_stack) > 0:
@@ -62,4 +61,20 @@ class ProjectCrawler:
                     yield entry
                 else:
                     assert False, f"{entry=} is neither a file, nor a dir"
+
+    def _visit_file(self, file_path: Path) -> None:
+        with open(file_path, "r", encoding="utf-8") as in_file:
+            source_str: str = in_file.read()
+
+        tree: ast.AST = ast.parse(source_str)
+        import_extractor: ImportExtractor = ImportExtractor(path=file_path)
+
+        # The idea is that import extractor would accumulate imports and we can read them later.
+        import_extractor.visit(tree)
+
+        print(import_extractor.path)
+        for import_node in import_extractor.imports:
+            print(ast.dump(import_node))
+
+        print("--------------------------------------------------")
 
