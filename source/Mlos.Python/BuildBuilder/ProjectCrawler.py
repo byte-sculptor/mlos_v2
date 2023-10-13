@@ -14,10 +14,13 @@ so that it can be used elsewhere too.
 """
 import ast
 from collections import deque
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, Union
 
-from .ImportExtractor import ImportExtractor
+
+from .ImportExtractor import ImportExtractor, FileImports
+
 
 class ProjectCrawler:
     """Crawls a project directory structure.
@@ -40,6 +43,7 @@ class ProjectCrawler:
 
     def __init__(self, root: Path) -> None:
         self.root: Path = root
+        self.dependencies: dict[Path, FileImports] = {}
 
     def run(self) -> None:
         for file_path in self._iterate_file_paths():
@@ -63,6 +67,7 @@ class ProjectCrawler:
                     assert False, f"{entry=} is neither a file, nor a dir"
 
     def _visit_file(self, file_path: Path) -> None:
+        #print(f"Visiting: {file_path}")
         with open(file_path, "r", encoding="utf-8") as in_file:
             source_str: str = in_file.read()
 
@@ -72,9 +77,21 @@ class ProjectCrawler:
         # The idea is that import extractor would accumulate imports and we can read them later.
         import_extractor.visit(tree)
 
-        print(import_extractor.path)
-        for import_node in import_extractor.imports:
-            print(ast.dump(import_node))
+        self.dependencies[file_path] = import_extractor.get_imports()
 
-        print("--------------------------------------------------")
+        for import_node in import_extractor._imports:
+            #print(ast.dump(import_node))
+            if isinstance(import_node, ast.Import):
+                for alias in import_node.names:
+                    dot_separated_module_path = alias.name
+                    #print(f"{dot_separated_module_path=}")
+            elif isinstance(import_node, ast.ImportFrom):
+                dot_separated_module_path = import_node.module
+                #print(f"{dot_separated_module_path=}")
+
+            else:
+                assert False, f"{type(import_node)}, {ast.dump(import_node)}"
+
+
+        #print("--------------------------------------------------")
 
