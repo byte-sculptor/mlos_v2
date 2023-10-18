@@ -115,7 +115,7 @@ class OptimizationProblem:
 
 
         # Fit functions / surrogate models will be fed features consisting of both context and parameters.
-        # Thus, the feature space is comprised of both context and parameters.
+        # Thus, the feature space is composed of both context and parameters.
         has_context = self.context_space is not None
         self.feature_space = SimpleHypergrid(
             name="features",

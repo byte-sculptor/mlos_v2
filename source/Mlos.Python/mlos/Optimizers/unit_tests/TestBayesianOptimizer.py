@@ -7,7 +7,6 @@ import math
 import os
 import pickle
 import random
-import warnings
 import pytest
 
 import grpc
@@ -17,7 +16,6 @@ import pandas as pd
 from mlos.Logger import create_logger
 
 import mlos.global_values as global_values
-from mlos.Grpc.OptimizerServicesServer import OptimizerServicesServer
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionFactory import ObjectiveFunctionFactory, objective_function_config_store
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.Hypersphere import Hypersphere
 from mlos.OptimizerEvaluationTools.SyntheticFunctions.MultiObjectiveNestedPolynomialObjective import MultiObjectiveNestedPolynomialObjective
@@ -34,11 +32,10 @@ from mlos.Optimizers.OptimizerBase import OptimizerBase
 from mlos.Optimizers.OptimumDefinition import OptimumDefinition
 from mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel import HomogeneousRandomForestRegressionModel
 from mlos.Optimizers.RegressionModels.MultiObjectiveHomogeneousRandomForest import MultiObjectiveHomogeneousRandomForest
-from mlos.Optimizers.RegressionModels.RegressionEnhancedRandomForestModel import RegressionEnhancedRandomForestRegressionModel
 from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionEnhancedRandomForest import MultiObjectiveRegressionEnhancedRandomForest
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
-from mlos.Spaces import Point, SimpleHypergrid, ContinuousDimension
-from mlos.Tracer import Tracer, trace, traced
+from mlos.Spaces import ContinuousDimension, Point, SimpleHypergrid
+from mlos.Tracer import Tracer, trace
 
 
 
@@ -57,28 +54,9 @@ class TestBayesianOptimizer:
         global_values.tracer = Tracer(actor_id=cls.__name__, thread_id=0)
         cls.logger = create_logger(logger_name=cls.__name__)
         cls.logger.setLevel(logging.DEBUG)
-        cls.port = None
 
-        # Start up the gRPC service. Try a bunch of ports, before giving up so we can do several in parallel.
 
-        #
-        max_num_tries = 100
-        num_tries = 0
-        for port in range(50051, 50051 + max_num_tries):
-            num_tries += 1
-            try:
-                cls.server = OptimizerServicesServer(port=port, num_threads=10, logger=cls.logger)
-                cls.server.start()
-                cls.port = port
-                break
-            except:
-                cls.logger.info(f"Failed to create OptimizerMicroserviceServer on port {port}.")
-
-                if num_tries == max_num_tries:
-                    raise
-
-        cls.optimizer_service_channel = grpc.insecure_channel(f'localhost:{cls.port}')
-        cls.bayesian_optimizer_factory = BayesianOptimizerFactory(grpc_channel=cls.optimizer_service_channel, logger=cls.logger)
+        cls.bayesian_optimizer_factory = BayesianOptimizerFactory(logger=cls.logger)
 
         cls.temp_dir = os.path.join(os.getcwd(), "temp")
         if not os.path.exists(cls.temp_dir):
@@ -94,10 +72,6 @@ class TestBayesianOptimizer:
 
     @classmethod
     def teardown_class(cls) -> None:
-        cls.server.stop(grace=None).wait(timeout=1)
-        cls.server.wait_for_termination(timeout=1)
-        cls.optimizer_service_channel.close()
-
 
         print(f"Dumping trace to {cls.trace_output_path}")
         global_values.tracer.dump_trace_to_file(output_file_path=cls.trace_output_path)
@@ -529,8 +503,6 @@ class TestBayesianOptimizer:
         #   1) The suggested point is valid.
         #   2) The volume of the pareto frontier is monotonically increasing.
 
-        lower_bounds_on_pareto_volume = []
-        upper_bounds_on_pareto_volume = []
         exact_pareto_volumes = []
 
         for i in range(num_points):
@@ -540,45 +512,88 @@ class TestBayesianOptimizer:
             optimizer.register(parameter_values_pandas_frame=suggestion.to_dataframe(), target_values_pandas_frame=objectives.to_dataframe())
 
             if i > 10:
-                #pareto_volume_estimator = optimizer.pareto_frontier.approximate_pareto_volume(num_samples=1_000_000)
-                #lower_bound, upper_bound = pareto_volume_estimator.get_two_sided_confidence_interval_on_pareto_volume(alpha=0.90)
-                #lower_bounds_on_pareto_volume.append(lower_bound)
-                #upper_bounds_on_pareto_volume.append(upper_bound)
-
                 exact_pareto_volume = optimizer.pareto_frontier.compute_pareto_volume()
                 exact_pareto_volumes.append(exact_pareto_volume)
 
-
-
-        pareto_volumes_over_time_df = pd.DataFrame({
-            #'lower_bounds': lower_bounds_on_pareto_volume,
-            'exact_volume': exact_pareto_volumes,
-            #'upper_bounds': upper_bounds_on_pareto_volume,
-        })
-
-        # The CIs seem surprisingly overconfident. Let's add a bit of tolerance.
-        tolerance = 0.01
-        #assert ((pareto_volumes_over_time_df["lower_bounds"] * 0.50 <= pareto_volumes_over_time_df["exact_volume"]) & (pareto_volumes_over_time_df["exact_volume"] <= pareto_volumes_over_time_df["upper_bounds"] * 1.5)).all()
-
-        # If we had precise volume measurements, we would want to ascertain that the volume of the pareto frontier is monotonically increasing.
-        # However, we only have estimates so we cannot assert that they are monotonic. But we can assert that they are approximately monotonic:
-        # we can make sure that any dip between consecutive volumes is smaller than some small number. Actually we can make sure that there
-        # is no drift, by looking over larger windows too.
-        #
-        #threshold = -0.1
-        #for periods in [1, 10, 20]:
-        #    min_pct_increase_in_lower_bound = pareto_volumes_over_time_df['lower_bounds'].pct_change(periods=periods).fillna(0).min()
-        #    if not (min_pct_increase_in_lower_bound > threshold):
-        #        print(pareto_volumes_over_time_df)
-        #        assert min_pct_increase_in_lower_bound > threshold
-
-        #    min_pct_increase_in_upper_bound = pareto_volumes_over_time_df['upper_bounds'].pct_change(periods=periods).fillna(0).min()
-        #    if not (min_pct_increase_in_upper_bound > threshold):
-        #        print(pareto_volumes_over_time_df)
-        #        assert min_pct_increase_in_upper_bound > threshold
+        pareto_volumes_over_time_df = pd.DataFrame({'exact_volume': exact_pareto_volumes})
 
         assert (pareto_volumes_over_time_df["exact_volume"].diff()[1:] >= 0).all()
 
+    #@pytest.mark.parametrize("minimize", ["all", "none", "some"])
+    #@pytest.mark.parametrize("num_output_dimensions", [2, 5])
+    #@pytest.mark.parametrize("num_points", [30])
+    @pytest.mark.parametrize("minimize", ["all"])
+    @pytest.mark.parametrize("num_output_dimensions", [2])
+    @pytest.mark.parametrize("num_points", [30])
+    def test_multi_objective_optimization_with_context(self, minimize, num_output_dimensions, num_points):
+        objective_function_config = Point(
+            implementation=Hypersphere.__name__,
+            hypersphere_config=Point(
+                num_objectives=num_output_dimensions,
+                minimize=minimize,
+                radius=10
+            )
+        )
+
+        objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config)
+
+        context_space = SimpleHypergrid(
+            name="context",
+            dimensions=[
+                ContinuousDimension(name="objective_scale_factor", min=0.5, max=1.5)
+            ]
+        )
+
+        optimization_problem = OptimizationProblem(
+            parameter_space=objective_function.parameter_space,
+            context_space=context_space,
+            objective_space=objective_function.output_space,
+            objectives=objective_function.default_optimization_problem.objectives
+        )
+
+
+        optimizer_config = bayesian_optimizer_config_store.get_config_by_name("default_multi_objective_optimizer_config")
+        self.logger.info(optimizer_config)
+
+        optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
+            optimization_problem=optimization_problem,
+            optimizer_config=optimizer_config
+        )
+
+        assert optimizer.optimizer_config.surrogate_model_implementation == MultiObjectiveHomogeneousRandomForest.__name__
+
+        # We can now go through the optimization loop, at each point validating that:
+        #   1) The suggested point is valid.
+        #   2) The volume of the pareto frontier is monotonically increasing.
+
+        exact_pareto_volumes = []
+
+        for i in range(num_points):
+            for objective_scale_factor in [0.5, 1.0, 1.5]:
+                context = Point(objective_scale_factor=objective_scale_factor)
+                suggestion: Point = optimizer.suggest(context=context)
+                assert suggestion in optimization_problem.parameter_space
+                objectives = objective_function.evaluate_point(suggestion)
+                updated_objectives_dict = {
+                    objective_name: objective_scale_factor * value
+                    for objective_name, value in objectives
+                }
+                updated_objectives = Point(**updated_objectives_dict)
+
+
+                optimizer.register(
+                    parameter_values_pandas_frame=suggestion.to_dataframe(),
+                    context_values_pandas_frame=context.to_dataframe(),
+                    target_values_pandas_frame=updated_objectives.to_dataframe()
+                )
+
+            if i > 10:
+                exact_pareto_volume = optimizer.pareto_frontier.compute_pareto_volume()
+                exact_pareto_volumes.append(exact_pareto_volume)
+
+        pareto_volumes_over_time_df = pd.DataFrame({'exact_volume': exact_pareto_volumes})
+
+        assert (pareto_volumes_over_time_df["exact_volume"].diff()[1:] >= 0).all()
 
     def test_registering_multiple_objectives(self):
 
