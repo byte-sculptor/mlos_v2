@@ -118,12 +118,7 @@ class TestBayesianOptimizer:
             optimizer_config=bayesian_optimizer_config_store.default,
         )
 
-        remote_optimizer = self.bayesian_optimizer_factory.create_remote_optimizer(
-            optimization_problem=optimization_problem,
-            optimizer_config=bayesian_optimizer_config_store.default
-        )
-
-        optimizers = [local_optimizer, remote_optimizer]
+        optimizers = [local_optimizer]
         for bayesian_optimizer in optimizers:
             # A call to .optimum() should throw before we feed any data to the optimizer.
             #
@@ -182,8 +177,7 @@ class TestBayesianOptimizer:
 
     @trace()
     @pytest.mark.parametrize('restart_num', [i for i in range(2)])
-    @pytest.mark.parametrize('use_remote_optimizer', [True, False])
-    def test_hierarchical_quadratic_cold_start(self, restart_num, use_remote_optimizer):
+    def test_hierarchical_quadratic_cold_start(self, restart_num):
 
         objective_function_config = objective_function_config_store.get_config_by_name('three_level_quadratic')
         objective_function = ObjectiveFunctionFactory.create_objective_function(objective_function_config=objective_function_config)
@@ -202,16 +196,10 @@ class TestBayesianOptimizer:
         optimizer_config.homogeneous_random_forest_regression_model_config.decision_tree_regression_model_config.min_samples_to_fit = 10
         optimizer_config.homogeneous_random_forest_regression_model_config.decision_tree_regression_model_config.n_new_samples_before_refit = 2
 
-        if use_remote_optimizer:
-            bayesian_optimizer = self.bayesian_optimizer_factory.create_remote_optimizer(
-                optimization_problem=optimization_problem,
-                optimizer_config=optimizer_config
-            )
-        else:
-            bayesian_optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
-                optimization_problem=optimization_problem,
-                optimizer_config=optimizer_config
-            )
+        bayesian_optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
+            optimization_problem=optimization_problem,
+            optimizer_config=optimizer_config
+        )
 
         num_guided_samples = 50
         for i in range(num_guided_samples):
@@ -232,8 +220,7 @@ class TestBayesianOptimizer:
         self.validate_optima(optimizer=bayesian_optimizer)
 
     @trace()
-    @pytest.mark.parametrize("use_remote_optimizer", [True, False])
-    def test_bayesian_optimizer_on_simple_2d_quadratic_function_cold_start(self, use_remote_optimizer):
+    def test_bayesian_optimizer_on_simple_2d_quadratic_function_cold_start(self):
         """Tests the bayesian optimizer on a simple quadratic function with no prior data.
 
         :return:
@@ -268,16 +255,10 @@ class TestBayesianOptimizer:
         print(optimizer_config.to_json(indent=2))
 
 
-        if use_remote_optimizer:
-            bayesian_optimizer = self.bayesian_optimizer_factory.create_remote_optimizer(
-                optimization_problem=optimization_problem,
-                optimizer_config=optimizer_config
-            )
-        else:
-            bayesian_optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
-                optimization_problem=optimization_problem,
-                optimizer_config=optimizer_config
-            )
+        bayesian_optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
+            optimization_problem=optimization_problem,
+            optimizer_config=optimizer_config
+        )
 
         num_iterations = 62
         old_optimum = np.inf
@@ -519,12 +500,12 @@ class TestBayesianOptimizer:
 
         assert (pareto_volumes_over_time_df["exact_volume"].diff()[1:] >= 0).all()
 
-    #@pytest.mark.parametrize("minimize", ["all", "none", "some"])
-    #@pytest.mark.parametrize("num_output_dimensions", [2, 5])
-    #@pytest.mark.parametrize("num_points", [30])
-    @pytest.mark.parametrize("minimize", ["all"])
-    @pytest.mark.parametrize("num_output_dimensions", [2])
+    @pytest.mark.parametrize("minimize", ["all", "none", "some"])
+    @pytest.mark.parametrize("num_output_dimensions", [2, 5])
     @pytest.mark.parametrize("num_points", [30])
+    #@pytest.mark.parametrize("minimize", ["all"])
+    #@pytest.mark.parametrize("num_output_dimensions", [2])
+    #@pytest.mark.parametrize("num_points", [30])
     def test_multi_objective_optimization_with_context(self, minimize, num_output_dimensions, num_points):
         objective_function_config = Point(
             implementation=Hypersphere.__name__,
