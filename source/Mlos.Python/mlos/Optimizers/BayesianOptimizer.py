@@ -58,6 +58,10 @@ class BayesianOptimizer(OptimizerBase):
         self.surrogate_model_output_space = optimization_problem.objective_space
         self.optimizer_config = optimizer_config
         self.pareto_frontier: ParetoFrontier = ParetoFrontier(optimization_problem=self.optimization_problem)
+        self._assumed_pareto_frontier: ParetoFrontier = self.pareto_frontier
+        if self.optimization_problem.context_space is not None:
+            self._assumed_pareto_frontier = ParetoFrontier(optimization_problem=optimization_problem)
+
 
         # Now let's put together the surrogate model.
         #
@@ -110,6 +114,7 @@ class BayesianOptimizer(OptimizerBase):
             designer_config=self.optimizer_config.experiment_designer_config,
             optimization_problem=self.optimization_problem,
             pareto_frontier=self.pareto_frontier,
+            assumed_pareto_frontier=self._assumed_pareto_frontier,
             surrogate_model=self.surrogate_model,
             logger=self.logger
         )
@@ -169,10 +174,39 @@ class BayesianOptimizer(OptimizerBase):
                 raise ValueError("Context required by optimization problem but not provided.")
             assert context in self.optimization_problem.context_space
         random = random or self.num_observed_samples < self.optimizer_config.min_samples_required_for_guided_design_of_experiments
-        context_values = context.to_dataframe() if context is not None else None
-        suggested_config = self.experiment_designer.suggest(random=random, context_values_dataframe=context_values)
+        context_df = None
+        if context is not None:
+            context_df = context.to_dataframe()
+            # Also update the assumed pareto frontier for this context.
+            self._update_assumed_pareto_frontier(context=context)
+
+
+        suggested_config = self.experiment_designer.suggest(random=random, context_values_dataframe=context_df)
         assert suggested_config in self.optimization_problem.parameter_space
         return suggested_config
+
+    def _update_assumed_pareto_frontier(self, context: Point) -> None:
+        if self.num_observed_samples == 0:
+            return
+        context_df = context.to_dataframe()
+        features_df = self.optimization_problem.construct_feature_dataframe(
+            parameters_df=self._parameter_values_df,
+            context_df=context_df,
+            product=True
+        )
+        predicted_objectives = self.surrogate_model.predict(features_df)
+        predicted_objectives_values_by_name = {
+            objective_name: prediction.get_dataframe()[Prediction.LegalColumnNames.PREDICTED_VALUE.value]
+            for objective_name, prediction
+            in predicted_objectives
+        }
+        # TODO: what about invalid predictions?
+        predicted_objectives_df = pd.DataFrame(predicted_objectives_values_by_name)
+        self._assumed_pareto_frontier.update_pareto(
+            objectives_df=predicted_objectives_df,
+            parameters_df=self._parameter_values_df.iloc[predicted_objectives_df.index]
+        )
+
 
     @trace()
     def register(self, parameter_values_pandas_frame, target_values_pandas_frame, context_values_pandas_frame=None):
