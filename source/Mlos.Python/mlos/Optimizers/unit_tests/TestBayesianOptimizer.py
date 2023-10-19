@@ -34,7 +34,7 @@ from mlos.Optimizers.RegressionModels.HomogeneousRandomForestRegressionModel imp
 from mlos.Optimizers.RegressionModels.MultiObjectiveHomogeneousRandomForest import MultiObjectiveHomogeneousRandomForest
 from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionEnhancedRandomForest import MultiObjectiveRegressionEnhancedRandomForest
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
-from mlos.Spaces import ContinuousDimension, Point, SimpleHypergrid
+from mlos.Spaces import CategoricalDimension, ContinuousDimension, Point, SimpleHypergrid
 from mlos.Tracer import Tracer, trace
 
 
@@ -521,7 +521,8 @@ class TestBayesianOptimizer:
         context_space = SimpleHypergrid(
             name="context",
             dimensions=[
-                ContinuousDimension(name="objective_scale_factor", min=0.5, max=1.5)
+                CategoricalDimension(name="objective_scale_factor", values=[0.5, 1.0, 1.5]),
+                CategoricalDimension(name="objective_scale_factor2", values=[0.5, 1.0, 1.5])
             ]
         )
 
@@ -550,23 +551,27 @@ class TestBayesianOptimizer:
         exact_pareto_volumes = []
 
         for i in range(num_points):
-            for objective_scale_factor in [0.5, 1.0, 1.5]:
-                context = Point(objective_scale_factor=objective_scale_factor)
-                suggestion: Point = optimizer.suggest(context=context)
-                assert suggestion in optimization_problem.parameter_space
-                objectives = objective_function.evaluate_point(suggestion)
-                updated_objectives_dict = {
-                    objective_name: objective_scale_factor * value
-                    for objective_name, value in objectives
-                }
-                updated_objectives = Point(**updated_objectives_dict)
+            for objective_scale_factor in [0.5, 1.5]:
+                for objective_scale_factor2 in [0.5, 1.0]:
+                    context = Point(
+                        objective_scale_factor=objective_scale_factor,
+                        objective_scale_factor2=objective_scale_factor2
+                    )
+                    suggestion: Point = optimizer.suggest(context=context)
+                    assert suggestion in optimization_problem.parameter_space
+                    objectives = objective_function.evaluate_point(suggestion)
+                    updated_objectives_dict = {
+                        objective_name: objective_scale_factor * value
+                        for objective_name, value in objectives
+                    }
+                    updated_objectives = Point(**updated_objectives_dict)
 
 
-                optimizer.register(
-                    parameter_values_pandas_frame=suggestion.to_dataframe(),
-                    context_values_pandas_frame=context.to_dataframe(),
-                    target_values_pandas_frame=updated_objectives.to_dataframe()
-                )
+                    optimizer.register(
+                        parameter_values_pandas_frame=suggestion.to_dataframe(),
+                        context_values_pandas_frame=context.to_dataframe(),
+                        target_values_pandas_frame=updated_objectives.to_dataframe()
+                    )
 
             if i > 10:
                 exact_pareto_volume = optimizer.pareto_frontier.compute_pareto_volume()

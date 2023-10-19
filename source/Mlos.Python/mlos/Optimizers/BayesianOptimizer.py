@@ -185,7 +185,33 @@ class BayesianOptimizer(OptimizerBase):
         assert suggested_config in self.optimization_problem.parameter_space
         return suggested_config
 
+    @trace()
     def _update_assumed_pareto_frontier(self, context: Point) -> None:
+
+        if self.num_observed_samples == 0:
+            return
+
+        matching_observations_df = self._context_values_df
+        for dimension_name, dimension_value in context:
+            matching_observations_df = matching_observations_df[matching_observations_df[dimension_name] == dimension_value]
+
+        matching_observations_idx = matching_observations_df.index
+        if len(matching_observations_idx) == 0:
+            return self._update_assumed_pareto_frontier_speculative(context=context)
+
+        matching_objectives_df = self._target_values_df.iloc[matching_observations_idx]
+        matching_parameters_df = self._parameter_values_df.iloc[matching_observations_idx]
+
+        matching_objectives_df = matching_objectives_df.reset_index(drop=True)
+        matching_parameters_df = matching_parameters_df.reset_index(drop=True)
+
+        self._assumed_pareto_frontier.update_pareto(
+            objectives_df=matching_objectives_df,
+            parameters_df=matching_parameters_df
+        )
+
+    trace()
+    def _update_assumed_pareto_frontier_speculative(self, context: Point) -> None:
         if self.num_observed_samples == 0:
             return
         context_df = context.to_dataframe()
