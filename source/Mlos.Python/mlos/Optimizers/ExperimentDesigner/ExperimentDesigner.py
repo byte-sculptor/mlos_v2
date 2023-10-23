@@ -123,6 +123,7 @@ class ExperimentDesigner:
             optimization_problem: OptimizationProblem,
             surrogate_model: MultiObjectiveRegressionModel,
             pareto_frontier: ParetoFrontier,
+            assumed_pareto_frontier: ParetoFrontier,
             logger=None
     ):
         assert designer_config in experiment_designer_config_store.parameter_space
@@ -134,6 +135,7 @@ class ExperimentDesigner:
         self.config: Point = designer_config
         self.optimization_problem: OptimizationProblem = optimization_problem
         self.pareto_frontier = pareto_frontier
+        self.assumed_pareto_frontier = assumed_pareto_frontier
         self.surrogate_model: MultiObjectiveRegressionModel = surrogate_model
         self.rng = np.random.Generator(np.random.PCG64())
 
@@ -149,7 +151,7 @@ class ExperimentDesigner:
             assert self.pareto_frontier is not None
             self.utility_function = MultiObjectiveProbabilityOfImprovementUtilityFunction(
                 function_config=self.config.multi_objective_probability_of_improvement_config,
-                pareto_frontier=pareto_frontier,
+                pareto_frontier=assumed_pareto_frontier,
                 surrogate_model=self.surrogate_model,
                 logger=self.logger
             )
