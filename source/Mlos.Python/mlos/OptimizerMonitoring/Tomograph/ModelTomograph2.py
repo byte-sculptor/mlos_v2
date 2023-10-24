@@ -2,7 +2,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-from typing import List
+from typing import Dict, List, Optional
 
 from bokeh.layouts import column
 from bokeh.models.widgets import Tabs, Panel
@@ -46,7 +46,10 @@ class ModelTomograph2:
             pareto_df=pareto_df
         )
 
-    def get_report(self):
+    def get_report(
+        self,
+        feature_groups_by_grouping_name_by_group_name: Dict[str, Dict[str, List[str]]] = None
+    ):
         """Produces an entire report.
 
         This is meant to be extended.
@@ -60,14 +63,23 @@ class ModelTomograph2:
         panels.append(objectives_panel)
 
         for objective_name in self.optimization_problem.objective_space.dimension_names:
-            observations_plot = self.get_observations_plot(objective_names=[objective_name], refresh_data=False)
+            observations_plot = self.get_observations_plot(
+                objective_names=[objective_name],
+                refresh_data=False,
+                feature_groups_by_grouping_name_by_group_name=feature_groups_by_grouping_name_by_group_name
+            )
             observations_panel = Panel(child=observations_plot, title=objective_name)
             panels.append(observations_panel)
 
         tabs = Tabs(tabs=panels)
         return tabs
 
-    def get_observations_plot(self, objective_names: List[str] = None, refresh_data: bool = True):
+    def get_observations_plot(
+            self,
+            objective_names: List[str] = None,
+            refresh_data: bool = True,
+            feature_groups_by_grouping_name_by_group_name: Optional[Dict[str, Dict[str, List[str]]]] = None
+        ):
         """Plot all observations.
         """
 
@@ -83,14 +95,43 @@ class ModelTomograph2:
 
         plots = []
         for objective_name in objective_names:
-            grid_plot = GridPlot(
-                optimization_problem=self.optimization_problem,
-                objective_name=objective_name,
-                observations_data_source=self.bokeh_observations_data_source,
-                logger=self.logger
-            )
-            grid_plot.update_plots()
-            plots.append(grid_plot.formatted_plots)
+            if feature_groups_by_grouping_name_by_group_name is None:
+                grid_plot = GridPlot(
+                    optimization_problem=self.optimization_problem,
+                    objective_name=objective_name,
+                    observations_data_source=self.bokeh_observations_data_source,
+                    logger=self.logger
+                )
+                grid_plot.update_plots()
+                plots.append(grid_plot.formatted_plots)
+                
+            else:
+                all_grouping_panels: List[Panel] = []
+                for grouping_name, feature_names_by_group_name in feature_groups_by_grouping_name_by_group_name.items():
+                    all_group_panels: List[Panel] = []
+                    for group_name, feature_names in feature_names_by_group_name.items():
+                        grid_plot = GridPlot(
+                            optimization_problem=self.optimization_problem,
+                            objective_name=objective_name,
+                            observations_data_source=self.bokeh_observations_data_source,
+                            feature_names=feature_names,
+                            logger=self.logger
+                        )
+                        grid_plot.update_plots()
+                        group_plots = grid_plot.formatted_plots
+                        group_panel = Panel(
+                            title=group_name,
+                            child=group_plots
+                        )
+                        all_group_panels.append(group_panel)
+                    all_grouping_panels.append(
+                        Panel(
+                            title=grouping_name,
+                            child=Tabs(tabs=all_group_panels)
+                        )
+                    )
+                plots.append(Tabs(tabs=all_grouping_panels))
+                
 
         return column(plots)
 

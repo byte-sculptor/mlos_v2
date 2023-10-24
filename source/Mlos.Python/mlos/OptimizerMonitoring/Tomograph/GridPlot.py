@@ -2,10 +2,11 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-from typing import List
+from typing import List, Optional
 
 from bokeh.layouts import gridplot, column
 from bokeh.models import ColorBar, Div, HoverTool, LinearColorMapper
+from bokeh.palettes import Turbo256
 from bokeh.plotting import figure
 
 import pandas as pd
@@ -40,6 +41,7 @@ class GridPlot:
             optimization_problem: OptimizationProblem,
             objective_name: str,
             observations_data_source: ObservationsDataSource,
+            feature_names: Optional[List[str]] = None,
             logger=None
     ):
         if logger is None:
@@ -55,17 +57,31 @@ class GridPlot:
         self.optimization_problem = optimization_problem
         assert objective_name in self.optimization_problem.objective_space.dimension_names
         self.objective_name = objective_name
+        
+        # Check if we are minimizing
+        objectives_by_name = {objective.name: objective for objective in optimization_problem.objectives}
+        self.minimize = objectives_by_name[objective_name].minimize
 
         # The adapter is needed if we want to create plots of categorical dimensions. It maps categorical values to integers so
         # that we can consistently place them on the plots.
         #
         self._feature_space_adapter = CategoricalToDiscreteHypergridAdapter(adaptee=self.optimization_problem.feature_space)
 
-        self.feature_dimension_names: List[str] = [
+        if feature_names is None:
+            feature_names = self._feature_space_adapter.dimension_names
+        
+        self.all_feature_dimension_names: List[str] = [
             feature_name
             for feature_name
             in self._feature_space_adapter.dimension_names
             if feature_name != "contains_context"
+        ]
+
+        self.feature_dimension_names: List[str] = [
+            feature_name
+            for feature_name
+            in self.all_feature_dimension_names
+            if feature_name in feature_names
         ]
         self.num_features = len(self.feature_dimension_names)
 
@@ -99,7 +115,7 @@ class GridPlot:
         self._y_ranges_by_name = {}
         self._grid_plot = None
 
-        tooltips = [(f"{feature_name}", f"@{feature_name}") for feature_name in self.feature_dimension_names]
+        tooltips = [(f"{feature_name}", f"@{feature_name}") for feature_name in self.all_feature_dimension_names]
         tooltips.extend([(f"{objective_name}", f"@{objective_name}") for objective_name in self.optimization_problem.objective_names])
         hover = HoverTool(tooltips=tooltips)
 
@@ -115,8 +131,12 @@ class GridPlot:
             tools=['box_select', 'lasso_select', 'box_zoom', 'wheel_zoom', 'reset', hover]
         )
 
+        palette = Turbo256
+        if self.minimize:
+            palette = palette[::-1]
+
         color_mapper = LinearColorMapper(
-            palette='Turbo256',
+            palette=palette,
             low=self._observations_data_source.observations_df[self.objective_name].min(),
             high=self._observations_data_source.observations_df[self.objective_name].max()
         )
@@ -150,6 +170,7 @@ class GridPlot:
                     color={'field': self.objective_name, 'transform': color_mapper},
                     marker='circle',
                     source=self._observations_data_source.data_source,
+                    nonselection_alpha=0.01,
                 )
 
                 fig.xaxis.axis_label = x_axis_name
