@@ -2,9 +2,12 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
-from abc import ABC, abstractmethod
 import random
 import pandas as pd
+
+from abc import ABC, abstractmethod
+from typing import Optional
+
 from mlos.Spaces.Dimensions.ContinuousDimension import ContinuousDimension
 from mlos.Spaces.Dimensions.CategoricalDimension import CategoricalDimension
 from mlos.Spaces.Dimensions.Dimension import Dimension
@@ -18,7 +21,11 @@ class Hypergrid(ABC):
 
     """
 
-    def __init__(self, name=None, random_state=None):
+    def __init__(
+        self,
+        name: Optional[str]=None,
+        random_state: Optional[random.Random]=None
+    ):
         self.name = name
         if random_state is None:
             random_state = random.Random()

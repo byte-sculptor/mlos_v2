@@ -2,7 +2,10 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+from typing import Dict, List, Optional
+
 from mlos.Exceptions import PointOutOfDomainException
+from mlos.Spaces.Constraints.Constraint import Constraint, ConstraintSpec
 from mlos.Spaces.Dimensions.Dimension import Dimension
 from mlos.Spaces.Hypergrid import Hypergrid
 from mlos.Spaces.Point import Point
@@ -47,10 +50,18 @@ class SimpleHypergrid(Hypergrid):
                    f"\n{self.subgrid.to_string(indent=indent+2)}" \
                    f"\n{indent_str})"
 
-    def __init__(self, name, dimensions=None, random_state=None):
+    def __init__(
+        self,
+        name,
+        dimensions: Optional[List[Dimension]] = None,
+        random_state=None,
+        constraints: Optional[List[ConstraintSpec]] = None,
+    ):
         Hypergrid.__init__(self, name=name, random_state=random_state)
-        self._dimensions = []
-        self.dimensions_dict = dict()
+        self._dimensions: List[Dimension] = []
+        self.dimensions_dict: Dict[str, Dimension] = dict()
+
+        self._constraints: List[Constraint] = []
 
         if dimensions is None:
             dimensions = []
@@ -66,6 +77,12 @@ class SimpleHypergrid(Hypergrid):
         #
         self.subgrids_by_name = dict()
 
+        if constraints is None:
+            constraints = []
+
+        for constraint_spec in constraints:
+            self.add_constraint(constraint_spec=constraint_spec)
+
     def is_hierarchical(self):
         return len(self.subgrids_by_name) > 0
 
@@ -76,6 +93,11 @@ class SimpleHypergrid(Hypergrid):
         dimension.random_state = self.random_state
         self.dimensions_dict[dimension.name] = dimension
         self._dimensions.append(dimension)
+
+    def add_constraint(self, constraint_spec: ConstraintSpec) -> None:
+        constraint = Constraint(constraint_spec=constraint_spec, space=self)
+        self._constraints.append(constraint)
+
 
     @property
     def random_state(self):
@@ -220,6 +242,13 @@ class SimpleHypergrid(Hypergrid):
                             else:
                                 print(f"{point[subgrid.name]=} not in {subgrid=}")
                         return False
+
+        for constraint in self._constraints:
+            if constraint.violated(point):
+                if verbose:
+                    print(f"{point=} does not satisfy the {constraint=}")
+                return False
+
         return True
 
 
