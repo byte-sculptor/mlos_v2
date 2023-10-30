@@ -4,7 +4,7 @@ import pytest
 
 from mlos.Exceptions import InvalidConstraintException
 from mlos.Spaces.Constraints.Constraint import ConstraintSpec
-from mlos.Spaces import ContinuousDimension, SimpleHypergrid
+from mlos.Spaces import ContinuousDimension, Point, SimpleHypergrid
 
 
 class TestConstraints:
@@ -49,6 +49,12 @@ class TestConstraints:
             ]
         )
 
+        valid_point = Point(inner_radius=1, outer_radius=9)
+        invalid_point = Point(inner_radius=9, outer_radius=1)
+
+        assert valid_point in donut_param_space
+        assert invalid_point not in donut_param_space
+
     def test_nested_donuts(self):
         nested_donuts_param_space = SimpleHypergrid(
             name="nested_donuts",
@@ -73,6 +79,7 @@ class TestConstraints:
             nested_donuts_param_space.add_constraint(
                 ConstraintSpec(name="", expression="math.floor(large_outer_radius) > 0")
             )
+
 
     def test_constraints_on_nested_space(self):
         ...

@@ -94,7 +94,7 @@ class Constraint:
     def violated(self, point: Point) -> bool:
         if not self.applicable(point=point):
             return False
-        return exec(self._compiled_constraint, __locals=point.to_dict())
+        return not eval(self._compiled_constraint, None, point.to_dict())
 
 
     def applicable(self, point: Point) -> bool:
