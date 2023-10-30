@@ -40,7 +40,7 @@ class ConstraintValidator(ast.NodeVisitor):
         return self.generic_visit(node)
 
     def visit_Call(self, node: ast.Call) -> None:
-        allowed_function_names = set(["abs", "sqrt", "sum"])
+        allowed_function_names = set(["abs", "sum"])
 
         if not isinstance(node.func, ast.Name):
             raise InvalidConstraintException()

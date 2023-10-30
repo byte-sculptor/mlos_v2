@@ -69,13 +69,19 @@ class TestConstraints:
 
         nested_donuts_param_space.add_constraint(ConstraintSpec(name="", expression="sum([sqrt(large_outer_radius), abs(-1)]) > 5"))
 
-
         with pytest.raises(InvalidConstraintException):
             nested_donuts_param_space.add_constraint(
                 ConstraintSpec(name="", expression="math.floor(large_outer_radius) > 0")
             )
 
+    def test_constraints_on_nested_space(self):
+        ...
 
     def test_constraints_on_adapted_space(self):
         # TODO: add adapters and make sure they work.
         ...
+
+
+    def test_constraints_on_nested_adapted_space(self):
+        ...
+

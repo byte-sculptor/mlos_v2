@@ -61,6 +61,8 @@ class Constraint:
         self._space: Hypergrid = space
         self._variable_names: Optional[set[str]] = None
         self._constraint_ast: Optional[ast.Expression] = None
+        # TODO: figure out what this is
+        self._compiled_constraint: Optional[Any] = None
 
         self._validate()
 
@@ -83,13 +85,17 @@ class Constraint:
         )
         validator.visit(self._constraint_ast)
         self._variable_names = validator.variable_names
+        self._compiled_constraint = compile(
+            self._constraint_ast,
+            filename=self._constraint_spec.name,
+            mode='eval'
+        )
 
     def violated(self, point: Point) -> bool:
         if not self.applicable(point=point):
             return False
+        return exec(self._compiled_constraint, __locals=point.to_dict())
 
-        # TODO: add eval
-        return False
 
     def applicable(self, point: Point) -> bool:
         """Checks if the constraint is applicable to this poit.
@@ -100,5 +106,7 @@ class Constraint:
         TODO: allow more versatile treatment of missing dimensions. e.g. let the user
         TODO: set the default value if dimension is not present
         """
-        return True
+        return all(variable_name in point for variable_name in self._variable_names)
+
+
 
