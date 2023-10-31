@@ -35,6 +35,7 @@ from mlos.Optimizers.RegressionModels.MultiObjectiveHomogeneousRandomForest impo
 from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionEnhancedRandomForest import MultiObjectiveRegressionEnhancedRandomForest
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Spaces import CategoricalDimension, ContinuousDimension, Point, SimpleHypergrid
+from mlos.Spaces.Constraints.Constraint import ConstraintSpec
 from mlos.Tracer import Tracer, trace
 
 
@@ -1030,4 +1031,56 @@ class TestBayesianOptimizer:
                 parameter_values_pandas_frame=parameters.to_dataframe(),
                 target_values_pandas_frame=objectives.to_dataframe()
             )
+
+
+    def test_constrained_optimization(self):
+
+        large_sphere = ObjectiveFunctionFactory.create_objective_function(
+            objective_function_config=Point(
+                implementation=Hypersphere.__name__,
+                hypersphere_config=Point(
+                    num_objectives=2,
+                    minimize="some",
+                    radius=10
+                )
+            )
+        )
+
+        optimization_problem = large_sphere.default_optimization_problem
+
+        optimization_problem.parameter_space.add_constraint(
+            constraint_spec=ConstraintSpec(name="min_radius", expression="radius > 5")
+        )
+
+        small_sphere = ObjectiveFunctionFactory.create_objective_function(
+            objective_function_config=Point(
+                implementation=Hypersphere.__name__,
+                hypersphere_config=Point(
+                    num_objectives=2,
+                    minimize="some",
+                    radius=5
+                )
+            )
+        )
+
+        optimizer_config = bayesian_optimizer_config_store.get_config_by_name('default_with_random_near_incumbent_config')
+        assert optimizer_config.experiment_designer_config.numeric_optimizer_implementation == "RandomNearIncumbentOptimizer"
+        optimizer_config.homogeneous_random_forest_regression_model_config.decision_tree_regression_model_config.n_new_samples_before_refit = 10
+
+        bayesian_optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
+            optimization_problem=optimization_problem,
+            optimizer_config=optimizer_config
+        )
+
+        NUM_POINTS = 5000
+        for _ in range(NUM_POINTS):
+            suggestion = bayesian_optimizer.suggest()
+            assert suggestion not in small_sphere.parameter_space
+            objectives = large_sphere.evaluate_point(suggestion)
+            bayesian_optimizer.register(suggestion.to_dataframe(), objectives.to_dataframe())
+
+
+
+
+
 

@@ -275,19 +275,32 @@ class SimpleHypergrid(Hypergrid):
                 return False
         return True
 
-    def random(self, point=None):
-        if point is None:
-            point = Point()
+    def random(self, point: Point = None):
+        # TODO: make the re-generation maintain the join values.
+        original_point: Point = point
 
-        for dimension in self._dimensions:
-            if dimension.name not in point:
-                point[dimension.name] = dimension.random()
+        found_valid_point: bool = False
 
-        for external_dimension_name, guest_subgrids_joined_on_dimension in self.joined_subgrids_by_pivot_dimension.items():
-            for joined_subgrid in guest_subgrids_joined_on_dimension:
-                if point[external_dimension_name] in joined_subgrid.join_dimension:
-                    sub_point = joined_subgrid.subgrid.random()
-                    point[joined_subgrid.subgrid.name] = sub_point
+        while not found_valid_point:
+            if original_point is None:
+                point = Point()
+            else:
+                point = original_point.copy()
+
+            for dimension in self._dimensions:
+                if dimension.name not in point:
+                    point[dimension.name] = dimension.random()
+
+            for external_dimension_name, guest_subgrids_joined_on_dimension in self.joined_subgrids_by_pivot_dimension.items():
+                for joined_subgrid in guest_subgrids_joined_on_dimension:
+                    if point[external_dimension_name] in joined_subgrid.join_dimension:
+                        sub_point = joined_subgrid.subgrid.random()
+                        point[joined_subgrid.subgrid.name] = sub_point
+
+            if point in self:
+                found_valid_point = True
+            else:
+                print("Breakpoint")
 
         return point
 

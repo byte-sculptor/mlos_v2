@@ -80,6 +80,58 @@ class TestConstraints:
                 ConstraintSpec(name="", expression="math.floor(large_outer_radius) > 0")
             )
 
+    def test_donut_membership(self):
+        """Tests if points are correctly filtered out."""
+
+        large_circle = SimpleHypergrid(
+            name="large_circle",
+            dimensions=[
+                ContinuousDimension(name="radius", min=5, max=10, include_min=True, include_max=True),
+                ContinuousDimension(name="theta", min=-math.pi, max=math.pi, include_min=True, include_max=True)
+            ]
+        )
+
+        small_circle = SimpleHypergrid(
+            name="small_circle",
+            dimensions=[
+                ContinuousDimension(name="radius", min=0, max=5, include_min=True, include_max=False),
+                ContinuousDimension(name="theta", min=-math.pi, max=math.pi, include_min=True, include_max=True)
+            ]
+        )
+
+        donut = SimpleHypergrid(
+            name="donut",
+            dimensions=[
+                ContinuousDimension(name="x", min=-10, max=10, include_min=True, include_max=True),
+                ContinuousDimension(name="y", min=-10, max=10, include_min=True, include_max=True)
+            ],
+            constraints=[
+                ConstraintSpec(name="in_outer", expression="x**2 + y**2 <= 10**2"),
+                ConstraintSpec(name="outside_inner", expression="x**2 + y**2 >= 5**2")
+            ]
+        )
+
+        NUM_POINTS = 1000
+        for _ in range(NUM_POINTS):
+            point = donut.random()
+            polar_point = Point(
+                radius=math.sqrt(point.x ** 2 + point.y ** 2),
+                theta=math.atan2(point.y, point.x)
+            )
+            assert polar_point in large_circle, f"{point=} {polar_point=}"
+            assert polar_point not in small_circle, f"{point=} {polar_point=}"
+
+        for _ in range(NUM_POINTS):
+            polar_point = large_circle.random()
+            point = Point(
+                x=polar_point.radius * math.cos(polar_point.theta),
+                y=polar_point.radius * math.sin(polar_point.theta)
+            )
+            if polar_point in small_circle:
+                assert point not in donut, f"{point=} {polar_point=}"
+            else:
+                assert point in donut, f"{point=} {polar_point=}"
+
 
     def test_constraints_on_nested_space(self):
         ...
