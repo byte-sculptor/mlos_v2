@@ -269,7 +269,7 @@ class SimpleHypergrid(Hypergrid):
         :param other_space:
         :return:
         """
-        if self.is_hierarchical() or other_space.is_hierarchical():
+        if self.is_hierarchical() or other_space.is_hierarchical() or len(self._constraints) > 0:
             raise NotImplementedError
 
         for other_dimension in other_space.dimensions:

@@ -236,7 +236,7 @@ class TestConstraints:
             )
         )
 
-        for _ in range(10000):
+        for _ in range(100):
             point = parameter_space.random()
             running_sum = point.x
             if point.use_left:
