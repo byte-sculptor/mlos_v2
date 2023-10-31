@@ -2,9 +2,9 @@ import math
 
 import pytest
 
-from mlos.Exceptions import InvalidConstraintException
+from mlos.Exceptions import InvalidConstraintException, FailedToGenerateRandomConstrainedPointException
 from mlos.Spaces.Constraints.Constraint import ConstraintSpec
-from mlos.Spaces import ContinuousDimension, Point, SimpleHypergrid
+from mlos.Spaces import CategoricalDimension, ContinuousDimension, DiscreteDimension, OrdinalDimension, Point, SimpleHypergrid
 
 
 class TestConstraints:
@@ -138,15 +138,112 @@ class TestConstraints:
             else:
                 assert point in donut, f"{point=} {polar_point=}"
 
+    def test_failure_to_produce_random_suggestion(self):
+        """Some constraints are so stringent, that we cannot produce random suggestions.
+
+        Let's make sure we fail correctly then.
+        """
+        parameter_space = SimpleHypergrid(
+            name="overconstrained",
+            dimensions=[
+                ContinuousDimension(name="x", min=0, max=100)
+            ],
+            constraints=[
+                ConstraintSpec(name="too_restrictive", expression="x > 200")
+            ]
+        )
+
+        with pytest.raises(FailedToGenerateRandomConstrainedPointException):
+            parameter_space.random()
+
+    def test_failure_to_produce_random_suggestion_nested(self):
+        """Some constraints are so stringent, that we cannot produce random suggestions.
+
+        Let's make sure we fail correctly then.
+        """
+        parameter_space = SimpleHypergrid(
+            name="overconstrained",
+            dimensions=[
+                ContinuousDimension(name="x", min=0, max=100)
+            ]
+        ).join(
+            subgrid=SimpleHypergrid(
+                name="nested",
+                dimensions=[
+                    DiscreteDimension(name="y", min=0, max=100)
+                ]
+            ).join(
+                subgrid=SimpleHypergrid(
+                    name="very_nested",
+                    dimensions=[CategoricalDimension(name="y", values=[i for i in range(10)])]
+                ),
+                on_external_dimension=DiscreteDimension(name="y", min=0, max=10)
+            ),
+            on_external_dimension=ContinuousDimension(name="x", min=0, max=100)
+        )
+
+        parameter_space.add_constraint(
+                constraint_spec=ConstraintSpec(name="too_strict", expression="nested.very_nested.z + 100 < x")
+        )
+        parameter_space.add_constraint(
+            constraint_spec=ConstraintSpec(name="too_strict", expression="nested.y + 100 < x")
+        )
+
+        with pytest.raises(FailedToGenerateRandomConstrainedPointException):
+            parameter_space.random()
 
     def test_constraints_on_nested_space(self):
-        ...
+        parameter_space = SimpleHypergrid(
+            name="params",
+            dimensions=[
+                ContinuousDimension(name="x", min=0, max=100),
+                CategoricalDimension(name="use_left", values=[False, True]),
+                CategoricalDimension(name="use_right", values=[False, True])
+            ]
+        ).join(
+            subgrid=SimpleHypergrid(
+                name="left",
+                dimensions=[
+                    DiscreteDimension(name="y", min=0, max=100)
+                ]
+            ),
+            on_external_dimension=CategoricalDimension(name="use_left", values=[True])
+        ).join(
+            subgrid=SimpleHypergrid(
+                name="right",
+                dimensions=[
+                    OrdinalDimension(name="z", ordered_values=[1, 2, 5])
+                ]
+            ),
+            on_external_dimension=CategoricalDimension(name="use_right", values=[True])
+        )
 
-    def test_constraints_on_adapted_space(self):
-        # TODO: add adapters and make sure they work.
-        ...
+        parameter_space.add_constraint(
+            constraint_spec=ConstraintSpec(
+                name="max_sum",
+                expression="x + left.y + right.z < 100",
+                none_ok=True,
+                none_val=0
+            )
+        )
 
+        parameter_space.add_constraint(
+            constraint_spec=ConstraintSpec(
+                name="min_sum",
+                expression="x + left.y + right.z >= 50",
+                none_ok=True,
+                none_val=0
+            )
+        )
 
-    def test_constraints_on_nested_adapted_space(self):
-        ...
+        for _ in range(10000):
+            point = parameter_space.random()
+            running_sum = point.x
+            if point.use_left:
+                running_sum += point.left.y
+            if point.use_right:
+                running_sum += point.right.z
+
+            assert 50 <= running_sum < 100
+
 

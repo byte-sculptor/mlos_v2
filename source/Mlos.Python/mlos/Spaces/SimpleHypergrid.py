@@ -2,14 +2,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #
+from __future__ import annotations
+
+from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from mlos.Exceptions import PointOutOfDomainException
+from mlos.Exceptions import PointOutOfDomainException, FailedToGenerateRandomConstrainedPointException
 from mlos.Spaces.Constraints.Constraint import Constraint, ConstraintSpec
 from mlos.Spaces.Dimensions.Dimension import Dimension
 from mlos.Spaces.Hypergrid import Hypergrid
 from mlos.Spaces.Point import Point
 
+MAX_RANODM_RETRIES = 100_000
 
 class SimpleHypergrid(Hypergrid):
     """ Models a space comprised of Continuous, Discrete, Ordinal and Categorical Dimensions.
@@ -276,13 +280,19 @@ class SimpleHypergrid(Hypergrid):
                 return False
         return True
 
-    def random(self, point: Point = None):
-        # TODO: make the re-generation maintain the join values.
+
+
+
+    def random(self, point: Point = None, _retry_counter: Optional[RetryCounter] = None):
         original_point: Point = point
-
         found_valid_point: bool = False
+        if _retry_counter is None:
+            _retry_counter = RetryCounter(
+                max_retries=MAX_RANODM_RETRIES,
+                num_retries=0
+            )
 
-        while not found_valid_point:
+        while not found_valid_point and not _retry_counter.exhausted():
             if original_point is None:
                 point = Point()
             else:
@@ -292,16 +302,29 @@ class SimpleHypergrid(Hypergrid):
                 if dimension.name not in point:
                     point[dimension.name] = dimension.random()
 
-            for external_dimension_name, guest_subgrids_joined_on_dimension in self.joined_subgrids_by_pivot_dimension.items():
-                for joined_subgrid in guest_subgrids_joined_on_dimension:
-                    if point[external_dimension_name] in joined_subgrid.join_dimension:
-                        sub_point = joined_subgrid.subgrid.random()
-                        point[joined_subgrid.subgrid.name] = sub_point
+            subgrid_retry_counter = None
+            try:
+                for external_dimension_name, guest_subgrids_joined_on_dimension in self.joined_subgrids_by_pivot_dimension.items():
+                    for joined_subgrid in guest_subgrids_joined_on_dimension:
+                        if point[external_dimension_name] in joined_subgrid.join_dimension:
+                            subgrid_retry_counter = RetryCounter(
+                                max_retries=max((_retry_counter.max_retries // 10) + 1, 2),
+                                num_retries=0
+                            )
+                            sub_point = joined_subgrid.subgrid.random(_retry_counter=subgrid_retry_counter)
+                            point[joined_subgrid.subgrid.name] = sub_point
+            except FailedToGenerateRandomConstrainedPointException:
+                _retry_counter.num_retries += subgrid_retry_counter.max_retries
+                continue
+
 
             if point in self:
                 found_valid_point = True
             else:
-                print("Breakpoint")
+                _retry_counter.num_retries += 1
+
+        if not found_valid_point and _retry_counter.exhausted():
+            raise FailedToGenerateRandomConstrainedPointException()
 
         return point
 
@@ -359,3 +382,12 @@ class SimpleHypergrid(Hypergrid):
         # Returning dimensions in order they were visited (mostly to make sure that root dimension names come first.
         #
         return [dimensions_by_name[name] for name in ordered_dimension_names]
+
+
+@dataclass
+class RetryCounter:
+    max_retries: int = MAX_RANODM_RETRIES
+    num_retries: int = 0
+
+    def exhausted(self) -> bool:
+        return self.num_retries >= self.max_retries

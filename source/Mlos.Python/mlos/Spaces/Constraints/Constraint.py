@@ -1,5 +1,6 @@
 import ast
 
+from collections import deque
 from dataclasses import dataclass
 from numbers import Number
 from typing import Any, Optional
@@ -108,7 +109,13 @@ class Constraint:
     def violated(self, point: Point) -> bool:
         if not self.applicable(point=point):
             return False
-        return not eval(self._compiled_constraint, None, point.to_dict())
+
+        point_with_defaults = point.copy()
+        for variable_name in self._variable_names:
+            if variable_name not in point_with_defaults:
+                point_with_defaults[variable_name] = self._constraint_spec.none_val
+
+        return not eval(self._compiled_constraint, None, point_with_defaults)
 
 
     def applicable(self, point: Point) -> bool:
@@ -120,7 +127,7 @@ class Constraint:
         TODO: allow more versatile treatment of missing dimensions. e.g. let the user
         TODO: set the default value if dimension is not present
         """
-        return all(variable_name in point for variable_name in self._variable_names)
+        return self._constraint_spec.none_ok or all(variable_name in point for variable_name in self._variable_names)
 
 
 

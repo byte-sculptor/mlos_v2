@@ -1,5 +1,7 @@
 import ast
 
+from collections import deque
+
 from mlos.Exceptions import InvalidConstraintException
 
 class ConstraintValidator(ast.NodeVisitor):
@@ -52,5 +54,26 @@ class ConstraintValidator(ast.NodeVisitor):
         for keyword in node.keywords:
             self.generic_visit(keyword)
         return None
+
+    def visit_Attribute(self, node: ast.Attribute) -> None:
+        attribute_visitor = AttributeVisitor()
+        attribute_visitor.visit(node)
+        variable_name = ".".join(attribute_visitor.name_chunks)
+        self.variable_names.append(variable_name)
+
+class AttributeVisitor(ast.NodeVisitor):
+    """Extracts a fully qualified name from an attrribute"""
+    def __init__(self):
+        self.name_chunks: deque[str] = deque()
+
+    def visit_Attribute(self, node: ast.Attribute) -> None:
+        if not isinstance(node.value, ast.Attribute):
+            assert isinstance(node.value, ast.Name)
+            self.name_chunks.appendleft(node.attr)
+            self.name_chunks.appendleft(node.value.id)
+        else:
+            self.name_chunks.appendleft(node.attr)
+            self.visit_Attribute(node.value)
+
 
 

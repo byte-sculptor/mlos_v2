@@ -39,3 +39,6 @@ class UtilityValueUnavailableException(UnableToProduceGuidedSuggestionException)
     """
 class InvalidConstraintException(MlosException):
     """The constraint is not legal."""
+
+class FailedToGenerateRandomConstrainedPointException(MlosException):
+    """Thrown when the space is so constrained that no random point could be generated to satisfy all constraints."""
