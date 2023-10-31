@@ -83,7 +83,7 @@ class Hypergrid(ABC):
         :param df:
         :return:
         """
-        assert set(original_dataframe.columns.values).issuperset(set(self.dimension_names))
+        assert set(original_dataframe.columns.values).issuperset(set(self.dimension_names)), f"{set(original_dataframe.columns.values)=}\n{set(self.dimension_names)=}"
 
         valid_rows_index = None
         dataframe = original_dataframe[self.dimension_names]

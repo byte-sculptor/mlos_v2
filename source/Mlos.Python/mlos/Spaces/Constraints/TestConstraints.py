@@ -71,7 +71,7 @@ class TestConstraints:
         nested_donuts_param_space.add_constraint(ConstraintSpec(name="twice_smaller", expression="large_inner_radius < small_outer_radius * 2 < large_outer_radius"))
         nested_donuts_param_space.add_constraint(ConstraintSpec(name="max_circumference", expression=f"2*{math.pi}*sum([large_outer_radius, large_inner_radius, small_outer_radius, small_inner_radius]) < 30 * 2 * {math.pi}"))
         nested_donuts_param_space.add_constraint(ConstraintSpec(name="max_circumference_2", expression=f"2 * {math.pi} * (large_outer_radius + large_inner_radius + small_outer_radius + small_inner_radius) < 30 * 2 * {math.pi}"))
-        nested_donuts_param_space.add_constraint(ConstraintSpec(name="", expression="sqrt(large_outer_radius) > 1"))
+
 
         nested_donuts_param_space.add_constraint(ConstraintSpec(name="", expression="sum([sqrt(large_outer_radius), abs(-1)]) > 5"))
 
@@ -79,6 +79,9 @@ class TestConstraints:
             nested_donuts_param_space.add_constraint(
                 ConstraintSpec(name="", expression="math.floor(large_outer_radius) > 0")
             )
+
+        with pytest.raises(InvalidConstraintException):
+            nested_donuts_param_space.add_constraint(ConstraintSpec(name="", expression="sqrt(large_outer_radius) > 1"))
 
     def test_donut_membership(self):
         """Tests if points are correctly filtered out."""

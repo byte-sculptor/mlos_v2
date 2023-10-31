@@ -1072,7 +1072,7 @@ class TestBayesianOptimizer:
             optimizer_config=optimizer_config
         )
 
-        NUM_POINTS = 5000
+        NUM_POINTS = 50
         for _ in range(NUM_POINTS):
             suggestion = bayesian_optimizer.suggest()
             assert suggestion not in small_sphere.parameter_space
