@@ -66,6 +66,20 @@ class Constraint:
 
         self._validate()
 
+    def __getstate__(self):
+        attributes = self.__dict__.copy()
+        # code objects are not picklable
+        del attributes["_compiled_constraint"]
+        return attributes
+
+    def __setstate__(self, state):
+        self.__dict__ = state
+        self._compiled_constraint = compile(
+            self._constraint_ast,
+            filename=self._constraint_spec.name,
+            mode='eval'
+        )
+
 
 
     def _validate(self) -> None:
@@ -78,7 +92,7 @@ class Constraint:
             4. Reference only variables whose names match dimension names match dimensions of self.space
 
         """
-        self._constraint_ast: ast.Expression =  ast.parse(source=self._constraint_spec.expression, mode='eval')
+        self._constraint_ast: ast.Expression = ast.parse(source=self._constraint_spec.expression, mode='eval')
         assert isinstance(self._constraint_ast, ast.Expression)
         validator = ConstraintValidator(
             allowed_variable_names=self._space.dimension_names

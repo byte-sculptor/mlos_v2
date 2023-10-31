@@ -61,6 +61,7 @@ class SimpleHypergrid(Hypergrid):
         self._dimensions: List[Dimension] = []
         self.dimensions_dict: Dict[str, Dimension] = dict()
 
+        self._constraint_specs: Optional[List[ConstraintSpec]] = constraints
         self._constraints: List[Constraint] = []
 
         if dimensions is None:

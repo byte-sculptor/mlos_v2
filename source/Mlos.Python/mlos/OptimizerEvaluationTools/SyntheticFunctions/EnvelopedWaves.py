@@ -118,7 +118,7 @@ class EnvelopedWaves(ObjectiveFunctionBase):
         elif self.objective_function_config.envelope_type == "sine":
             self._envelope = self._sine_envelope
         else:
-            self._envelope = lambda x: x * 0 + 1
+            self._envelope = self._default_envelope
 
     @property
     def parameter_space(self) -> Hypergrid:
@@ -152,6 +152,9 @@ class EnvelopedWaves(ObjectiveFunctionBase):
         phase_shift = self.objective_function_config.sine_envelope_config.phase_shift
         period = self.objective_function_config.sine_envelope_config.period
         return amplitude * np.sin(x / period - phase_shift)
+
+    def _default_envelope(self, x: pd.Series):
+        return x * 0 + 1
 
 
     def get_context(self) -> Point:

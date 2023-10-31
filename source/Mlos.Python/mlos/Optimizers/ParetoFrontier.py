@@ -204,31 +204,6 @@ class ParetoFrontier:
         We can get arbitrarily precise simply by drawing more samples.
         """
 
-        # First we need to find the extremes for each of the objective values.
-        #
-        #objective_minima = KeyOrderedDict(ordered_keys=list(self.pareto_df.columns), value_type=float)
-        #objective_maxima = KeyOrderedDict(ordered_keys=list(self.pareto_df.columns), value_type=float)
-        #objective_ranges = KeyOrderedDict(ordered_keys=list(self.pareto_df.columns), value_type=float)
-
-        #for objective in self.optimization_problem.objectives:
-        #    min_objective_value = self.pareto_df[objective.name].min()
-        #    max_objective_value = self.pareto_df[objective.name].max()
-        #    objective_minima[objective.name] = min_objective_value
-        #    objective_maxima[objective.name] = max_objective_value
-        #    objective_ranges[objective.name] = max_objective_value - min_objective_value
-
-
-        #random_points_array = np.random.uniform(low=0.0, high=1.0, size=(len(objective_ranges), num_samples))
-        #random_objectives_df = pd.DataFrame({
-        #    objective_name: random_points_array[i] * objective_range + objective_minima[objective_name]
-        #    for i, (objective_name, objective_range)
-        #    in enumerate(objective_ranges)
-        #})
-
-        #for objective in self.optimization_problem.objectives:
-        #    assert (random_objectives_df[objective.name] >= objective_minima[objective.name]).all()
-        #    assert (random_objectives_df[objective.name] <= objective_maxima[objective.name]).all()
-
         random_objectives_df = self.optimization_problem.objective_space.random_dataframe(
             num_samples=num_samples
         )
