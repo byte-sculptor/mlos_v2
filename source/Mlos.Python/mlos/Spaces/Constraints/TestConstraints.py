@@ -236,7 +236,7 @@ class TestConstraints:
             )
         )
 
-        for _ in range(100):
+        for _ in range(1000):
             point = parameter_space.random()
             running_sum = point.x
             if point.use_left:
@@ -247,3 +247,59 @@ class TestConstraints:
             assert 50 <= running_sum < 100
 
 
+    def test_combined_resource_usage(self):
+        """Test if can correctly handle a resource allocation constraint.
+
+        In real applications we frequently need to allocate resources to various components. We need the combined allocation
+        not to exceed some value. This test attempts to simulate that.
+        """
+        parameter_space = SimpleHypergrid(
+            name="resource_allocations",
+            dimensions=[
+                CategoricalDimension("use_small_component_A", values=[True, False]),
+                CategoricalDimension("use_small_component_B", values=[True, False]),
+                CategoricalDimension("use_large_component_C", values=[True, False]),
+            ]
+        ).join(
+            subgrid=SimpleHypergrid(name="component_A", dimensions=[ContinuousDimension(name="mem_gb", min=5, max=10)]),
+            on_external_dimension=CategoricalDimension("use_small_component_A", values=[True])
+        ).join(
+            subgrid=SimpleHypergrid(name="component_B", dimensions=[ContinuousDimension(name="mem_gb", min=5, max=10)]),
+            on_external_dimension=CategoricalDimension("use_small_component_B", values=[True])
+        ).join(
+            subgrid=SimpleHypergrid(name="component_C", dimensions=[ContinuousDimension(name="mem_gb", min=15, max=25)]),
+            on_external_dimension=CategoricalDimension("use_large_component_C", values=[True])
+        )
+
+        # This constraint precludes component C from being enabled with either of the other two components.
+        parameter_space.add_constraint(
+            constraint_spec=ConstraintSpec(
+                name="max_combined_mem_gb",
+                expression="component_A.mem_gb + component_B.mem_gb + component_C.mem_gb < 20",
+                none_ok=True,
+                none_val=0
+            )
+        )
+
+        # This constraint guarantees that at least one component will be enabled.
+        parameter_space.add_constraint(
+            constraint_spec=ConstraintSpec(
+                name="enable_at_least_one_component",
+                expression="use_small_component_A + use_small_component_B + use_large_component_C > 0",
+            )
+        )
+
+        for _ in range(1000):
+            config = parameter_space.random()
+            if config.use_large_component_C:
+                assert not config.use_small_component_A
+                assert not config.use_small_component_B
+                assert config.component_C.mem_gb < 20
+            elif config.use_small_component_A and config.use_small_component_B:
+                assert config.component_A.mem_gb + config.component_B.mem_gb < 20
+            elif config.use_small_component_A:
+                assert config.component_A.mem_gb < 20
+            elif config.use_small_component_B:
+                assert config.component_B.mem_gb < 20
+            else:
+                assert False

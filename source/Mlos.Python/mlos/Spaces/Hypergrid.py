@@ -88,7 +88,8 @@ class Hypergrid(ABC):
         valid_rows_index = None
         dataframe = original_dataframe[self.dimension_names]
 
-        if not self.is_hierarchical():
+
+        if False and not self.is_hierarchical():
             # Let's exclude any extra columns
             #
             valid_rows_index = dataframe.index[dataframe.notnull().all(axis=1)]
@@ -120,12 +121,15 @@ class Hypergrid(ABC):
         else:
             # TODO: this can be optimized. Do everything we did for non-hierarchical hypergrids, but also evaluate constraints imposed by join dimensions.
             #
-            valid_rows_index = dataframe[dataframe.apply(
-                lambda row: Point(**{dim_name: row[i] for i, dim_name in enumerate(self.dimension_names)}) in self,
-                axis=1
-            )].index
+            valid_rows_index = dataframe[dataframe.apply(self._is_valid_row, axis=1)].index
 
         return valid_rows_index
+
+    def _is_valid_row(self, row):
+        try:
+            return Point(**{dim_name: row[i] for i, dim_name in enumerate(self.dimension_names)}) in self
+        except KeyError:
+            return False
 
     @trace()
     def filter_out_invalid_rows(self, original_dataframe: pd.DataFrame, exclude_extra_columns=True) -> pd.DataFrame:
