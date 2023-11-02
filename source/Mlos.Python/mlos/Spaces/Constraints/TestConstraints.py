@@ -113,7 +113,7 @@ class TestConstraints:
             ],
             constraints=[
                 ConstraintSpec(name="in_outer", expression="x**2 + y**2 <= 10**2"),
-                ConstraintSpec(name="outside_inner", expression="x**2 + y**2 >= 5**2")
+                ConstraintSpec(name="outside_inner", expression="x**2 + y**2 > 5**2")
             ]
         )
 
