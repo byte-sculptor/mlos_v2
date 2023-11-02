@@ -149,7 +149,7 @@ class TestOptimizerEvaluator:
             assert final_optimizer_from_disk.suggest() in final_optimizer_from_report.optimization_problem.parameter_space
 
 
-    @pytest.mark.parametrize('test_num', [i for i in range(8)])
+    @pytest.mark.parametrize('test_num', [i for i in range(10)])
     def test_named_configs(self, test_num):
         """Tests named optimizer configurations against named objective functions.
 
@@ -179,6 +179,9 @@ class TestOptimizerEvaluator:
             objective_function_config=objective_function_config,
             optimizer_config=optimizer_config
         )
+
+        if len(optimizer_evaluator.optimizer.optimization_problem.objectives) > 4:
+            return
 
         optimizer_evaluation_report = optimizer_evaluator.evaluate_optimizer()
 

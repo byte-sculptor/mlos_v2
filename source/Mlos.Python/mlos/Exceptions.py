@@ -37,3 +37,8 @@ class UtilityValueUnavailableException(UnableToProduceGuidedSuggestionException)
     This later mode of failure went undetected for GlowWormSwarmOptimizer for a few months, as it continued returning random suggestions
     implicitly when no predictions were available from the surrogate model.
     """
+class InvalidConstraintException(MlosException):
+    """The constraint is not legal."""
+
+class FailedToGenerateRandomConstrainedPointException(MlosException):
+    """Thrown when the space is so constrained that no random point could be generated to satisfy all constraints."""

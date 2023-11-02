@@ -182,7 +182,7 @@ class BayesianOptimizer(OptimizerBase):
 
 
         suggested_config = self.experiment_designer.suggest(random=random, context_values_dataframe=context_df)
-        assert suggested_config in self.optimization_problem.parameter_space
+        assert suggested_config in self.optimization_problem.parameter_space, suggested_config
         return suggested_config
 
     @trace()

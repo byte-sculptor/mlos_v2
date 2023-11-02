@@ -32,7 +32,7 @@ bayesian_optimizer_config_store = ComponentConfigStore(
             name="surrogate_model_implementation",
             values=[
                 HomogeneousRandomForestRegressionModel.__name__,
-                MultiObjectiveHomogeneousRandomForest.__name__
+                MultiObjectiveHomogeneousRandomForest.__name__,
             ])
     ).join(
         subgrid=lasso_cross_validated_config_store.parameter_space,

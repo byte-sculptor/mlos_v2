@@ -26,7 +26,8 @@ from mlos.Optimizers.BayesianOptimizerConfigStore import bayesian_optimizer_conf
 from mlos.Optimizers.BayesianOptimizerFactory import BayesianOptimizerFactory
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.GlowWormSwarmOptimizer import GlowWormSwarmOptimizer
 from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomNearIncumbentOptimizer import RandomNearIncumbentOptimizer
-from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer, random_search_optimizer_config_store
+from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomSearchOptimizer import RandomSearchOptimizer
+from mlos.Optimizers.ExperimentDesigner.UtilityFunctionOptimizers.RandomNearIncumbentOptimizer import random_near_incumbent_optimizer_config_store
 from mlos.Optimizers.OptimizationProblem import OptimizationProblem, Objective
 from mlos.Optimizers.OptimizerBase import OptimizerBase
 from mlos.Optimizers.OptimumDefinition import OptimumDefinition
@@ -35,6 +36,7 @@ from mlos.Optimizers.RegressionModels.MultiObjectiveHomogeneousRandomForest impo
 from mlos.Optimizers.RegressionModels.MultiObjectiveRegressionEnhancedRandomForest import MultiObjectiveRegressionEnhancedRandomForest
 from mlos.Optimizers.RegressionModels.Prediction import Prediction
 from mlos.Spaces import CategoricalDimension, ContinuousDimension, Point, SimpleHypergrid
+from mlos.Spaces.Constraints.Constraint import ConstraintSpec
 from mlos.Tracer import Tracer, trace
 
 
@@ -1030,4 +1032,167 @@ class TestBayesianOptimizer:
                 parameter_values_pandas_frame=parameters.to_dataframe(),
                 target_values_pandas_frame=objectives.to_dataframe()
             )
+
+
+    def test_constrained_optimization(self):
+
+        large_sphere = ObjectiveFunctionFactory.create_objective_function(
+            objective_function_config=Point(
+                implementation=Hypersphere.__name__,
+                hypersphere_config=Point(
+                    num_objectives=2,
+                    minimize="some",
+                    radius=10
+                )
+            )
+        )
+
+        optimization_problem = large_sphere.default_optimization_problem
+
+        optimization_problem.parameter_space.add_constraint(
+            constraint_spec=ConstraintSpec(name="min_radius", expression="radius > 5")
+        )
+
+        small_sphere = ObjectiveFunctionFactory.create_objective_function(
+            objective_function_config=Point(
+                implementation=Hypersphere.__name__,
+                hypersphere_config=Point(
+                    num_objectives=2,
+                    minimize="some",
+                    radius=5
+                )
+            )
+        )
+
+        optimizer_config = bayesian_optimizer_config_store.get_config_by_name('default_with_random_near_incumbent_config')
+        assert optimizer_config.experiment_designer_config.numeric_optimizer_implementation == "RandomNearIncumbentOptimizer"
+        optimizer_config.homogeneous_random_forest_regression_model_config.decision_tree_regression_model_config.n_new_samples_before_refit = 10
+
+        bayesian_optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
+            optimization_problem=optimization_problem,
+            optimizer_config=optimizer_config
+        )
+
+        NUM_POINTS = 50
+        for _ in range(NUM_POINTS):
+            suggestion = bayesian_optimizer.suggest()
+            assert suggestion not in small_sphere.parameter_space
+            objectives = large_sphere.evaluate_point(suggestion)
+            bayesian_optimizer.register(suggestion.to_dataframe(), objectives.to_dataframe())
+
+
+
+
+
+    def test_simplex(self):
+        """Tests if the optimizer can solve a simplex problem.
+
+        A lot of ink has been spilled writing about convex optimization. Consequently, a lot of optimization
+        problems are formulated as simplex problems.
+
+        This test illustrates how to translate the following simplex problem to MLOS:
+
+        maximize: P(x, y) = 30x + 40y
+        subject to:
+            x + y <= 7
+            x + 2y <= 12
+            x, y >= 0
+
+        The optimum happnes to be: P(x=2, y=5) = 260
+
+        """
+        parameter_space = SimpleHypergrid(
+            name="params",
+            dimensions=[
+                ContinuousDimension(name="x", min=0, max=7),
+                ContinuousDimension(name="y", min=0, max=7)
+            ],
+            constraints=[
+                ConstraintSpec(name="C1", expression="x + y <= 7"),
+                ConstraintSpec(name="C2", expression="x + 2*y <= 12")
+            ]
+        )
+
+        objective_space = SimpleHypergrid(
+            name="objective",
+            dimensions=[
+                ContinuousDimension(name="P", min=0, max=100_000)
+            ]
+        )
+
+        optimization_problem = OptimizationProblem(
+            parameter_space=parameter_space,
+            objective_space=objective_space,
+            objectives=[
+                Objective(name="P", minimize=False)
+            ]
+        )
+        optimizer_config = bayesian_optimizer_config_store.default
+        optimizer_config.experiment_designer_config.numeric_optimizer_implementation = RandomNearIncumbentOptimizer.__name__
+        optimizer_config.experiment_designer_config.random_near_incumbent_optimizer_config = random_near_incumbent_optimizer_config_store.default
+        optimizer_config.experiment_designer_config.fraction_random_suggestions = 0
+        #optimizer_config.surrogate_model_implementation = "RegressionEnhancedRandomForestRegressionModel"
+        #optimizer_config.regression_enhanced_random_forest_regression_model_config = Point(
+        #    max_basis_function_degree=1, # making it essentially linear
+        #    residual_model_name='SklearnRandomForestRegressionModelConfig',
+        #    boosting_root_model_name="LassoCrossValidatedRegressionModel",
+        #    lasso_regression_model_config=Point(
+        #        eps=10 ** -6,
+        #        num_alphas=100,
+        #        fit_intercept=True,
+        #        # sklearn model expects precompute type str, bool, array-like, so setting to sklearn's default and excluding their list option
+        #        precompute=False,
+        #        max_iter=2000,
+        #        tol=10 ** -4,
+        #        copy_x=True,
+        #        num_cross_validations=5,
+        #        verbose=False,
+        #        num_jobs=1,
+        #        positive=False,
+        #        selection="cyclic"
+        #    ),
+        #    sklearn_random_forest_regression_model_config=Point(
+        #        n_estimators=1,
+        #        criterion="squared_error",
+        #        max_depth=1,  # overloading 0 as None to deal with sklearn param type interpretation
+        #        min_samples_split=0.2,
+        #        min_samples_leaf=1000,
+        #        min_weight_fraction_leaf=0.0,
+        #        max_features="auto",
+        #        max_leaf_nodes=1,  # basically forcing a depth of 1
+        #        min_impurity_decrease=0,
+        #        bootstrap=False,
+        #        oob_score=False,
+        #        n_jobs=1,
+        #        warm_start=False,
+        #        ccp_alpha=0,
+        #        max_samples=0.01
+        #    ),
+        #    perform_initial_random_forest_hyper_parameter_search=False
+        #)
+
+        def P(x, y):
+            return 30 * x + 40 * y
+
+        optimizer = self.bayesian_optimizer_factory.create_local_optimizer(
+            optimization_problem=optimization_problem,
+            optimizer_config=optimizer_config
+        )
+        random_params_df = parameter_space.random_dataframe(50000)
+        objectives_df = pd.DataFrame({'P': random_params_df.eval("30 * x + 40 * y")})
+        optimizer.register(random_params_df, objectives_df)
+
+        for _ in range(10):
+            suggestion = optimizer.suggest(random=False)
+            assert suggestion.x + suggestion.y <= 7
+            assert suggestion.x + 2 * suggestion.y <= 12
+
+            objective = Point(P=P(**suggestion.to_dict()))
+            optimizer.register(suggestion.to_dataframe(), objective.to_dataframe())
+
+        optimal_config, optimal_values = optimizer.optimum()
+        print(optimal_config, optimal_values)
+        assert 1.9 <= optimal_config.x <= 2.1
+        assert 4.9 <= optimal_config.y <= 5.1
+        assert 250 <= optimal_values.P
 

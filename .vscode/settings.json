@@ -15,5 +15,10 @@
     ],
     // Control how the vim reflow key combo wraps text for comments.
     // Set it to something less than the code length but not too short.
-    "vim.textwidth": 100
+    "vim.textwidth": 100,
+    "python.testing.pytestArgs": [
+        "."
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
 }

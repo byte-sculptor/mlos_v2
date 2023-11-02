@@ -10,6 +10,7 @@ import pandas as pd
 from mlos.OptimizerEvaluationTools.ObjectiveFunctionBase import ObjectiveFunctionBase
 from mlos.Optimizers.OptimizationProblem import Objective, OptimizationProblem
 from mlos.Spaces import ContinuousDimension, Hypergrid, Point, SimpleHypergrid
+from mlos.Spaces.Constraints.Constraint import ConstraintSpec
 
 class Hypersphere(ObjectiveFunctionBase):
     """Multi-objective function that converts spherical coordinates to cartesian ones.
@@ -138,6 +139,13 @@ class Hypersphere(ObjectiveFunctionBase):
             dimensions=parameter_dimensions
         )
 
+        self._parameter_space.add_constraint(
+            constraint_spec=ConstraintSpec(
+                name="min_radius",
+                expression=f"radius > 0.3 * {self.radius}"
+            )
+        )
+
         objective_dimensions = []
         for i, minimize in enumerate(self.minimize_mask):
             if minimize:
@@ -171,6 +179,8 @@ class Hypersphere(ObjectiveFunctionBase):
         return self._objective_space
 
     def evaluate_dataframe(self, dataframe: pd.DataFrame):
+
+        assert (dataframe['radius'] > 0.3 * self.radius).all()
         # We can compute our objectives more efficiently, by maintaining a prefix of r * sin(theta0) * ... * sin(theta{i-1})
         #
         prefix = dataframe['radius']
